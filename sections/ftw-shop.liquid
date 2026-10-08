@@ -7,7 +7,7 @@
 {%- liquid
   assign logo = section.settings.logo
   if logo == blank
-    assign logo_url = 'panacek_2.png' | asset_url
+    assign logo_url = 'panacek-3-black.png' | asset_url
   else
     assign logo_url = logo | image_url: width: 400
   endif
@@ -72,7 +72,7 @@
           {%- endif -%}
         {%- else -%}
           <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
-          <button type="button" data-ftw-filter="hoodies">HOODIES</button>
+          <button type="button" data-ftw-filter="hoodies">HOODIES & SWEATSHIRTS</button>
           <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
           <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
           <button type="button" data-ftw-filter="hats">HATS</button>
@@ -262,29 +262,50 @@
   </div>
 
   <div class="ftw-sheet" id="ftw-sheet" hidden>
-    <div class="ftw-sheet__backdrop" data-close-sheet></div>
     <div
       class="ftw-sheet__panel"
       role="dialog"
       aria-modal="true"
       aria-labelledby="ftw-sheet-title"
     >
-      <button class="ftw-sheet__close" type="button" data-close-sheet aria-label="Close">
+      <button class="ftw-sheet__back" type="button" data-close-sheet>
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M15 5L8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        BACK
       </button>
-      <div class="ftw-sheet__media">
-        <img id="ftw-sheet-image" src="" alt="" width="640" height="640">
-      </div>
-      <div class="ftw-sheet__body">
-        <h2 id="ftw-sheet-title"></h2>
-        <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
-        <p class="ftw-sheet__desc" id="ftw-sheet-desc"></p>
-        <div class="ftw-sheet__sizes" id="ftw-sheet-sizes" hidden></div>
-        <button class="ftw-btn ftw-btn--primary ftw-sheet__cta" type="button" id="ftw-sheet-add">
-          ADD TO CART
-        </button>
+
+      <div class="ftw-sheet__layout">
+        <div class="ftw-sheet__stage" id="ftw-sheet-stack"></div>
+
+        <aside class="ftw-sheet__side">
+          <div class="ftw-sheet__side-top">
+            <h2 id="ftw-sheet-title"></h2>
+            <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
+            <ul class="ftw-sheet__lines" id="ftw-sheet-lines"></ul>
+            <p class="ftw-sheet__note" id="ftw-sheet-note">LIMITED DROP. NO RESTOCKS.</p>
+
+            <div class="ftw-sheet__sizes" id="ftw-sheet-sizes"></div>
+
+            <button class="ftw-sheet__add" type="button" id="ftw-sheet-add">ADD TO CART</button>
+
+            <div class="ftw-sheet__links">
+              <button type="button" class="ftw-sheet__link" data-ftw-detail="tech">
+                TECHNICAL DETAILS <span aria-hidden="true">▸</span>
+              </button>
+              <div class="ftw-sheet__detail" data-ftw-detail-panel="tech" hidden>
+                Heavyweight build. Street cut. Wear it, don't warehouse it.
+              </div>
+              <button type="button" class="ftw-sheet__link" data-ftw-detail="size">
+                SIZE CHART <span aria-hidden="true">▸</span>
+              </button>
+              <div class="ftw-sheet__detail" data-ftw-detail-panel="size" hidden>
+                S / M / L / XL — true to size. Size up for oversized.
+              </div>
+            </div>
+          </div>
+
+        </aside>
       </div>
     </div>
   </div>
@@ -356,7 +377,7 @@
       "name": "FTW Shop",
       "blocks": [
         { "type": "category", "settings": { "label": "T-SHIRTS", "filter": "t-shirts" } },
-        { "type": "category", "settings": { "label": "HOODIES", "filter": "hoodies" } },
+        { "type": "category", "settings": { "label": "HOODIES & SWEATSHIRTS", "filter": "hoodies" } },
         { "type": "category", "settings": { "label": "TOPS / JERSEYS", "filter": "tops" } },
         { "type": "category", "settings": { "label": "BOTTOMS", "filter": "bottoms" } },
         { "type": "category", "settings": { "label": "HATS", "filter": "hats" } },

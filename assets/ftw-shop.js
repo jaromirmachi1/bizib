@@ -12,6 +12,9 @@
   let selectedVariantId = null;
   let sheetOpen = false;
   let sheetVariants = [];
+  let sheetImages = [];
+  let sheetImageIndex = 0;
+  let sheetAvailable = true;
 
   function toast(msg) {
     const el = $("#toast");
@@ -176,6 +179,89 @@
     }
   }
 
+  function parseImages(raw, fallback) {
+    const list = parseVariants(raw).filter((x) => typeof x === "string" && x);
+    if (list.length) return list;
+    return fallback ? [fallback] : [];
+  }
+
+  function descLines(desc) {
+    const clean = String(desc || "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!clean) return ["LIMITED DROP", "NO RESTOCKS", "FOR THE WIN"];
+    const parts = clean
+      .split(/[.!?]+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 4);
+    return parts.length ? parts.map((p) => p.toUpperCase()) : [clean.toUpperCase()];
+  }
+
+  function syncAddButton() {
+    const btn = $("#ftw-sheet-add");
+    if (!btn) return;
+    if (!sheetAvailable) {
+      btn.textContent = "SOLD OUT";
+      btn.disabled = true;
+      return;
+    }
+    btn.textContent = "ADD TO CART";
+    btn.disabled = !selectedVariantId;
+  }
+
+  function buildStack(title) {
+    const stage = $("#ftw-sheet-stack");
+    if (!stage) return;
+    stage.innerHTML = "";
+    const imgs = sheetImages.length ? sheetImages : [];
+    imgs.forEach((src, n) => {
+      const shot = document.createElement("div");
+      shot.className = "ftw-sheet__shot";
+      shot.dataset.imageIndex = String(n);
+      shot.innerHTML = `<img src="${src}" alt="${title || ""}" width="1200" height="1200" loading="${n === 0 ? "eager" : "lazy"}">`;
+      stage.appendChild(shot);
+    });
+  }
+
+  function buildSizes(card) {
+    const sizes = $("#ftw-sheet-sizes");
+    sizes.innerHTML = "";
+    selectedVariantId = null;
+
+    const usable = sheetVariants.filter((v) => v.title && v.title !== "Default Title");
+    const list = usable.length ? usable : sheetVariants;
+
+    if (!list.length) {
+      selectedVariantId = Number(card.dataset.variantId) || null;
+      syncAddButton();
+      return;
+    }
+
+    list.forEach((v, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ftw-sheet__size";
+      btn.textContent = v.title;
+      btn.disabled = !v.available;
+      btn.dataset.variantId = String(v.id);
+      if (v.available && !selectedVariantId) {
+        btn.classList.add("is-active");
+        selectedVariantId = v.id;
+        if (v.price) $("#ftw-sheet-price").textContent = v.price;
+      } else if (!v.available && i === 0 && !selectedVariantId) {
+        /* skip sold first */
+      }
+      sizes.appendChild(btn);
+    });
+
+    if (!selectedVariantId) {
+      const first = list.find((v) => v.available);
+      selectedVariantId = first ? first.id : null;
+    }
+    syncAddButton();
+  }
+
   function openSheet(card) {
     const sheet = $("#ftw-sheet");
     if (!sheet || !card) return;
@@ -187,56 +273,31 @@
     const price = card.dataset.price || "";
     const image = card.dataset.image || card.querySelector("img")?.src || "";
     const desc = card.dataset.description || "";
-    const available = card.dataset.available !== "0";
-    const variants = parseVariants(card.dataset.variants);
-    sheetVariants = variants;
+    sheetAvailable = card.dataset.available !== "0";
+    sheetVariants = parseVariants(card.dataset.variants);
+    sheetImages = parseImages(card.dataset.images, image);
+    sheetImageIndex = 0;
 
     $("#ftw-sheet-title").textContent = title;
-    $("#ftw-sheet-price").textContent = available ? price : "SOLD OUT";
-    $("#ftw-sheet-desc").textContent = desc || "Limited drop. No restocks.";
-    const img = $("#ftw-sheet-image");
-    img.src = image;
-    img.alt = title;
+    $("#ftw-sheet-price").textContent = sheetAvailable ? price : "SOLD OUT";
+    $("#ftw-sheet-lines").innerHTML = descLines(desc)
+      .map((l) => `<li>${l}</li>`)
+      .join("");
 
-    const sizes = $("#ftw-sheet-sizes");
-    const addBtn = $("#ftw-sheet-add");
-    sizes.innerHTML = "";
+    $$("[data-ftw-detail-panel]", root).forEach((p) => {
+      p.hidden = true;
+    });
 
-    const usable = variants.filter((v) => v.title && v.title !== "Default Title");
-    if (usable.length > 1) {
-      sizes.hidden = false;
-      usable.forEach((v, i) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "ftw-sheet__size";
-        btn.textContent = v.title;
-        btn.disabled = !v.available;
-        btn.dataset.variantId = String(v.id);
-        if (v.available && (String(v.id) === card.dataset.variantId || i === 0)) {
-          btn.classList.add("is-active");
-          selectedVariantId = v.id;
-          if (v.price) $("#ftw-sheet-price").textContent = v.price;
-        }
-        sizes.appendChild(btn);
-      });
-      if (!selectedVariantId) {
-        const first = usable.find((v) => v.available);
-        selectedVariantId = first ? first.id : null;
-      }
-    } else {
-      sizes.hidden = true;
-      selectedVariantId = Number(card.dataset.variantId) || (variants[0] && variants[0].id) || null;
-    }
-
-    addBtn.disabled = !available || !selectedVariantId;
-    addBtn.textContent = available ? "ADD TO CART" : "SOLD OUT";
+    buildStack(title);
+    buildSizes(card);
+    sheetImageIndex = 0;
 
     sheet.hidden = false;
     document.body.classList.add("ftw-sheet-open");
     requestAnimationFrame(() => {
       sheet.classList.add("is-open");
       sheetOpen = true;
-      $("#ftw-sheet .ftw-sheet__close")?.focus();
+      $(".ftw-sheet__back")?.focus();
     });
   }
 
@@ -253,11 +314,15 @@
     if (instant) finish();
     else setTimeout(finish, 240);
     sheetVariants = [];
+    sheetImages = [];
   }
 
   async function addToCart() {
     const addBtn = $("#ftw-sheet-add");
-    if (!selectedVariantId || addBtn?.disabled) return;
+    if (!selectedVariantId || addBtn?.disabled) {
+      toast("PICK A SIZE.");
+      return;
+    }
 
     if (isLocal) {
       const count = Number($("#cart-count")?.textContent || 0) + 1;
@@ -313,6 +378,14 @@
       return;
     }
 
+    const detailBtn = e.target.closest("[data-ftw-detail]");
+    if (detailBtn) {
+      const key = detailBtn.dataset.ftwDetail;
+      const panel = $(`[data-ftw-detail-panel="${key}"]`, root);
+      if (panel) panel.hidden = !panel.hidden;
+      return;
+    }
+
     const sizeBtn = e.target.closest(".ftw-sheet__size");
     if (sizeBtn && !sizeBtn.disabled) {
       $$(".ftw-sheet__size", root).forEach((b) => b.classList.remove("is-active"));
@@ -320,6 +393,7 @@
       selectedVariantId = Number(sizeBtn.dataset.variantId);
       const match = sheetVariants.find((v) => String(v.id) === String(selectedVariantId));
       if (match?.price) $("#ftw-sheet-price").textContent = match.price;
+      syncAddButton();
       return;
     }
 

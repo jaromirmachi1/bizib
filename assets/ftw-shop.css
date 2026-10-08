@@ -73,7 +73,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   padding: 18px 14px 20px 18px;
   box-sizing: border-box;
   background: var(--ftw-bg);
-  z-index: 20;
+  z-index: 120;
   overflow: hidden;
 }
 
@@ -645,162 +645,198 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   transform: translateX(-50%) translateY(0);
 }
 
-/* —— iOS-style product sheet —— */
+/* —— Palace-style split product modal —— */
 .ftw-sheet {
   --ftw-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--ftw-side);
   z-index: 100;
-  display: grid;
-  place-items: end center;
-  padding: 0;
+  width: auto;
 }
 
 .ftw-sheet[hidden] {
   display: none;
 }
 
-.ftw-sheet__backdrop {
+.ftw-sheet__panel {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #ececec;
+  border-left: 1px solid #ddd;
   opacity: 0;
-  transition: opacity 240ms var(--ftw-drawer);
-}
-
-.ftw-sheet.is-open .ftw-sheet__backdrop {
-  opacity: 1;
-}
-
-.ftw-sheet__panel {
-  position: relative;
-  z-index: 1;
-  width: min(440px, 100%);
-  max-height: min(92dvh, 760px);
-  background: #f7f7f7;
-  border-radius: 18px 18px 0 0;
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
-  overflow: auto;
-  transform: translateY(18px) scale(0.98);
-  opacity: 0;
-  transition: transform 280ms var(--ftw-drawer), opacity 220ms var(--ftw-drawer);
-  -webkit-overflow-scrolling: touch;
+  transform: translateX(10px);
+  transition: opacity 220ms var(--ftw-drawer), transform 280ms var(--ftw-drawer);
 }
 
 .ftw-sheet.is-open .ftw-sheet__panel {
-  transform: translateY(0) scale(1);
   opacity: 1;
+  transform: translateX(0);
 }
 
-.ftw-sheet__close {
+.ftw-sheet__back {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  width: 30px;
-  height: 30px;
+  top: 14px;
+  left: 14px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px 0 8px;
   border: 0;
-  border-radius: 999px;
-  background: rgba(120, 120, 128, 0.18);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
   color: #111;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: background 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
-}
-
-.ftw-sheet__close:hover {
-  background: rgba(120, 120, 128, 0.28);
-}
-
-.ftw-sheet__close:active {
-  transform: scale(0.94);
-}
-
-.ftw-sheet__media {
-  display: grid;
-  place-items: center;
-  padding: 40px 20px 12px;
-  background: #eee;
-  min-height: 320px;
-}
-
-.ftw-sheet__media img {
-  width: 100%;
-  height: auto;
-  max-width: 92%;
-  max-height: 420px;
-  object-fit: contain;
-}
-
-.ftw-sheet__body {
-  padding: 18px 20px 28px;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.ftw-sheet__body h2 {
-  margin: 0 0 6px;
-  font-family: var(--ftw-sans);
-  font-size: 18px;
+  font: inherit;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 120ms var(--ftw-ease);
+}
+
+.ftw-sheet__back:active {
+  transform: scale(0.97);
+}
+
+.ftw-sheet__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 360px);
+  height: 100%;
+  min-height: 0;
+}
+
+.ftw-sheet__stage {
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+  padding: 56px 24px 32px;
+  background: #ececec;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.ftw-sheet__shot {
+  width: 100%;
+  max-width: 100%;
+  background: transparent;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.ftw-sheet__shot img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.ftw-sheet__side {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  max-height: 100dvh;
+  background: #f7f7f7;
+  padding: 28px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: auto;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.ftw-sheet__side-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ftw-sheet__side h2 {
+  margin: 0 0 8px;
+  font-size: clamp(22px, 2.4vw, 34px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.05;
 }
 
 .ftw-sheet__price {
-  margin: 0 0 14px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  margin: 0 0 18px;
+  font-size: clamp(18px, 2vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
-.ftw-sheet__desc {
+.ftw-sheet__lines {
+  list-style: disc;
+  margin: 0 0 16px;
+  padding: 0 0 0 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ftw-sheet__lines li {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.ftw-sheet__note {
   margin: 0 0 18px;
-  color: #555;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: 0.01em;
-  text-transform: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #111;
 }
 
 .ftw-sheet__sizes {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  width: 100%;
 }
 
 .ftw-sheet__size {
-  min-width: 44px;
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid #cfcfcf;
-  background: #fff;
+  min-width: 72px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  background: #ececec;
   color: #111;
   font: inherit;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 8px;
   transition: background 140ms var(--ftw-ease), border-color 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
 }
 
-.ftw-sheet__size:hover:not(:disabled) {
-  border-color: #111;
-}
-
 .ftw-sheet__size.is-active {
-  background: #111;
+  background: #fff;
   border-color: #111;
-  color: #fff;
 }
 
 .ftw-sheet__size:disabled {
@@ -813,32 +849,104 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   transform: scale(0.97);
 }
 
-.ftw-sheet__cta {
+.ftw-sheet__add {
   width: 100%;
-  min-height: 46px;
-  border-radius: 12px;
+  height: 48px;
+  border: 0;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: background 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
 }
 
-.ftw-sheet__cta:disabled {
+.ftw-sheet__add:hover {
+  background: #222;
+}
+
+.ftw-sheet__add:active {
+  transform: scale(0.98);
+}
+
+.ftw-sheet__add:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.ftw-sheet__links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ftw-sheet__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #777;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.ftw-sheet__link:hover {
+  color: #111;
+}
+
+.ftw-sheet__detail {
+  margin: 0 0 4px;
+  padding: 0;
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  line-height: 1.4;
 }
 
 body.ftw-sheet-open {
   overflow: hidden;
 }
 
-@media (min-width: 720px) {
-  .ftw-sheet {
-    place-items: center;
-    padding: 24px;
+@media (max-width: 900px) {
+  .ftw-sheet__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(36vh, 44vh) minmax(0, 1fr);
+    overflow: auto;
   }
 
-  .ftw-sheet__panel {
-    border-radius: 18px;
-    max-height: min(86dvh, 720px);
-    transform: translateY(8px) scale(0.96);
+  .ftw-sheet__stage {
+    height: min(44vh, 400px);
+    padding: 52px 14px 12px;
+    gap: 8px;
+  }
+
+  .ftw-sheet__side {
+    position: relative;
+    height: auto;
+    max-height: none;
+    padding: 20px 18px 24px;
+  }
+
+  .ftw-sheet__side h2 {
+    font-size: 22px;
+  }
+
+  .ftw-sheet__price {
+    font-size: 18px;
   }
 }
 

@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=12">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=17">
     <style>
       html, body { margin: 0; background: #f2f2f2; }
       body.ftw-mode { min-height: 100dvh; }
@@ -28,13 +28,13 @@
       <div class="ftw-shell">
         <aside class="ftw-side" id="ftw-side" aria-label="Shop navigation">
           <a class="ftw-logo" href="#" aria-label="BIZIBOIZ home">
-            <img src="./assets/panacek_2.png" alt="" width="280" height="280">
+            <img src="./assets/panacek-3-black.png" alt="" width="280" height="280">
           </a>
 
           <nav class="ftw-cats" aria-label="Categories">
             <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
             <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
-            <button type="button" data-ftw-filter="hoodies">HOODIES</button>
+            <button type="button" data-ftw-filter="hoodies">HOODIES & SWEATSHIRTS</button>
             <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
             <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
             <button type="button" data-ftw-filter="hats">HATS</button>
@@ -165,24 +165,39 @@
       </div>
 
       <div class="ftw-sheet" id="ftw-sheet" hidden>
-        <div class="ftw-sheet__backdrop" data-close-sheet></div>
         <div class="ftw-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="ftw-sheet-title">
-          <button class="ftw-sheet__close" type="button" data-close-sheet aria-label="Close">
+          <button class="ftw-sheet__back" type="button" data-close-sheet>
             <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M15 5L8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            BACK
           </button>
-          <div class="ftw-sheet__media">
-            <img id="ftw-sheet-image" src="" alt="" width="640" height="640">
-          </div>
-          <div class="ftw-sheet__body">
-            <h2 id="ftw-sheet-title"></h2>
-            <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
-            <p class="ftw-sheet__desc" id="ftw-sheet-desc"></p>
-            <div class="ftw-sheet__sizes" id="ftw-sheet-sizes" hidden></div>
-            <button class="ftw-btn ftw-btn--primary ftw-sheet__cta" type="button" id="ftw-sheet-add">
-              ADD TO CART
-            </button>
+          <div class="ftw-sheet__layout">
+            <div class="ftw-sheet__stage" id="ftw-sheet-stack"></div>
+            <aside class="ftw-sheet__side">
+              <div class="ftw-sheet__side-top">
+                <h2 id="ftw-sheet-title"></h2>
+                <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
+                <ul class="ftw-sheet__lines" id="ftw-sheet-lines"></ul>
+                <p class="ftw-sheet__note" id="ftw-sheet-note">LIMITED DROP. NO RESTOCKS.</p>
+                <div class="ftw-sheet__sizes" id="ftw-sheet-sizes"></div>
+                <button class="ftw-sheet__add" type="button" id="ftw-sheet-add">ADD TO CART</button>
+                <div class="ftw-sheet__links">
+                  <button type="button" class="ftw-sheet__link" data-ftw-detail="tech">
+                    TECHNICAL DETAILS <span aria-hidden="true">▸</span>
+                  </button>
+                  <div class="ftw-sheet__detail" data-ftw-detail-panel="tech" hidden>
+                    Heavyweight build. Street cut. Wear it, don't warehouse it.
+                  </div>
+                  <button type="button" class="ftw-sheet__link" data-ftw-detail="size">
+                    SIZE CHART <span aria-hidden="true">▸</span>
+                  </button>
+                  <div class="ftw-sheet__detail" data-ftw-detail-panel="size" hidden>
+                    S / M / L / XL — true to size. Size up for oversized.
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
@@ -219,12 +234,13 @@
         return `
         <a class="ftw-product${p.sold ? " is-sold" : ""}" href="#" role="listitem"
            data-title="${p.name}" data-filter="${p.filter}" data-drop="${p.drop}"
-           data-price="${p.price}" data-image="./assets/panacek_2.png"
+           data-price="${p.price}" data-image="./assets/panacek-3-black.png"
+           data-images='${JSON.stringify(["./assets/panacek-3-black.png","./assets/panacek_2.png"])}'
            data-available="${p.sold ? "0" : "1"}" data-variant-id="${variants[0].id}"
            data-description="${p.desc}"
            data-variants='${JSON.stringify(variants)}'>
           <div class="ftw-product__media">
-            <img src="./assets/panacek_2.png" alt="" width="200" height="220" loading="lazy">
+            <img src="./assets/panacek-3-black.png" alt="" width="200" height="220" loading="lazy">
             ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : ""}
           </div>
           <div class="ftw-product__meta">
@@ -234,6 +250,6 @@
         </a>`;
       }).join("");
     </script>
-    <script src="/assets/ftw-shop.js?v=4"></script>
+    <script src="/assets/ftw-shop.js?v=8"></script>
   </body>
 </html>
