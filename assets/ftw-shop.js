@@ -128,6 +128,39 @@
       .filter(Boolean);
   }
 
+  const FILTER_ALIASES = {
+    "hoodies-sweatshirts": ["hoodies", "hoodies-sweat", "sweatshirts"],
+    hoodies: ["hoodies-sweatshirts", "hoodies-sweat", "sweatshirts"],
+    "t-shirts": ["t-shirt", "tees", "tee"],
+    hats: ["hat", "caps", "cap", "beanies"],
+    bottoms: ["bottom", "shorts", "pants"],
+    jackets: ["jacket", "shells"],
+    accessories: ["accessory", "bags", "bag"],
+  };
+
+  const FILTER_TITLE_HINTS = {
+    "t-shirts": ["t-shirt", "tee", "tshirt"],
+    "hoodies-sweatshirts": ["hoodie", "sweat", "crew"],
+    hoodies: ["hoodie", "sweat", "crew"],
+    hats: ["hat", "cap", "beanie", "trucker"],
+    bottoms: ["short", "pant", "bottom", "track"],
+    jackets: ["jacket", "shell", "zip"],
+    womens: ["bikini", "women"],
+    lifestyle: ["towel", "lifestyle"],
+    accessories: ["bag", "tote", "accessory"],
+  };
+
+  function matchesCategory(cols, title, active) {
+    if (cols.includes(active)) return true;
+    const alts = FILTER_ALIASES[active] || [];
+    if (alts.some((a) => cols.includes(a))) return true;
+    if (cols.some((c) => c === active || c.startsWith(active + "-") || active.startsWith(c + "-"))) {
+      return true;
+    }
+    const hints = FILTER_TITLE_HINTS[active] || [active.replace(/-/g, " ")];
+    return hints.some((h) => title.includes(h));
+  }
+
   function applyFilters() {
     const q = searchQuery.trim().toLowerCase();
     const active = normalize(activeFilter);
@@ -143,7 +176,7 @@
       } else if (active === "all" || active === "new") {
         show = drop !== "archive";
       } else {
-        show = cols.includes(active);
+        show = matchesCategory(cols, title, active);
       }
 
       if (show && q) show = title.includes(q);
