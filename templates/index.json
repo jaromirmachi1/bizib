@@ -2,13 +2,79 @@
   "sections": {
     "ftw_shop": {
       "type": "ftw-shop",
+      "blocks": {
+        "cat_jackets": {
+          "type": "category",
+          "settings": {
+            "collection": "jackets",
+            "label": "JACKETS"
+          }
+        },
+        "cat_bottoms": {
+          "type": "category",
+          "settings": {
+            "collection": "bottoms",
+            "label": "BOTTOMS"
+          }
+        },
+        "cat_hats": {
+          "type": "category",
+          "settings": {
+            "collection": "hats",
+            "label": "HATS"
+          }
+        },
+        "cat_hoodies": {
+          "type": "category",
+          "settings": {
+            "collection": "hoodies-sweatshirts",
+            "label": "HOODIES & SWEATSHIRTS"
+          }
+        },
+        "cat_tees": {
+          "type": "category",
+          "settings": {
+            "collection": "t-shirts",
+            "label": "T-SHIRTS"
+          }
+        },
+        "cat_womens": {
+          "type": "category",
+          "settings": {
+            "collection": "womens",
+            "label": "WOMENS"
+          }
+        },
+        "cat_lifestyle": {
+          "type": "category",
+          "settings": {
+            "collection": "lifestyle",
+            "label": "LIFESTYLE"
+          }
+        },
+        "cat_accessories": {
+          "type": "category",
+          "settings": {
+            "collection": "accessories",
+            "label": "ACCESSORIES"
+          }
+        }
+      },
+      "block_order": [
+        "cat_jackets",
+        "cat_bottoms",
+        "cat_hats",
+        "cat_hoodies",
+        "cat_tees",
+        "cat_womens",
+        "cat_lifestyle",
+        "cat_accessories"
+      ],
       "settings": {
-        "tagline": "FOR THE WIN",
         "collection_live": "2026",
         "collection_archive": "main-page",
-        "products_to_show": 12,
-        "instagram_url": "https://www.instagram.com/biziboiz/",
-        "contact_email": "info@biziboiz.com"
+        "products_to_show": 24,
+        "instagram_url": "https://www.instagram.com/biziboiz/"
       }
     }
   },

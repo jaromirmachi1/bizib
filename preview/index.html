@@ -33,12 +33,13 @@
 
           <nav class="ftw-cats" aria-label="Categories">
             <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
-            <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
-            <button type="button" data-ftw-filter="hoodies">HOODIES & SWEATSHIRTS</button>
-            <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
+            <button type="button" data-ftw-filter="jackets">JACKETS</button>
             <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
             <button type="button" data-ftw-filter="hats">HATS</button>
-            <button type="button" data-ftw-filter="bags">BAGS</button>
+            <button type="button" data-ftw-filter="hoodies-sweatshirts">HOODIES & SWEATSHIRTS</button>
+            <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
+            <button type="button" data-ftw-filter="womens">WOMENS</button>
+            <button type="button" data-ftw-filter="lifestyle">LIFESTYLE</button>
             <button type="button" data-ftw-filter="accessories">ACCESSORIES</button>
             <button type="button" data-ftw-filter="archive">ARCHIVE</button>
           </nav>
@@ -209,18 +210,18 @@
 
     <script>
       const PRODUCTS = [
-        { name: "FTW BOX TEE [BLACK]", price: "1 290 Kč", filter: "t-shirts", drop: "new", sold: false, desc: "Heavyweight box tee. Limited drop.", sizes: ["S","M","L","XL"] },
-        { name: "SHADOW HOODIE [TRIPLE BLACK]", price: "2 490 Kč", filter: "hoodies", drop: "new", sold: false, desc: "Triple black fleece. Everyday piece.", sizes: ["S","M","L","XL"] },
-        { name: "ALCATRAZ CAP [DIRTY]", price: "790 Kč", filter: "hats", drop: "new", sold: false, desc: "Washed cap. One size.", sizes: ["OS"] },
-        { name: "NIGHT CREW [GREY]", price: "1 890 Kč", filter: "tops", drop: "new", sold: false, desc: "Soft crew for cold nights.", sizes: ["S","M","L","XL"] },
-        { name: "TRACK SUIT BOTTOM [BLACK]", price: "2 190 Kč", filter: "bottoms", drop: "new", sold: false, desc: "Tapered track pant.", sizes: ["S","M","L","XL"] },
-        { name: "ZIP SHELL [MULTI]", price: "2 690 Kč", filter: "tops", drop: "new", sold: false, desc: "Light shell. Packable.", sizes: ["S","M","L","XL"] },
-        { name: "LONGSLEEVE STAMP [WHITE]", price: "1 490 Kč", filter: "t-shirts", drop: "new", sold: false, desc: "Stamp print long sleeve.", sizes: ["S","M","L","XL"] },
-        { name: "BEANIE BLACKOUT", price: "SOLD OUT", filter: "hats", drop: "new", sold: true, desc: "Gone.", sizes: ["OS"] },
-        { name: "MONEY BAG TOTE", price: "490 Kč", filter: "bags", drop: "new", sold: false, desc: "Everyday tote.", sizes: ["OS"] },
-        { name: "DEADSTOCK TEE", price: "990 Kč", filter: "t-shirts", drop: "archive", sold: false, desc: "Archive deadstock.", sizes: ["S","M","L"] },
-        { name: "OLD MONEY LS", price: "1 190 Kč", filter: "tops", drop: "archive", sold: false, desc: "Archive long sleeve.", sizes: ["S","M","L"] },
-        { name: "VAULT ZIP", price: "SOLD OUT", filter: "hoodies", drop: "archive", sold: true, desc: "Archive sold out.", sizes: ["M","L"] },
+        { name: "FTW BOX TEE [BLACK]", price: "1 290 Kč", collections: "t-shirts", drop: "new", sold: false, desc: "Heavyweight box tee. Limited drop.", sizes: ["S","M","L","XL"] },
+        { name: "SHADOW HOODIE [TRIPLE BLACK]", price: "2 490 Kč", collections: "hoodies-sweatshirts", drop: "new", sold: false, desc: "Triple black fleece. Everyday piece.", sizes: ["S","M","L","XL"] },
+        { name: "ALCATRAZ CAP [DIRTY]", price: "790 Kč", collections: "hats", drop: "new", sold: false, desc: "Washed cap. One size.", sizes: ["OS"] },
+        { name: "NIGHT CREW [GREY]", price: "1 890 Kč", collections: "hoodies-sweatshirts,lifestyle", drop: "new", sold: false, desc: "Soft crew for cold nights.", sizes: ["S","M","L","XL"] },
+        { name: "TRACK SUIT BOTTOM [BLACK]", price: "2 190 Kč", collections: "bottoms", drop: "new", sold: false, desc: "Tapered track pant.", sizes: ["S","M","L","XL"] },
+        { name: "ZIP SHELL [MULTI]", price: "2 690 Kč", collections: "jackets", drop: "new", sold: false, desc: "Light shell. Packable.", sizes: ["S","M","L","XL"] },
+        { name: "LONGSLEEVE STAMP [WHITE]", price: "1 490 Kč", collections: "t-shirts", drop: "new", sold: false, desc: "Stamp print long sleeve.", sizes: ["S","M","L","XL"] },
+        { name: "BEANIE BLACKOUT", price: "SOLD OUT", collections: "hats", drop: "new", sold: true, desc: "Gone.", sizes: ["OS"] },
+        { name: "MONEY BAG TOTE", price: "490 Kč", collections: "accessories,lifestyle", drop: "new", sold: false, desc: "Everyday tote.", sizes: ["OS"] },
+        { name: "DEADSTOCK TEE", price: "990 Kč", collections: "t-shirts", drop: "archive", sold: false, desc: "Archive deadstock.", sizes: ["S","M","L"] },
+        { name: "OLD MONEY LS", price: "1 190 Kč", collections: "womens,t-shirts", drop: "archive", sold: false, desc: "Archive long sleeve.", sizes: ["S","M","L"] },
+        { name: "VAULT ZIP", price: "SOLD OUT", collections: "hoodies-sweatshirts", drop: "archive", sold: true, desc: "Archive sold out.", sizes: ["M","L"] },
       ];
 
       const grid = document.getElementById("ftw-grid");
@@ -233,7 +234,7 @@
         }));
         return `
         <a class="ftw-product${p.sold ? " is-sold" : ""}" href="#" role="listitem"
-           data-title="${p.name}" data-filter="${p.filter}" data-drop="${p.drop}"
+           data-title="${p.name}" data-collections="${p.collections}" data-drop="${p.drop}"
            data-price="${p.price}" data-image="./assets/panacek-3-black.png"
            data-images='${JSON.stringify(["./assets/panacek-3-black.png","./assets/panacek_2.png"])}'
            data-available="${p.sold ? "0" : "1"}" data-variant-id="${variants[0].id}"
@@ -250,6 +251,6 @@
         </a>`;
       }).join("");
     </script>
-    <script src="/assets/ftw-shop.js?v=8"></script>
+    <script src="/assets/ftw-shop.js?v=9"></script>
   </body>
 </html>

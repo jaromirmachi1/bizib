@@ -121,21 +121,29 @@
       .replace(/^-|-$/g, "");
   }
 
+  function productCollections(card) {
+    return String(card.dataset.collections || "")
+      .split(",")
+      .map((s) => normalize(s.trim()))
+      .filter(Boolean);
+  }
+
   function applyFilters() {
     const q = searchQuery.trim().toLowerCase();
+    const active = normalize(activeFilter);
     let visible = 0;
     $$(".ftw-product", root).forEach((card) => {
       const drop = card.dataset.drop || "new";
-      const filter = normalize(card.dataset.filter);
+      const cols = productCollections(card);
       const title = (card.dataset.title || card.textContent || "").toLowerCase();
       let show = true;
 
-      if (activeFilter === "archive") {
+      if (active === "archive") {
         show = drop === "archive";
-      } else if (activeFilter === "all" || activeFilter === "new") {
+      } else if (active === "all" || active === "new") {
         show = drop !== "archive";
       } else {
-        show = filter === normalize(activeFilter) || title.includes(activeFilter.replace(/-/g, " "));
+        show = cols.includes(active);
       }
 
       if (show && q) show = title.includes(q);
@@ -154,7 +162,9 @@
         grid.appendChild(empty);
       }
       empty.hidden = false;
-      empty.textContent = q ? "NO MATCHES." : "NO PRODUCTS IN THIS SECTION.";
+      empty.textContent = q
+        ? "NO MATCHES."
+        : "NO PRODUCTS IN THIS COLLECTION. Connect it in the theme editor.";
     } else if (empty) {
       empty.hidden = true;
     }

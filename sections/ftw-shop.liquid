@@ -61,23 +61,17 @@
       <nav class="ftw-cats" aria-label="Categories">
         <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
         {%- for block in section.blocks -%}
-          {%- if block.type == 'category' -%}
+          {%- if block.type == 'category' and block.settings.collection != blank -%}
+            {%- assign cat = block.settings.collection -%}
+            {%- assign cat_label = block.settings.label | default: cat.title -%}
             <button
               type="button"
-              data-ftw-filter="{{ block.settings.filter | default: block.settings.label | handleize | escape }}"
+              data-ftw-filter="{{ cat.handle | escape }}"
               {{ block.shopify_attributes }}
             >
-              {{ block.settings.label }}
+              {{ cat_label | upcase }}
             </button>
           {%- endif -%}
-        {%- else -%}
-          <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
-          <button type="button" data-ftw-filter="hoodies">HOODIES & SWEATSHIRTS</button>
-          <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
-          <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
-          <button type="button" data-ftw-filter="hats">HATS</button>
-          <button type="button" data-ftw-filter="bags">BAGS</button>
-          <button type="button" data-ftw-filter="accessories">ACCESSORIES</button>
         {%- endfor -%}
         <button type="button" data-ftw-filter="archive">ARCHIVE</button>
       </nav>
@@ -135,20 +129,47 @@
       <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
 
       <div class="ftw-grid" id="ftw-grid" role="list">
+        {%- assign seen = '|' -%}
+        {%- assign rendered = 0 -%}
+
         {%- if live != blank -%}
           {%- for product in live.products limit: limit -%}
-            {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+            {%- assign key = product.handle | prepend: '|' | append: '|' -%}
+            {%- unless seen contains key -%}
+              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+              {%- assign seen = seen | append: product.handle | append: '|' -%}
+              {%- assign rendered = rendered | plus: 1 -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- endif -%}
+
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'category' and block.settings.collection != blank -%}
+            {%- assign cat = block.settings.collection -%}
+            {%- for product in cat.products limit: limit -%}
+              {%- assign key = product.handle | prepend: '|' | append: '|' -%}
+              {%- unless seen contains key -%}
+                {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+                {%- assign seen = seen | append: product.handle | append: '|' -%}
+                {%- assign rendered = rendered | plus: 1 -%}
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
+
         {%- if archive != blank -%}
           {%- for product in archive.products limit: limit -%}
-            {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'archive' -%}
+            {%- assign key = product.handle | prepend: '|' | append: '|' -%}
+            {%- unless seen contains key -%}
+              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'archive' -%}
+              {%- assign seen = seen | append: product.handle | append: '|' -%}
+              {%- assign rendered = rendered | plus: 1 -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- endif -%}
-        {%- if live == blank and archive == blank -%}
-          <p class="ftw-empty">Pick collections in the theme editor.</p>
-        {%- elsif live != blank and live.products.size == 0 and archive != blank and archive.products.size == 0 -%}
-          <p class="ftw-empty">No products yet.</p>
+
+        {%- if rendered == 0 -%}
+          <p class="ftw-empty">Connect collections in the theme editor (NEW + category blocks).</p>
         {%- endif -%}
       </div>
     </div>
@@ -358,16 +379,15 @@
       "name": "Category",
       "settings": [
         {
-          "type": "text",
-          "id": "label",
-          "label": "Label",
-          "default": "T-SHIRTS"
+          "type": "collection",
+          "id": "collection",
+          "label": "Shopify collection"
         },
         {
           "type": "text",
-          "id": "filter",
-          "label": "Filter key (match product type/tag)",
-          "default": "t-shirts"
+          "id": "label",
+          "label": "Label override (optional)",
+          "info": "Leave blank to use the collection title"
         }
       ]
     }
@@ -376,13 +396,14 @@
     {
       "name": "FTW Shop",
       "blocks": [
-        { "type": "category", "settings": { "label": "T-SHIRTS", "filter": "t-shirts" } },
-        { "type": "category", "settings": { "label": "HOODIES & SWEATSHIRTS", "filter": "hoodies" } },
-        { "type": "category", "settings": { "label": "TOPS / JERSEYS", "filter": "tops" } },
-        { "type": "category", "settings": { "label": "BOTTOMS", "filter": "bottoms" } },
-        { "type": "category", "settings": { "label": "HATS", "filter": "hats" } },
-        { "type": "category", "settings": { "label": "BAGS", "filter": "bags" } },
-        { "type": "category", "settings": { "label": "ACCESSORIES", "filter": "accessories" } }
+        { "type": "category", "settings": { "label": "JACKETS" } },
+        { "type": "category", "settings": { "label": "BOTTOMS" } },
+        { "type": "category", "settings": { "label": "HATS" } },
+        { "type": "category", "settings": { "label": "HOODIES & SWEATSHIRTS" } },
+        { "type": "category", "settings": { "label": "T-SHIRTS" } },
+        { "type": "category", "settings": { "label": "WOMENS" } },
+        { "type": "category", "settings": { "label": "LIFESTYLE" } },
+        { "type": "category", "settings": { "label": "ACCESSORIES" } }
       ]
     }
   ]

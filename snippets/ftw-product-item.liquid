@@ -9,10 +9,6 @@
   else
     assign img = logo_url
   endif
-  assign filter_key = product.type | handleize
-  if filter_key == blank
-    assign filter_key = product.tags | first | handleize
-  endif
   if drop == 'archive'
     assign drop_key = 'archive'
   else
@@ -20,6 +16,9 @@
   endif
   assign desc = product.description | strip_html | truncate: 280
 -%}
+{%- capture collections_csv -%}
+{%- for c in product.collections -%}{{ c.handle }}{% unless forloop.last %},{% endunless %}{%- endfor -%}
+{%- endcapture -%}
 {%- capture variants_json -%}
 [
 {%- for v in product.variants -%}
@@ -46,7 +45,7 @@
   role="listitem"
   data-product="{{ product.handle }}"
   data-title="{{ product.title | escape }}"
-  data-filter="{{ filter_key }}"
+  data-collections="{{ collections_csv | strip | escape }}"
   data-drop="{{ drop_key }}"
   data-price="{{ product.price | money | escape }}"
   data-image="{{ img | escape }}"
