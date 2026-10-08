@@ -1,0 +1,369 @@
+{{ 'ftw-shop.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ftw-shop.js' | asset_url }}" defer="defer"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  assign logo = section.settings.logo
+  if logo == blank
+    assign logo_url = 'panacek_2.png' | asset_url
+  else
+    assign logo_url = logo | image_url: width: 400
+  endif
+  assign live = section.settings.collection_live
+  assign archive = section.settings.collection_archive
+  assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
+  assign limit = section.settings.products_to_show
+
+  assign orders = 0
+  assign points = 0
+  assign rank_name = 'RECRUIT'
+  assign rank_next = 'SOLDIER'
+  assign rank_progress = 0
+  if customer
+    assign orders = customer.orders_count
+    assign points = orders | times: 150 | plus: 50
+    if orders >= 12
+      assign rank_name = 'LEGEND'
+      assign rank_next = 'MAX'
+      assign rank_progress = 100
+    elsif orders >= 6
+      assign rank_name = 'GENERAL'
+      assign rank_next = 'LEGEND'
+      assign rank_progress = orders | minus: 6 | times: 100 | divided_by: 6
+    elsif orders >= 3
+      assign rank_name = 'CAPTAIN'
+      assign rank_next = 'GENERAL'
+      assign rank_progress = orders | minus: 3 | times: 100 | divided_by: 3
+    elsif orders >= 1
+      assign rank_name = 'SOLDIER'
+      assign rank_next = 'CAPTAIN'
+      assign rank_progress = orders | minus: 1 | times: 100 | divided_by: 2
+    endif
+  endif
+-%}
+
+<div
+  class="ftw-shop"
+  id="ftw-shop"
+  data-cart-count="{{ cart.item_count }}"
+  data-money-format="{{ shop.money_format | escape }}"
+>
+  <div class="ftw-nav-scrim" id="ftw-nav-scrim" hidden></div>
+
+  <div class="ftw-shell">
+    <aside class="ftw-side" id="ftw-side" aria-label="Shop navigation">
+      <a class="ftw-logo" href="{{ routes.root_url }}" aria-label="BIZIBOIZ home">
+        <img src="{{ logo_url }}" alt="" width="280" height="280">
+      </a>
+
+      <nav class="ftw-cats" aria-label="Categories">
+        <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'category' -%}
+            <button
+              type="button"
+              data-ftw-filter="{{ block.settings.filter | default: block.settings.label | handleize | escape }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.label }}
+            </button>
+          {%- endif -%}
+        {%- else -%}
+          <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
+          <button type="button" data-ftw-filter="hoodies">HOODIES</button>
+          <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
+          <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
+          <button type="button" data-ftw-filter="hats">HATS</button>
+          <button type="button" data-ftw-filter="bags">BAGS</button>
+          <button type="button" data-ftw-filter="accessories">ACCESSORIES</button>
+        {%- endfor -%}
+        <button type="button" data-ftw-filter="archive">ARCHIVE</button>
+      </nav>
+
+      <div class="ftw-side__foot">
+        <div class="ftw-side__icons">
+          <a href="{{ ig }}" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+              <circle cx="12" cy="12" r="4"></circle>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+            </svg>
+          </a>
+          <button type="button" id="ftw-account-btn" aria-expanded="false" aria-controls="ftw-account" aria-label="Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.2"></circle>
+              <path d="M5 19c1.8-3.2 4-4.8 7-4.8s5.2 1.6 7 4.8"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="ftw-side__links">
+          <button type="button" data-ftw-filter="archive">ARCHIVE</button>
+          <button type="button" id="ftw-contact-open">NEWSLETTER</button>
+          <a href="/policies/shipping-policy">SHIPPING POLICY</a>
+          <a href="/policies/terms-of-service">TERMS OF SERVICE</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="ftw-main">
+      <header class="ftw-top">
+        <button class="ftw-top__item ftw-menu-btn" type="button" id="ftw-menu-btn" aria-label="Open menu" aria-controls="ftw-side">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+          MENU
+        </button>
+        <label class="ftw-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"></circle>
+            <path d="M16.5 16.5L21 21"></path>
+          </svg>
+          <input type="search" id="ftw-search-input" placeholder="SEARCH" autocomplete="off" aria-label="Search products">
+        </label>
+        <button class="ftw-top__item" type="button" id="ftw-bag-btn" aria-expanded="false" aria-controls="ftw-bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M6.5 8.5h11l-.8 11.2a1.5 1.5 0 0 1-1.5 1.3H8.8a1.5 1.5 0 0 1-1.5-1.3L6.5 8.5Z"></path>
+            <path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"></path>
+          </svg>
+          CART (<span id="cart-count">{{ cart.item_count }}</span>)
+        </button>
+        <a class="ftw-top__item" href="/checkout">CHECKOUT</a>
+      </header>
+
+      <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
+
+      <div class="ftw-grid" id="ftw-grid" role="list">
+        {%- if live != blank -%}
+          {%- for product in live.products limit: limit -%}
+            {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if archive != blank -%}
+          {%- for product in archive.products limit: limit -%}
+            {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'archive' -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if live == blank and archive == blank -%}
+          <p class="ftw-empty">Pick collections in the theme editor.</p>
+        {%- elsif live != blank and live.products.size == 0 and archive != blank and archive.products.size == 0 -%}
+          <p class="ftw-empty">No products yet.</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-drawer" id="ftw-bag" hidden>
+    <div class="ftw-drawer__panel">
+      <header class="ftw-drawer__head">
+        <h2>CART</h2>
+        <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close cart">×</button>
+      </header>
+      <div class="ftw-drawer__body" id="cart-body">
+        <div class="ftw-empty">CART EMPTY.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-drawer" id="ftw-account" hidden>
+    <div class="ftw-drawer__panel">
+      <header class="ftw-drawer__head">
+        <h2>ACCOUNT</h2>
+        <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close account">×</button>
+      </header>
+      <div class="ftw-drawer__tabs" role="tablist">
+        <button class="ftw-tab is-active" type="button" data-ftw-tab="loyalty">Loyalty</button>
+        <button class="ftw-tab" type="button" data-ftw-tab="orders">Orders</button>
+        <button class="ftw-tab" type="button" data-ftw-tab="account">Account</button>
+      </div>
+      <div class="ftw-drawer__body">
+        {%- if customer -%}
+          <div class="ftw-panel is-active" data-ftw-panel="loyalty">
+            <div class="ftw-rank">
+              <span class="ftw-rank__badge">{{ rank_name }}</span>
+              <span>{{ points }} PTS · {{ orders }} DROPS</span>
+            </div>
+            <div class="ftw-bar"><div class="ftw-bar__fill" style="width:{{ rank_progress }}%"></div></div>
+            <p class="ftw-muted">{% if rank_next != 'MAX' %}Next: {{ rank_next }}{% else %}MAX RANK{% endif %}</p>
+            <div class="ftw-ladder">
+              <span{% if rank_name == 'RECRUIT' %} class="is-on"{% endif %}>RECRUIT</span>
+              <span{% if rank_name == 'SOLDIER' %} class="is-on"{% endif %}>SOLDIER</span>
+              <span{% if rank_name == 'CAPTAIN' %} class="is-on"{% endif %}>CAPTAIN</span>
+              <span{% if rank_name == 'GENERAL' %} class="is-on"{% endif %}>GENERAL</span>
+              <span{% if rank_name == 'LEGEND' %} class="is-on"{% endif %}>LEGEND</span>
+            </div>
+          </div>
+          <div class="ftw-panel" data-ftw-panel="orders" hidden>
+            {%- if customer.orders_count > 0 -%}
+              <ul class="ftw-orders">
+                {%- for order in customer.orders limit: 5 -%}
+                  <li>
+                    <a href="{{ order.customer_url }}">
+                      <strong>{{ order.name }}</strong>
+                      <span>{{ order.created_at | date: '%d %b %Y' }} · {{ order.total_price | money }}</span>
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+              <a class="ftw-btn ftw-btn--primary" href="{{ routes.account_url }}">VIEW ALL ORDERS</a>
+            {%- else -%}
+              <p class="ftw-empty">No orders yet.</p>
+            {%- endif -%}
+          </div>
+          <div class="ftw-panel" data-ftw-panel="account" hidden>
+            <dl class="ftw-info">
+              <div><dt>Name</dt><dd>{{ customer.name | default: '—' }}</dd></div>
+              <div><dt>Email</dt><dd>{{ customer.email }}</dd></div>
+              <div><dt>Phone</dt><dd>{{ customer.phone | default: '—' }}</dd></div>
+              <div><dt>Addresses</dt><dd>{{ customer.addresses_count }} saved</dd></div>
+            </dl>
+            <div class="ftw-actions">
+              <a class="ftw-btn ftw-btn--primary" href="{{ routes.account_url }}">EDIT ACCOUNT</a>
+              <a class="ftw-btn" href="{{ routes.account_logout_url }}">LOG OUT</a>
+            </div>
+          </div>
+        {%- else -%}
+          <div class="ftw-panel is-active" data-ftw-panel="loyalty">
+            <p class="ftw-empty">Log in to track loyalty points.</p>
+            <div class="ftw-ladder">
+              <span>RECRUIT</span><span>SOLDIER</span><span>CAPTAIN</span><span>GENERAL</span><span>LEGEND</span>
+            </div>
+          </div>
+          <div class="ftw-panel" data-ftw-panel="orders" hidden>
+            <p class="ftw-empty">Sign in to see orders.</p>
+          </div>
+          <div class="ftw-panel" data-ftw-panel="account" hidden>
+            <div class="ftw-actions">
+              <a class="ftw-btn ftw-btn--primary" href="{{ routes.account_login_url }}">LOG IN</a>
+              <a class="ftw-btn" href="{{ routes.account_register_url }}">CREATE</a>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-drawer" id="ftw-contact" hidden>
+    <div class="ftw-drawer__panel">
+      <header class="ftw-drawer__head">
+        <h2>NEWSLETTER</h2>
+        <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close">×</button>
+      </header>
+      <div class="ftw-drawer__body">
+        <form class="ftw-contact" id="contact-form">
+          <label>Email
+            <input name="from" type="email" placeholder="you@email.com" required>
+          </label>
+          <button class="ftw-btn ftw-btn--primary" type="submit">JOIN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-sheet" id="ftw-sheet" hidden>
+    <div class="ftw-sheet__backdrop" data-close-sheet></div>
+    <div
+      class="ftw-sheet__panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ftw-sheet-title"
+    >
+      <button class="ftw-sheet__close" type="button" data-close-sheet aria-label="Close">
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="ftw-sheet__media">
+        <img id="ftw-sheet-image" src="" alt="" width="640" height="640">
+      </div>
+      <div class="ftw-sheet__body">
+        <h2 id="ftw-sheet-title"></h2>
+        <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
+        <p class="ftw-sheet__desc" id="ftw-sheet-desc"></p>
+        <div class="ftw-sheet__sizes" id="ftw-sheet-sizes" hidden></div>
+        <button class="ftw-btn ftw-btn--primary ftw-sheet__cta" type="button" id="ftw-sheet-add">
+          ADD TO CART
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-toast" id="toast" role="status" aria-live="polite">
+    <div id="toast-body">Added to cart.</div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FTW Shop",
+  "tag": "section",
+  "class": "section-ftw-shop",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo mark"
+    },
+    {
+      "type": "collection",
+      "id": "collection_live",
+      "label": "New / live collection"
+    },
+    {
+      "type": "collection",
+      "id": "collection_archive",
+      "label": "Archive collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 36,
+      "step": 1,
+      "label": "Products per collection",
+      "default": 18
+    },
+    {
+      "type": "text",
+      "id": "instagram_url",
+      "label": "Instagram URL",
+      "default": "https://www.instagram.com/biziboiz/"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "T-SHIRTS"
+        },
+        {
+          "type": "text",
+          "id": "filter",
+          "label": "Filter key (match product type/tag)",
+          "default": "t-shirts"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FTW Shop",
+      "blocks": [
+        { "type": "category", "settings": { "label": "T-SHIRTS", "filter": "t-shirts" } },
+        { "type": "category", "settings": { "label": "HOODIES", "filter": "hoodies" } },
+        { "type": "category", "settings": { "label": "TOPS / JERSEYS", "filter": "tops" } },
+        { "type": "category", "settings": { "label": "BOTTOMS", "filter": "bottoms" } },
+        { "type": "category", "settings": { "label": "HATS", "filter": "hats" } },
+        { "type": "category", "settings": { "label": "BAGS", "filter": "bags" } },
+        { "type": "category", "settings": { "label": "ACCESSORIES", "filter": "accessories" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

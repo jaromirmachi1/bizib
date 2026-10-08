@@ -3,423 +3,237 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BIZIBOIZ — Windows XP Shop</title>
-    <meta name="description" content="BIZIBOIZ local shop preview — Corteiz-style structure with Windows XP desktop.">
-    <link rel="stylesheet" href="./xp.css?v=21">
+    <title>BIZIBOIZ</title>
+    <meta name="description" content="BIZIBOIZ — Corteiz-type streetwear shop preview.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=11">
+    <style>
+      html, body { margin: 0; background: #f2f2f2; }
+      body.ftw-mode { min-height: 100dvh; }
+      .visually-hidden {
+        position: absolute !important;
+        width: 1px; height: 1px;
+        padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0);
+        white-space: nowrap; border: 0;
+      }
+    </style>
   </head>
-  <body>
-    <div class="desktop" id="desktop">
-      <div class="bliss-brand" aria-hidden="true">
-        <img class="bliss-brand__logo" src="./assets/panacek_2.png" alt="" width="280" height="280">
-        <span>FOR THE WIN</span>
+  <body class="ftw-mode">
+    <div class="ftw-shop" id="ftw-shop" data-cart-count="0">
+      <div class="ftw-nav-scrim" id="ftw-nav-scrim" hidden></div>
+
+      <div class="ftw-shell">
+        <aside class="ftw-side" id="ftw-side" aria-label="Shop navigation">
+          <a class="ftw-logo" href="#" aria-label="BIZIBOIZ home">
+            <img src="./assets/panacek_2.png" alt="" width="280" height="280">
+          </a>
+
+          <nav class="ftw-cats" aria-label="Categories">
+            <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
+            <button type="button" data-ftw-filter="t-shirts">T-SHIRTS</button>
+            <button type="button" data-ftw-filter="hoodies">HOODIES</button>
+            <button type="button" data-ftw-filter="tops">TOPS / JERSEYS</button>
+            <button type="button" data-ftw-filter="bottoms">BOTTOMS</button>
+            <button type="button" data-ftw-filter="hats">HATS</button>
+            <button type="button" data-ftw-filter="bags">BAGS</button>
+            <button type="button" data-ftw-filter="accessories">ACCESSORIES</button>
+            <button type="button" data-ftw-filter="archive">ARCHIVE</button>
+          </nav>
+
+          <div class="ftw-side__foot">
+            <div class="ftw-side__icons">
+              <a href="https://www.instagram.com/biziboiz/" target="_blank" rel="noopener" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+                </svg>
+              </a>
+              <button type="button" id="ftw-account-btn" aria-expanded="false" aria-controls="ftw-account" aria-label="Account">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <circle cx="12" cy="8" r="3.2"></circle>
+                  <path d="M5 19c1.8-3.2 4-4.8 7-4.8s5.2 1.6 7 4.8"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="ftw-side__links">
+              <button type="button" data-ftw-filter="archive">ARCHIVE</button>
+              <button type="button" id="ftw-contact-open">NEWSLETTER</button>
+              <a href="#">SHIPPING POLICY</a>
+              <a href="#">TERMS OF SERVICE</a>
+            </div>
+          </div>
+        </aside>
+
+        <div class="ftw-main">
+          <header class="ftw-top">
+            <button class="ftw-top__item ftw-menu-btn" type="button" id="ftw-menu-btn" aria-label="Open menu" aria-controls="ftw-side">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16"></path>
+              </svg>
+              MENU
+            </button>
+            <label class="ftw-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="M16.5 16.5L21 21"></path>
+              </svg>
+              <input type="search" id="ftw-search-input" placeholder="SEARCH" autocomplete="off" aria-label="Search products">
+            </label>
+            <button class="ftw-top__item" type="button" id="ftw-bag-btn" aria-expanded="false" aria-controls="ftw-bag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M6.5 8.5h11l-.8 11.2a1.5 1.5 0 0 1-1.5 1.3H8.8a1.5 1.5 0 0 1-1.5-1.3L6.5 8.5Z"></path>
+                <path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"></path>
+              </svg>
+              CART (<span id="cart-count">0</span>)
+            </button>
+            <a class="ftw-top__item" href="#">CHECKOUT</a>
+          </header>
+
+          <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
+          <div class="ftw-grid" id="ftw-grid" role="list"></div>
+        </div>
       </div>
-      <nav class="icon-grid" aria-label="Desktop applications">
-        <button class="desk-icon" type="button" data-open="rules" title="BIZIBOIZ">
-          <img class="desk-icon__glyph desk-icon__glyph--img" src="./assets/panacek_2.png" alt="" width="42" height="42">
-          <span class="desk-icon__label">BIZIBOIZ</span>
-        </button>
-        <button class="desk-icon desk-icon--hot" type="button" data-open="shop2026">
-          <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-            <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
-            <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
-            <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
-            <rect x="24" y="20" width="10" height="10" fill="#e10600"/>
-          </svg>
-          <span class="desk-icon__label">NEW DROP</span>
-        </button>
-        <button class="desk-icon" type="button" data-open="shop2025">
-          <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-            <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
-            <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
-            <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
-          </svg>
-          <span class="desk-icon__label">ARCHIVE</span>
-        </button>
-        <button class="desk-icon" type="button" data-open="wallpaper">
-          <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-            <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
-            <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
-            <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
-            <circle cx="16" cy="22" r="3" fill="#888"/>
-            <path d="M10 30l8-8 6 5 8-10 4 13H10z" fill="#bbb"/>
-          </svg>
-          <span class="desk-icon__label">WALLPAPER</span>
-        </button>
-        <button class="desk-icon" type="button" data-open="cart">
-          <img class="desk-icon__glyph desk-icon__glyph--bag" src="./assets/money_bag_only_nobg.png" alt="" width="48" height="38" draggable="false">
-          <span class="desk-icon__label">THE BAG</span>
-        </button>
-        <button class="desk-icon" type="button" data-open="rules">
-          <img class="desk-icon__glyph desk-icon__glyph--wanted" src="./assets/wanted_bw_256.png" alt="" width="42" height="42" draggable="false">
-          <span class="desk-icon__label">RULES</span>
-        </button>
-        <button class="desk-icon" type="button" data-open="contact">
-          <img class="desk-icon__glyph desk-icon__glyph--letter" src="./assets/letter_bw_256.png" alt="" width="42" height="42" draggable="false">
-          <span class="desk-icon__label">HIT US UP</span>
-        </button>
-        <a class="desk-icon" href="https://www.instagram.com/biziboiz/" target="_blank" rel="noopener">
-          <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-            <rect x="6" y="6" width="30" height="30" rx="8" fill="none" stroke="#fff" stroke-width="2.5"/>
-            <circle cx="21" cy="21" r="7.5" fill="none" stroke="#fff" stroke-width="2.5"/>
-            <circle cx="30" cy="13" r="2.2" fill="#fff"/>
-          </svg>
-          <span class="desk-icon__label">IG</span>
-        </a>
-      </nav>
 
-      <div class="window-layer" id="window-layer">
-        <!-- Shop 2026 -->
-        <section class="xp-window" id="win-shop2026" hidden data-window="shop2026" style="left:120px;top:40px;width:720px;height:460px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#f4d26a" stroke="#b8860b"/></svg>
-            <span class="xp-titlebar__text">BIZIBOIZ.exe — LIVE DROP \\2026</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
+      <div class="ftw-drawer" id="ftw-bag" hidden>
+        <div class="ftw-drawer__panel">
+          <header class="ftw-drawer__head">
+            <h2>CART</h2>
+            <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close cart">×</button>
           </header>
-          <div class="xp-menubar">
-            <button type="button">File</button>
-            <button type="button">Edit</button>
-            <button type="button">View</button>
-            <button type="button">Favorites</button>
-            <button type="button">Tools</button>
-            <button type="button">Help</button>
+          <div class="ftw-drawer__body" id="cart-body">
+            <div class="ftw-empty">CART EMPTY.</div>
           </div>
-          <div class="xp-toolbar">
-            <button class="xp-tool" type="button" data-open="shop2025">← Back</button>
-            <button class="xp-tool" type="button">↑ Up</button>
-            <button class="xp-tool" type="button" data-view="icons">Icons</button>
-            <button class="xp-tool" type="button" data-open="cart">Cart</button>
-          </div>
-          <div class="xp-address">
-            <label for="addr-2026">Address</label>
-            <input id="addr-2026" value="C:\BIZIBOIZ\DROPS\2026\LIVE\" readonly>
-          </div>
-          <div class="xp-body">
-            <div class="explorer-pane">
-              <aside class="explorer-side">
-                <h3>Ops</h3>
-                <ul>
-                  <li><button type="button" class="is-active" data-open="shop2026">Live Drop</button></li>
-                  <li><button type="button" data-open="shop2025">Deadstock / Archive</button></li>
-                  <li><button type="button" data-open="cart">The Bag</button></li>
-                  <li><button type="button" data-open="rules">Read The Rules</button></li>
-                </ul>
-                <p class="side-note">Limited units.<br>No restocks.<br>For the win.</p>
-              </aside>
-              <div class="product-grid" id="grid-2026" data-collection="2026"></div>
-            </div>
-          </div>
-          <footer class="xp-statusbar"><span>8 pieces locked &amp; loaded</span><span>MEMBERS ONLY ENERGY</span></footer>
-        </section>
+        </div>
+      </div>
 
-        <!-- Shop 2025 -->
-        <section class="xp-window" id="win-shop2025" hidden data-window="shop2025" style="left:160px;top:70px;width:700px;height:440px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#e8c14a" stroke="#9a7008"/></svg>
-            <span class="xp-titlebar__text">BIZIBOIZ.exe — ARCHIVE \\2025</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
+      <div class="ftw-drawer" id="ftw-account" hidden>
+        <div class="ftw-drawer__panel">
+          <header class="ftw-drawer__head">
+            <h2>ACCOUNT</h2>
+            <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close account">×</button>
           </header>
-          <div class="xp-menubar">
-            <button type="button">File</button>
-            <button type="button">Edit</button>
-            <button type="button">View</button>
-            <button type="button">Help</button>
+          <div class="ftw-drawer__tabs" role="tablist">
+            <button class="ftw-tab is-active" type="button" data-ftw-tab="loyalty">Loyalty</button>
+            <button class="ftw-tab" type="button" data-ftw-tab="orders">Orders</button>
+            <button class="ftw-tab" type="button" data-ftw-tab="account">Account</button>
           </div>
-          <div class="xp-toolbar">
-            <button class="xp-tool" type="button" data-open="shop2026">← Back</button>
-            <button class="xp-tool" type="button" data-open="cart">Cart</button>
-          </div>
-          <div class="xp-address">
-            <label for="addr-2025">Address</label>
-            <input id="addr-2025" value="C:\BIZIBOIZ\DROPS\2025\ARCHIVE\" readonly>
-          </div>
-          <div class="xp-body">
-            <div class="explorer-pane">
-              <aside class="explorer-side">
-                <h3>Vault</h3>
-                <ul>
-                  <li><button type="button" class="is-active">2025 leftovers</button></li>
-                  <li><button type="button" data-open="shop2026">Back to Live</button></li>
-                </ul>
-                <p class="side-note">What survived.<br>What didn't get flipped.</p>
-              </aside>
-              <div class="product-grid" id="grid-2025" data-collection="2025"></div>
+          <div class="ftw-drawer__body">
+            <div class="ftw-panel is-active" data-ftw-panel="loyalty">
+              <div class="ftw-rank">
+                <span class="ftw-rank__badge">SOLDIER</span>
+                <span>240 PTS · 2 DROPS</span>
+              </div>
+              <div class="ftw-bar"><div class="ftw-bar__fill" style="width:50%"></div></div>
+              <p class="ftw-muted">Next: CAPTAIN</p>
+              <div class="ftw-ladder">
+                <span>RECRUIT</span><span class="is-on">SOLDIER</span><span>CAPTAIN</span><span>GENERAL</span><span>LEGEND</span>
+              </div>
+            </div>
+            <div class="ftw-panel" data-ftw-panel="orders" hidden>
+              <ul class="ftw-orders">
+                <li><a href="#"><strong>#1042</strong><span>12 Mar 2026 · 2 490 Kč</span></a></li>
+                <li><a href="#"><strong>#1018</strong><span>03 Feb 2026 · 1 290 Kč</span></a></li>
+              </ul>
+            </div>
+            <div class="ftw-panel" data-ftw-panel="account" hidden>
+              <div class="ftw-actions">
+                <button class="ftw-btn ftw-btn--primary" type="button">LOG IN</button>
+                <button class="ftw-btn" type="button">CREATE</button>
+              </div>
             </div>
           </div>
-          <footer class="xp-statusbar"><span>6 files in the vault</span><span>ARCHIVE MODE</span></footer>
-        </section>
+        </div>
+      </div>
 
-        <!-- Product detail -->
-        <section class="xp-window" id="win-product" hidden data-window="product" style="left:200px;top:60px;width:640px;height:420px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#ddd" stroke="#666"/></svg>
-            <span class="xp-titlebar__text" id="product-titlebar">Product.exe</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
+      <div class="ftw-drawer" id="ftw-contact" hidden>
+        <div class="ftw-drawer__panel">
+          <header class="ftw-drawer__head">
+            <h2>NEWSLETTER</h2>
+            <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close">×</button>
           </header>
-          <div class="xp-body" id="product-body"></div>
-          <footer class="xp-statusbar"><span>Ready</span><span>BIZIBOIZ</span></footer>
-        </section>
-
-        <!-- Cart -->
-        <section class="xp-window" id="win-cart" hidden data-window="cart" style="left:180px;top:90px;width:560px;height:360px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#fff" stroke="#336"/></svg>
-            <span class="xp-titlebar__text">THE BAG.exe — Checkout</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
-          </header>
-          <div class="xp-body" id="cart-body"></div>
-        </section>
-
-        <!-- Rules -->
-        <section class="xp-window" id="win-rules" hidden data-window="rules" style="left:240px;top:80px;width:480px;height:360px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#fffef0" stroke="#555"/></svg>
-            <span class="xp-titlebar__text">Notepad — Rules.txt</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
-          </header>
-          <div class="xp-menubar">
-            <button type="button">File</button>
-            <button type="button">Edit</button>
-            <button type="button">Format</button>
-            <button type="button">Help</button>
-          </div>
-          <div class="xp-body">
-            <div class="notepad">BIZIBOIZ — RULES.TXT
-====================
-
->>> FOR THE WIN. NO SHORTCUTS.
-
-01  NO RESELLERS.
-    You flip it, you're banned. Forever.
-
-02  WHEN IT'S GONE, IT'S GONE.
-    No restocks. No "notify me". Move faster.
-
-03  WEAR IT. DON'T WAREHOUSE IT.
-    Culture > closet flex for sale later.
-
-04  RESPECT THE DROP.
-    Queue fair. No bots. No games.
-
-05  SUPPORT THE HOUSE.
-    Questions: info@biziboiz.com
-    SMS: +420 608 184 185
-
-BIZIBOIZ OS RUNNING...
-IF YOU'RE HERE, YOU KNOW.
-
-— EOF —
-</div>
-          </div>
-          <footer class="xp-statusbar"><span>Ln 1, Col 1</span><span>Windows (CRLF)</span></footer>
-        </section>
-
-        <!-- Contact -->
-        <section class="xp-window" id="win-contact" hidden data-window="contact" style="left:220px;top:100px;width:460px;height:380px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#fff" stroke="#245edb"/></svg>
-            <span class="xp-titlebar__text">Outlook Express — New Message</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
-          </header>
-          <div class="xp-body">
-            <form class="contact-form" id="contact-form">
-              <label>To
-                <input value="info@biziboiz.com" readonly>
-              </label>
-              <label>From
-                <input name="from" type="email" placeholder="you@email.com" required>
-              </label>
-              <label>Subject
-                <input name="subject" type="text" placeholder="ORDER / SIZE / WHATEVER" required>
-              </label>
-              <label>Message
-                <textarea name="message" placeholder="Keep it short..." required></textarea>
-              </label>
-              <button class="xp-btn xp-btn--primary" type="submit">SEND IT</button>
+          <div class="ftw-drawer__body">
+            <form class="ftw-contact" id="contact-form">
+              <label>Email<input name="from" type="email" placeholder="you@email.com" required></label>
+              <button class="ftw-btn ftw-btn--primary" type="submit">JOIN</button>
             </form>
           </div>
-          <footer class="xp-statusbar"><span>Connected</span><span>SMTP</span></footer>
-        </section>
-
-        <!-- Wallpaper -->
-        <section class="xp-window" id="win-wallpaper" hidden data-window="wallpaper" style="left:160px;top:60px;width:520px;height:420px">
-          <header class="xp-titlebar" data-drag>
-            <svg class="xp-titlebar__icon" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" fill="#fff" stroke="#c8c8c8"/><circle cx="5" cy="6" r="1.5" fill="#888"/><path d="M2 13l4-4 3 2 4-5 2 7H2z" fill="#bbb"/></svg>
-            <span class="xp-titlebar__text">WALLPAPER.exe — Display Properties</span>
-            <div class="xp-titlebar__controls">
-              <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
-              <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
-              <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
-            </div>
-          </header>
-          <div class="xp-body">
-            <div class="wallpaper-panel">
-              <p class="wallpaper-panel__copy">Pick a desktop background. Leftover screen space stays black.</p>
-              <div class="wallpaper-grid">
-                <button class="wallpaper-tile is-active" type="button" data-wallpaper="./assets/BIZI_WALLPAPERS_-_Spotlight_black_white.jpg" data-wallpaper-name="Spotlight">
-                  <img src="./assets/BIZI_WALLPAPERS_-_Spotlight_black_white.jpg" alt="" width="120" height="160" loading="lazy" draggable="false">
-                  <span>Spotlight</span>
-                </button>
-              </div>
-              <button class="xp-btn xp-btn--primary" type="button" id="wallpaper-apply">APPLY TO DESKTOP</button>
-            </div>
-          </div>
-          <footer class="xp-statusbar"><span>1 wallpaper</span><span>CONTAIN + BLACK</span></footer>
-        </section>
-
-      </div>
-
-      <div class="account-menu" id="account-menu" hidden role="dialog" aria-label="Account">
-        <div class="account-menu__header">
-          <div class="account-menu__avatar">B</div>
-          <div class="account-menu__who">
-            <div class="account-menu__name">BIZI SOLDIER</div>
-            <div class="account-menu__email">member@biziboiz.com</div>
-          </div>
-          <div class="account-menu__badge">SOLDIER</div>
-        </div>
-
-        <div class="account-menu__tabs" role="tablist">
-          <button class="account-tab is-active" type="button" role="tab" aria-selected="true" data-account-tab="loyalty">Loyalty</button>
-          <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="orders">Orders</button>
-          <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="account">Account</button>
-        </div>
-
-        <div class="account-menu__body">
-          <div class="account-panel is-active" data-account-panel="loyalty" role="tabpanel">
-            <div class="xp-account__stats">
-              <div class="xp-stat">
-                <span class="xp-stat__label">LOYALTY PTS</span>
-                <span class="xp-stat__value">240</span>
-              </div>
-              <div class="xp-stat">
-                <span class="xp-stat__label">DROPS</span>
-                <span class="xp-stat__value">2</span>
-              </div>
-              <div class="xp-stat">
-                <span class="xp-stat__label">SPENT</span>
-                <span class="xp-stat__value">3 780 Kč</span>
-              </div>
-            </div>
-            <div class="xp-account__progress">
-              <div class="xp-account__progress-top">
-                <span>RANK: SOLDIER</span>
-                <span>NEXT: CAPTAIN</span>
-              </div>
-              <div class="xp-account__bar">
-                <div class="xp-account__bar-fill" style="width: 50%"></div>
-              </div>
-            </div>
-            <div class="xp-account__ladder">
-              <div class="xp-rank">RECRUIT</div>
-              <div class="xp-rank is-current">SOLDIER</div>
-              <div class="xp-rank">CAPTAIN</div>
-              <div class="xp-rank">GENERAL</div>
-              <div class="xp-rank">LEGEND</div>
-            </div>
-          </div>
-
-          <div class="account-panel" data-account-panel="orders" role="tabpanel" hidden>
-            <div class="account-orders">
-              <button class="account-order" type="button">
-                <span class="account-order__id">#1042</span>
-                <span class="account-order__meta">12 Mar 2026 · 2 items</span>
-                <span class="account-order__price">2 490 Kč</span>
-                <span class="account-order__status">FULFILLED</span>
-              </button>
-              <button class="account-order" type="button">
-                <span class="account-order__id">#1018</span>
-                <span class="account-order__meta">03 Feb 2026 · 1 item</span>
-                <span class="account-order__price">1 290 Kč</span>
-                <span class="account-order__status">FULFILLED</span>
-              </button>
-              <button class="account-order" type="button">
-                <span class="account-order__id">#0991</span>
-                <span class="account-order__meta">18 Dec 2025 · 3 items</span>
-                <span class="account-order__price">4 180 Kč</span>
-                <span class="account-order__status">FULFILLED</span>
-              </button>
-            </div>
-            <button class="xp-btn xp-btn--primary account-panel__cta" type="button" id="account-orders-all">VIEW ALL ORDERS</button>
-          </div>
-
-          <div class="account-panel" data-account-panel="account" role="tabpanel" hidden>
-            <dl class="account-info">
-              <div class="account-info__row">
-                <dt>Name</dt>
-                <dd>Bizi Soldier</dd>
-              </div>
-              <div class="account-info__row">
-                <dt>Email</dt>
-                <dd>member@biziboiz.com</dd>
-              </div>
-              <div class="account-info__row">
-                <dt>Phone</dt>
-                <dd>+420 608 000 000</dd>
-              </div>
-              <div class="account-info__row">
-                <dt>Addresses</dt>
-                <dd>1 saved</dd>
-              </div>
-              <div class="account-info__row">
-                <dt>Member since</dt>
-                <dd>Nov 2025</dd>
-              </div>
-            </dl>
-            <div class="account-panel__actions">
-              <button class="xp-btn xp-btn--primary" type="button" id="account-open">EDIT ACCOUNT</button>
-              <button class="xp-btn" type="button" id="account-addresses">ADDRESSES</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="account-menu__footer">
-          <button class="xp-btn" type="button" id="account-logout">LOG OUT</button>
         </div>
       </div>
 
-      <div class="xp-toast" id="toast" role="status" aria-live="polite">
-        <div class="xp-toast__bar">BIZIBOIZ</div>
-        <div class="xp-toast__body" id="toast-body">Added to cart.</div>
+      <div class="ftw-sheet" id="ftw-sheet" hidden>
+        <div class="ftw-sheet__backdrop" data-close-sheet></div>
+        <div class="ftw-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="ftw-sheet-title">
+          <button class="ftw-sheet__close" type="button" data-close-sheet aria-label="Close">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="ftw-sheet__media">
+            <img id="ftw-sheet-image" src="" alt="" width="640" height="640">
+          </div>
+          <div class="ftw-sheet__body">
+            <h2 id="ftw-sheet-title"></h2>
+            <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
+            <p class="ftw-sheet__desc" id="ftw-sheet-desc"></p>
+            <div class="ftw-sheet__sizes" id="ftw-sheet-sizes" hidden></div>
+            <button class="ftw-btn ftw-btn--primary ftw-sheet__cta" type="button" id="ftw-sheet-add">
+              ADD TO CART
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="taskbar" role="contentinfo">
-        <button class="start-btn" type="button" id="start-btn" aria-expanded="false" aria-controls="account-menu" aria-label="Open account">
-          <img class="start-logo start-logo--biziboiz" src="./assets/panacek_2.png" alt="" width="20" height="20">
-          account
-        </button>
-        <div class="task-buttons" id="task-buttons"></div>
-        <button class="tray tray--cart" type="button" id="tray-cart" data-open="cart" aria-label="Open cart">
-          <img class="tray-cart__icon" src="./assets/money_bag_only_nobg.png" alt="" width="20" height="16" draggable="false">
-          <span class="tray-cart__label">BAG</span>
-          <span class="tray-cart__count" id="cart-count">0</span>
-        </button>
+      <div class="ftw-toast" id="toast" role="status" aria-live="polite">
+        <div id="toast-body">Added to cart.</div>
       </div>
     </div>
 
-    <script src="./xp.js?v=20"></script>
+    <script>
+      const PRODUCTS = [
+        { name: "FTW BOX TEE [BLACK]", price: "1 290 Kč", filter: "t-shirts", drop: "new", sold: false, desc: "Heavyweight box tee. Limited drop.", sizes: ["S","M","L","XL"] },
+        { name: "SHADOW HOODIE [TRIPLE BLACK]", price: "2 490 Kč", filter: "hoodies", drop: "new", sold: false, desc: "Triple black fleece. Everyday piece.", sizes: ["S","M","L","XL"] },
+        { name: "ALCATRAZ CAP [DIRTY]", price: "790 Kč", filter: "hats", drop: "new", sold: false, desc: "Washed cap. One size.", sizes: ["OS"] },
+        { name: "NIGHT CREW [GREY]", price: "1 890 Kč", filter: "tops", drop: "new", sold: false, desc: "Soft crew for cold nights.", sizes: ["S","M","L","XL"] },
+        { name: "TRACK SUIT BOTTOM [BLACK]", price: "2 190 Kč", filter: "bottoms", drop: "new", sold: false, desc: "Tapered track pant.", sizes: ["S","M","L","XL"] },
+        { name: "ZIP SHELL [MULTI]", price: "2 690 Kč", filter: "tops", drop: "new", sold: false, desc: "Light shell. Packable.", sizes: ["S","M","L","XL"] },
+        { name: "LONGSLEEVE STAMP [WHITE]", price: "1 490 Kč", filter: "t-shirts", drop: "new", sold: false, desc: "Stamp print long sleeve.", sizes: ["S","M","L","XL"] },
+        { name: "BEANIE BLACKOUT", price: "SOLD OUT", filter: "hats", drop: "new", sold: true, desc: "Gone.", sizes: ["OS"] },
+        { name: "MONEY BAG TOTE", price: "490 Kč", filter: "bags", drop: "new", sold: false, desc: "Everyday tote.", sizes: ["OS"] },
+        { name: "DEADSTOCK TEE", price: "990 Kč", filter: "t-shirts", drop: "archive", sold: false, desc: "Archive deadstock.", sizes: ["S","M","L"] },
+        { name: "OLD MONEY LS", price: "1 190 Kč", filter: "tops", drop: "archive", sold: false, desc: "Archive long sleeve.", sizes: ["S","M","L"] },
+        { name: "VAULT ZIP", price: "SOLD OUT", filter: "hoodies", drop: "archive", sold: true, desc: "Archive sold out.", sizes: ["M","L"] },
+      ];
+
+      const grid = document.getElementById("ftw-grid");
+      grid.innerHTML = PRODUCTS.map((p, i) => {
+        const variants = (p.sizes || ["OS"]).map((s, n) => ({
+          id: 1000 + i * 10 + n,
+          title: s,
+          available: !p.sold,
+          price: p.price,
+        }));
+        return `
+        <a class="ftw-product${p.sold ? " is-sold" : ""}" href="#" role="listitem"
+           data-title="${p.name}" data-filter="${p.filter}" data-drop="${p.drop}"
+           data-price="${p.price}" data-image="./assets/panacek_2.png"
+           data-available="${p.sold ? "0" : "1"}" data-variant-id="${variants[0].id}"
+           data-description="${p.desc}"
+           data-variants='${JSON.stringify(variants)}'>
+          <div class="ftw-product__media">
+            <img src="./assets/panacek_2.png" alt="" width="200" height="220" loading="lazy">
+            ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : ""}
+          </div>
+          <div class="ftw-product__meta">
+            <span class="ftw-product__name">${p.name}</span>
+            <span class="ftw-product__price">${p.price}</span>
+          </div>
+        </a>`;
+      }).join("");
+    </script>
+    <script src="/assets/ftw-shop.js?v=4"></script>
   </body>
 </html>

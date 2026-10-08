@@ -1,7 +1,7 @@
 {
   "sections": {
-    "xp_desktop": {
-      "type": "xp-desktop",
+    "ftw_shop": {
+      "type": "ftw-shop",
       "settings": {
         "tagline": "FOR THE WIN",
         "collection_live": "2026",
@@ -12,5 +12,5 @@
       }
     }
   },
-  "order": ["xp_desktop"]
+  "order": ["ftw_shop"]
 }
