@@ -18,6 +18,7 @@
   id="desktop"
   data-cart-count="{{ cart.item_count }}"
   data-money-format="{{ shop.money_format | escape }}"
+  style="--xp-wallpaper: url('{{ 'BIZI_WALLPAPERS_-_Spotlight_black_white.jpg' | asset_url }}')"
 >
   <div class="bliss-brand" aria-hidden="true">
     <img class="bliss-brand__logo" src="{{ logo_url }}" alt="" width="280" height="280" loading="eager">
@@ -31,49 +32,72 @@
     </button>
     <button class="desk-icon desk-icon--hot" type="button" data-open="shop2026">
       <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="4" y="8" width="34" height="26" rx="2" fill="#f4d26a" stroke="#b8860b"/>
-        <path d="M4 14h34" stroke="#c9a227" stroke-width="2"/>
-        <rect x="8" y="6" width="12" height="6" rx="1" fill="#f7e08a" stroke="#b8860b"/>
+        <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
+        <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
+        <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
         <rect x="24" y="20" width="10" height="10" fill="#e10600"/>
       </svg>
       <span class="desk-icon__label">NEW DROP</span>
     </button>
     <button class="desk-icon" type="button" data-open="shop2025">
       <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="4" y="8" width="34" height="26" rx="2" fill="#e8c14a" stroke="#9a7008"/>
-        <path d="M4 14h34" stroke="#b8860b" stroke-width="2"/>
-        <rect x="8" y="6" width="12" height="6" rx="1" fill="#f0d56a" stroke="#9a7008"/>
+        <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
+        <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
+        <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
       </svg>
       <span class="desk-icon__label">ARCHIVE</span>
     </button>
-    <button class="desk-icon" type="button" data-open="cart">
+    <button class="desk-icon" type="button" data-open="wallpaper">
       <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="8" y="12" width="26" height="20" rx="2" fill="#0a0a0a" stroke="#000"/>
-        <path d="M12 16h18M12 21h14M12 26h10" stroke="#e10600" stroke-width="1.5"/>
-        <circle cx="15" cy="34" r="2.5" fill="#e10600"/>
-        <circle cx="29" cy="34" r="2.5" fill="#e10600"/>
+        <rect x="4" y="8" width="34" height="26" rx="2" fill="#fff" stroke="#c8c8c8"/>
+        <path d="M4 14h34" stroke="#ddd" stroke-width="2"/>
+        <rect x="8" y="6" width="12" height="6" rx="1" fill="#f5f5f5" stroke="#c8c8c8"/>
+        <circle cx="16" cy="22" r="3" fill="#888"/>
+        <path d="M10 30l8-8 6 5 8-10 4 13H10z" fill="#bbb"/>
       </svg>
+      <span class="desk-icon__label">WALLPAPER</span>
+    </button>
+    <button class="desk-icon" type="button" data-open="cart">
+      <img
+        class="desk-icon__glyph desk-icon__glyph--bag"
+        src="{{ 'money_bag_only_nobg.png' | asset_url }}"
+        alt=""
+        width="48"
+        height="38"
+        loading="lazy"
+        draggable="false"
+      >
       <span class="desk-icon__label">THE BAG</span>
     </button>
     <button class="desk-icon" type="button" data-open="rules">
-      <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="8" y="4" width="26" height="34" rx="1" fill="#fffef0" stroke="#555"/>
-        <path d="M13 12h16M13 18h16M13 24h12" stroke="#e10600" stroke-width="1.5"/>
-      </svg>
+      <img
+        class="desk-icon__glyph desk-icon__glyph--wanted"
+        src="{{ 'wanted_bw_256.png' | asset_url }}"
+        alt=""
+        width="42"
+        height="42"
+        loading="lazy"
+        draggable="false"
+      >
       <span class="desk-icon__label">RULES</span>
     </button>
     <button class="desk-icon" type="button" data-open="contact">
-      <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="5" y="10" width="32" height="22" rx="2" fill="#fff" stroke="#000"/>
-        <path d="M5 12l16 12L37 12" fill="none" stroke="#e10600" stroke-width="1.8"/>
-      </svg>
+      <img
+        class="desk-icon__glyph desk-icon__glyph--letter"
+        src="{{ 'letter_bw_256.png' | asset_url }}"
+        alt=""
+        width="42"
+        height="42"
+        loading="lazy"
+        draggable="false"
+      >
       <span class="desk-icon__label">HIT US UP</span>
     </button>
     <a class="desk-icon" href="{{ ig }}" target="_blank" rel="noopener">
       <svg class="desk-icon__glyph" viewBox="0 0 42 42" aria-hidden="true">
-        <rect x="6" y="6" width="30" height="30" rx="8" fill="#0a0a0a" stroke="#e10600"/>
-        <circle cx="21" cy="21" r="8" fill="none" stroke="#fff" stroke-width="2"/>
-        <circle cx="30" cy="12" r="2" fill="#e10600"/>
+        <rect x="6" y="6" width="30" height="30" rx="8" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="21" cy="21" r="7.5" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="30" cy="13" r="2.2" fill="#fff"/>
       </svg>
       <span class="desk-icon__label">IG</span>
     </a>
@@ -256,37 +280,250 @@
       </div>
       <footer class="xp-statusbar"><span>Connected</span><span>SMTP</span></footer>
     </section>
+
+    <section class="xp-window" id="win-wallpaper" hidden data-window="wallpaper" style="left:160px;top:60px;width:520px;height:420px">
+      <header class="xp-titlebar" data-drag>
+        <svg class="xp-titlebar__icon" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" fill="#fff" stroke="#c8c8c8"/><circle cx="5" cy="6" r="1.5" fill="#888"/><path d="M2 13l4-4 3 2 4-5 2 7H2z" fill="#bbb"/></svg>
+        <span class="xp-titlebar__text">WALLPAPER.exe — Display Properties</span>
+        <div class="xp-titlebar__controls">
+          <button class="xp-ctrl" type="button" data-min aria-label="Minimize">_</button>
+          <button class="xp-ctrl" type="button" data-max aria-label="Maximize">□</button>
+          <button class="xp-ctrl xp-ctrl--close" type="button" data-close aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="xp-body">
+        <div class="wallpaper-panel">
+          <p class="wallpaper-panel__copy">Pick a desktop background. Leftover screen space stays black.</p>
+          <div class="wallpaper-grid">
+            <button
+              class="wallpaper-tile is-active"
+              type="button"
+              data-wallpaper="{{ 'BIZI_WALLPAPERS_-_Spotlight_black_white.jpg' | asset_url }}"
+              data-wallpaper-name="Spotlight"
+            >
+              <img
+                src="{{ 'BIZI_WALLPAPERS_-_Spotlight_black_white.jpg' | asset_url }}"
+                alt=""
+                width="120"
+                height="160"
+                loading="lazy"
+                draggable="false"
+              >
+              <span>Spotlight</span>
+            </button>
+          </div>
+          <button class="xp-btn xp-btn--primary" type="button" id="wallpaper-apply">APPLY TO DESKTOP</button>
+        </div>
+      </div>
+      <footer class="xp-statusbar"><span>1 wallpaper</span><span>CONTAIN + BLACK</span></footer>
+    </section>
+
+    {%- liquid
+      assign orders = 0
+      assign points = 0
+      assign rank_name = 'RECRUIT'
+      assign rank_next = 'SOLDIER'
+      assign rank_need = 1
+      assign rank_progress = 0
+      if customer
+        assign orders = customer.orders_count
+        assign points = orders | times: 150 | plus: 50
+        if orders >= 12
+          assign rank_name = 'LEGEND'
+          assign rank_next = 'MAX'
+          assign rank_need = 12
+          assign rank_progress = 100
+        elsif orders >= 6
+          assign rank_name = 'GENERAL'
+          assign rank_next = 'LEGEND'
+          assign rank_need = 12
+          assign rank_progress = orders | minus: 6 | times: 100 | divided_by: 6
+        elsif orders >= 3
+          assign rank_name = 'CAPTAIN'
+          assign rank_next = 'GENERAL'
+          assign rank_need = 6
+          assign rank_progress = orders | minus: 3 | times: 100 | divided_by: 3
+        elsif orders >= 1
+          assign rank_name = 'SOLDIER'
+          assign rank_next = 'CAPTAIN'
+          assign rank_need = 3
+          assign rank_progress = orders | minus: 1 | times: 100 | divided_by: 2
+        else
+          assign rank_name = 'RECRUIT'
+          assign rank_next = 'SOLDIER'
+          assign rank_need = 1
+          assign rank_progress = 0
+        endif
+      endif
+    -%}
+
   </div>
 
-  <div class="start-menu" id="start-menu" hidden>
-    <div class="start-menu__header">
-      <div class="start-menu__avatar">BB</div>
-      <div>BIZI SOLDIER</div>
-    </div>
-    <div class="start-menu__left">
-      <button class="start-item" type="button" data-open="shop2026">
-        <strong>Live Drop</strong>
-        <span>2026 — going fast</span>
-      </button>
-      <button class="start-item" type="button" data-open="shop2025">
-        <strong>Archive Vault</strong>
-        <span>2025 leftovers</span>
-      </button>
-      <button class="start-item" type="button" data-open="cart">
-        <strong>The Bag</strong>
-        <span>Secure the pack</span>
-      </button>
-    </div>
-    <div class="start-menu__right">
-      <a class="start-item" href="{{ routes.account_url }}"><strong>Account</strong></a>
-      <button class="start-item" type="button" data-open="rules"><strong>The Rules</strong></button>
-      <button class="start-item" type="button" data-open="contact"><strong>Hit Us Up</strong></button>
-      <a class="start-item" href="{{ ig }}" target="_blank" rel="noopener"><strong>IG Feed</strong></a>
-    </div>
-    <div class="start-menu__footer">
-      <button class="xp-btn" type="button" id="log-off">Log Off</button>
-      <button class="xp-btn" type="button" id="turn-off">Turn Off Computer</button>
-    </div>
+  <div class="account-menu" id="account-menu" hidden role="dialog" aria-label="Account">
+    {%- if customer -%}
+      <div class="account-menu__header">
+        <div class="account-menu__avatar">{{ customer.first_name | default: customer.email | slice: 0 | upcase }}</div>
+        <div class="account-menu__who">
+          <div class="account-menu__name">{{ customer.name | default: customer.email }}</div>
+          <div class="account-menu__email">{{ customer.email }}</div>
+        </div>
+        <div class="account-menu__badge">{{ rank_name }}</div>
+      </div>
+
+      <div class="account-menu__tabs" role="tablist">
+        <button class="account-tab is-active" type="button" role="tab" aria-selected="true" data-account-tab="loyalty">Loyalty</button>
+        <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="orders">Orders</button>
+        <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="account">Account</button>
+      </div>
+
+      <div class="account-menu__body">
+        <div class="account-panel is-active" data-account-panel="loyalty" role="tabpanel">
+          <div class="xp-account__stats">
+            <div class="xp-stat">
+              <span class="xp-stat__label">LOYALTY PTS</span>
+              <span class="xp-stat__value">{{ points }}</span>
+            </div>
+            <div class="xp-stat">
+              <span class="xp-stat__label">DROPS</span>
+              <span class="xp-stat__value">{{ orders }}</span>
+            </div>
+            <div class="xp-stat">
+              <span class="xp-stat__label">SPENT</span>
+              <span class="xp-stat__value">{{ customer.total_spent | money }}</span>
+            </div>
+          </div>
+          <div class="xp-account__progress">
+            <div class="xp-account__progress-top">
+              <span>RANK: {{ rank_name }}</span>
+              {%- if rank_next != 'MAX' -%}
+                <span>NEXT: {{ rank_next }}</span>
+              {%- else -%}
+                <span>MAX RANK</span>
+              {%- endif -%}
+            </div>
+            <div class="xp-account__bar">
+              <div class="xp-account__bar-fill" style="width: {{ rank_progress }}%"></div>
+            </div>
+          </div>
+          <div class="xp-account__ladder">
+            <div class="xp-rank{% if rank_name == 'RECRUIT' %} is-current{% endif %}">RECRUIT</div>
+            <div class="xp-rank{% if rank_name == 'SOLDIER' %} is-current{% endif %}">SOLDIER</div>
+            <div class="xp-rank{% if rank_name == 'CAPTAIN' %} is-current{% endif %}">CAPTAIN</div>
+            <div class="xp-rank{% if rank_name == 'GENERAL' %} is-current{% endif %}">GENERAL</div>
+            <div class="xp-rank{% if rank_name == 'LEGEND' %} is-current{% endif %}">LEGEND</div>
+          </div>
+        </div>
+
+        <div class="account-panel" data-account-panel="orders" role="tabpanel" hidden>
+          <div class="account-orders">
+            {%- if customer.orders_count > 0 -%}
+              {%- for order in customer.orders limit: 5 -%}
+                <a class="account-order" href="{{ order.customer_url }}">
+                  <span class="account-order__id">{{ order.name }}</span>
+                  <span class="account-order__meta">{{ order.created_at | date: '%d %b %Y' }} · {{ order.item_count }} {% if order.item_count == 1 %}item{% else %}items{% endif %}</span>
+                  <span class="account-order__price">{{ order.total_price | money }}</span>
+                  <span class="account-order__status">{{ order.fulfillment_status_label | default: order.financial_status_label }}</span>
+                </a>
+              {%- endfor -%}
+            {%- else -%}
+              <p class="xp-account__guest-copy">No orders yet. Secure a drop.</p>
+            {%- endif -%}
+          </div>
+          <a class="xp-btn xp-btn--primary account-panel__cta" href="{{ routes.account_url }}">VIEW ALL ORDERS</a>
+        </div>
+
+        <div class="account-panel" data-account-panel="account" role="tabpanel" hidden>
+          <dl class="account-info">
+            <div class="account-info__row">
+              <dt>Name</dt>
+              <dd>{{ customer.name | default: '—' }}</dd>
+            </div>
+            <div class="account-info__row">
+              <dt>Email</dt>
+              <dd>{{ customer.email }}</dd>
+            </div>
+            <div class="account-info__row">
+              <dt>Phone</dt>
+              <dd>{{ customer.phone | default: '—' }}</dd>
+            </div>
+            <div class="account-info__row">
+              <dt>Addresses</dt>
+              <dd>{{ customer.addresses_count }} saved</dd>
+            </div>
+            {%- if customer.default_address -%}
+              <div class="account-info__row">
+                <dt>Ship to</dt>
+                <dd>{{ customer.default_address.city }}{% if customer.default_address.country %}, {{ customer.default_address.country }}{% endif %}</dd>
+              </div>
+            {%- endif -%}
+          </dl>
+          <div class="account-panel__actions">
+            <a class="xp-btn xp-btn--primary" href="{{ routes.account_url }}">EDIT ACCOUNT</a>
+            <a class="xp-btn" href="{{ routes.account_addresses_url }}">ADDRESSES</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="account-menu__footer">
+        <a class="xp-btn" href="{{ routes.account_logout_url }}">LOG OUT</a>
+      </div>
+    {%- else -%}
+      <div class="account-menu__header">
+        <div class="account-menu__avatar">?</div>
+        <div class="account-menu__who">
+          <div class="account-menu__name">GUEST</div>
+          <div class="account-menu__email">Join to unlock loyalty</div>
+        </div>
+        <div class="account-menu__badge">LOCKED</div>
+      </div>
+
+      <div class="account-menu__tabs" role="tablist">
+        <button class="account-tab is-active" type="button" role="tab" aria-selected="true" data-account-tab="loyalty">Loyalty</button>
+        <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="orders">Orders</button>
+        <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-tab="account">Account</button>
+      </div>
+
+      <div class="account-menu__body">
+        <div class="account-panel is-active" data-account-panel="loyalty" role="tabpanel">
+          <p class="xp-account__guest-copy">Log in to track points, climb ranks, and unlock drop priority.</p>
+          <div class="xp-account__stats xp-account__stats--preview">
+            <div class="xp-stat">
+              <span class="xp-stat__label">LOYALTY PTS</span>
+              <span class="xp-stat__value">—</span>
+            </div>
+            <div class="xp-stat">
+              <span class="xp-stat__label">RANK</span>
+              <span class="xp-stat__value">LOCKED</span>
+            </div>
+          </div>
+          <div class="xp-account__ladder">
+            <div class="xp-rank">RECRUIT</div>
+            <div class="xp-rank">SOLDIER</div>
+            <div class="xp-rank">CAPTAIN</div>
+            <div class="xp-rank">GENERAL</div>
+            <div class="xp-rank">LEGEND</div>
+          </div>
+        </div>
+
+        <div class="account-panel" data-account-panel="orders" role="tabpanel" hidden>
+          <p class="xp-account__guest-copy">Sign in to see your old orders and tracking.</p>
+          <a class="xp-btn xp-btn--primary account-panel__cta" href="{{ routes.account_login_url }}">LOG IN FOR ORDERS</a>
+        </div>
+
+        <div class="account-panel" data-account-panel="account" role="tabpanel" hidden>
+          <p class="xp-account__guest-copy">Create an account to save addresses and manage your profile.</p>
+          <div class="account-panel__actions">
+            <a class="xp-btn xp-btn--primary" href="{{ routes.account_login_url }}">LOG IN</a>
+            <a class="xp-btn" href="{{ routes.account_register_url }}">CREATE</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="account-menu__footer">
+        <a class="xp-btn xp-btn--primary" href="{{ routes.account_login_url }}">LOG IN</a>
+        <a class="xp-btn" href="{{ routes.account_register_url }}">CREATE</a>
+      </div>
+    {%- endif -%}
   </div>
 
   <div class="xp-toast" id="toast" role="status" aria-live="polite">
@@ -294,22 +531,26 @@
     <div class="xp-toast__body" id="toast-body">Added to cart.</div>
   </div>
 
-  <footer class="taskbar">
-    <button class="start-btn" type="button" id="start-btn" aria-expanded="false" aria-controls="start-menu" aria-label="Account menu">
+  <div class="taskbar" role="contentinfo">
+    <button class="start-btn" type="button" id="start-btn" aria-expanded="false" aria-controls="account-menu" aria-label="Open account">
       <img class="start-logo start-logo--biziboiz" src="{{ logo_url }}" alt="" width="20" height="20">
       account
     </button>
     <div class="task-buttons" id="task-buttons"></div>
     <button class="tray tray--cart" type="button" id="tray-cart" data-open="cart" aria-label="Open cart">
-      <svg class="tray-cart__icon" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M2 2h2l1.2 7h7.3l1.5-5H5.2" fill="none" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
-        <circle cx="7" cy="13" r="1.2" fill="#000"/>
-        <circle cx="12" cy="13" r="1.2" fill="#000"/>
-      </svg>
+      <img
+        class="tray-cart__icon"
+        src="{{ 'money_bag_only_nobg.png' | asset_url }}"
+        alt=""
+        width="20"
+        height="16"
+        loading="lazy"
+        draggable="false"
+      >
       <span class="tray-cart__label">BAG</span>
       <span class="tray-cart__count" id="cart-count">{{ cart.item_count }}</span>
     </button>
-  </footer>
+  </div>
 </div>
 
 {% schema %}

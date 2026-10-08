@@ -49,98 +49,38 @@ a {
   color: inherit;
 }
 
-/* —— Desktop / Bliss —— */
+/* —— Desktop wallpaper (portrait art + black letterbox) —— */
 .desktop {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 80% 45% at 55% 12%, #1a3a52 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 30% 70%, #0d1f12 0%, transparent 55%),
-    linear-gradient(
-      180deg,
-      #0b1c28 0%,
-      #122a38 18%,
-      #1a3340 32%,
-      #1a2e22 48%,
-      #0f1f14 68%,
-      #080f0a 88%,
-      #050805 100%
-    );
+  background-color: #000;
+  background-image: var(
+    --xp-wallpaper,
+    url("./assets/BIZI_WALLPAPERS_-_Spotlight_black_white.jpg")
+  );
+  background-repeat: no-repeat;
+  background-position: center center;
+  /* contain = full art visible; leftover desktop area stays black */
+  background-size: contain;
 }
 
-.desktop::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 55% 30% at 72% 10%, rgba(60, 90, 110, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 50%),
-    linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
-  pointer-events: none;
-}
-
+.desktop::before,
 .desktop::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.22;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-  z-index: 1;
+  display: none;
 }
 
+/* Wallpaper already has logo + figure — hide old overlay brand */
 .bliss-brand {
-  position: absolute;
-  right: max(8px, calc((100vw - 760px) / 2 - 20px));
-  top: 42%;
-  left: auto;
-  bottom: auto;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 4;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  /* keep clear of typical explorer window (~720px starting ~120px) */
-  max-width: 42vw;
+  display: none !important;
 }
 
-.bliss-brand__logo {
-  width: clamp(200px, 28vw, 380px);
-  height: auto;
-  image-rendering: auto;
-  /* white stencil on dark desktop */
-  filter:
-    invert(1)
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.9))
-    drop-shadow(0 8px 20px rgba(0, 0, 0, 0.75))
-    drop-shadow(0 0 28px rgba(255, 255, 255, 0.22));
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.bliss-brand span {
-  display: block;
-  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: clamp(1.35rem, 3vw, 2.1rem);
-  letter-spacing: 0.32em;
-  text-align: center;
-  color: #fff;
-  text-shadow:
-    0 0 2px #000,
-    0 3px 0 #000,
-    0 0 20px rgba(255, 255, 255, 0.2);
-  opacity: 1;
-}
-
-@media (max-width: 900px) {
-  .bliss-brand__logo {
-    width: clamp(180px, 55vw, 280px);
+@media (max-width: 720px) {
+  .desktop {
+    /* phone-tall: still contain so spotlight never crops */
+    background-size: contain;
+    background-position: center top;
   }
 }
 
@@ -201,19 +141,21 @@ a {
   opacity: 0.9;
 }
 
-/* —— Icons —— */
+/* —— Icons (free desktop placement) —— */
 .icon-grid {
   position: absolute;
-  top: 12px;
-  left: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  inset: 0 0 var(--taskbar-h) 0;
   z-index: 2;
-  width: 86px;
+  width: auto;
+  display: block;
+  margin: 0;
+  padding: 0;
 }
 
 .desk-icon {
+  position: absolute;
+  left: 8px;
+  top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -223,7 +165,12 @@ a {
   background: transparent;
   color: #fff;
   text-shadow: 1px 1px 2px #000, 0 0 4px #000;
-  width: 100%;
+  width: 86px;
+  box-sizing: border-box;
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+  -webkit-user-drag: none;
 }
 
 .desk-icon:hover,
@@ -233,8 +180,27 @@ a {
   outline: none;
 }
 
-.desk-icon:active {
-  transform: scale(0.97);
+.desk-icon.is-selected {
+  background: rgba(11, 97, 255, 0.48);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.desk-icon.is-dragging {
+  z-index: 8;
+  opacity: 0.95;
+}
+
+.desk-marquee {
+  position: absolute;
+  z-index: 7;
+  border: 1px solid #316ac5;
+  background: rgba(49, 106, 197, 0.28);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.desk-marquee[hidden] {
+  display: none !important;
 }
 
 .desk-icon__glyph {
@@ -250,6 +216,89 @@ a {
   filter:
     invert(1)
     drop-shadow(0 1px 2px #000);
+}
+
+.desk-icon__glyph--bag {
+  width: 48px;
+  height: 38px;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+  -webkit-user-drag: none;
+}
+
+.desk-icon__glyph--wanted,
+.desk-icon__glyph--letter {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+  -webkit-user-drag: none;
+}
+
+.wallpaper-panel {
+  padding: 14px;
+  background: #fff;
+  height: 100%;
+  overflow: auto;
+}
+
+.wallpaper-panel__copy {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.wallpaper-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.wallpaper-tile {
+  width: 112px;
+  padding: 6px;
+  border: 2px solid #bbb;
+  background: #f3f3f3;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: border-color 120ms ease-out, background 120ms ease-out;
+}
+
+.wallpaper-tile img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  object-position: center top;
+  background: #000;
+  margin-bottom: 6px;
+}
+
+.wallpaper-tile span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wallpaper-tile:hover {
+  border-color: #316ac5;
+}
+
+.wallpaper-tile:active {
+  transform: scale(0.98);
+}
+
+.wallpaper-tile.is-active {
+  border-color: #e10600;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e10600;
 }
 
 .desk-icon__label {
@@ -937,9 +986,12 @@ a {
 }
 
 .tray-cart__icon {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 16px;
+  object-fit: contain;
   flex-shrink: 0;
+  image-rendering: auto;
+  -webkit-user-drag: none;
 }
 
 .tray-cart__count {
@@ -956,106 +1008,379 @@ a {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-/* —— Start menu —— */
-.start-menu {
+/* —— Account start menu (pinned bottom-left) —— */
+.account-menu {
   position: absolute;
   left: 2px;
   bottom: calc(var(--taskbar-h) + 2px);
-  width: 320px;
-  z-index: 120;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  width: min(480px, calc(100vw - 8px));
+  max-height: min(560px, calc(100vh - var(--taskbar-h) - 16px));
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
   border: 2px solid #245edb;
   border-radius: 6px 6px 0 0;
   overflow: hidden;
   box-shadow: var(--xp-shadow);
   background: #fff;
+  transform-origin: bottom left;
+  animation: account-menu-in 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.start-menu[hidden] {
+.account-menu[hidden] {
   display: none !important;
 }
 
-.start-menu__header {
-  grid-column: 1 / -1;
+@keyframes account-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.account-menu__header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: linear-gradient(180deg, #3a9af5, #0d58c7);
   color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
 }
 
-.start-menu__avatar {
-  width: 42px;
-  height: 42px;
+.account-menu__avatar {
+  width: 48px;
+  height: 48px;
   border: 2px solid #fff;
   border-radius: 4px;
-  background: linear-gradient(145deg, #222, #555);
+  background: linear-gradient(145deg, #111, #444);
   display: grid;
   place-items: center;
-  font-size: 10px;
-  letter-spacing: 0.05em;
+  font-family: Impact, Haettenschweiler, sans-serif;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.start-menu__left {
-  background: #fff;
-  padding: 6px 0;
-  border-right: 1px solid #d6d6d6;
+.account-menu__who {
+  min-width: 0;
+  flex: 1;
 }
 
-.start-menu__right {
-  background: #d3e5fa;
-  padding: 6px 0;
+.account-menu__name {
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.start-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 6px 10px;
-  border: none;
-  background: transparent;
-  text-align: left;
+.account-menu__email {
   font-size: 11px;
+  opacity: 0.9;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.start-item:hover {
-  background: #316ac5;
+.account-menu__badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  background: #e10600;
   color: #fff;
+  font-family: Impact, Haettenschweiler, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-.start-item strong {
-  display: block;
+.account-menu__tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  background: #d6e8fb;
+  border-bottom: 1px solid #8eb4e3;
+  flex-shrink: 0;
+}
+
+.account-tab {
+  height: 32px;
+  border: none;
+  border-right: 1px solid #8eb4e3;
+  background: transparent;
+  font-family: Tahoma, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #163f8c;
+  cursor: pointer;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+
+.account-tab:last-child {
+  border-right: none;
+}
+
+.account-tab:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.account-tab:active {
+  transform: scale(0.98);
+}
+
+.account-tab.is-active {
+  background: #fff;
+  color: #000;
+  box-shadow: inset 0 -2px 0 #e10600;
+}
+
+.account-menu__body {
+  padding: 12px;
+  background: #fff;
+  overflow: auto;
+  min-height: 220px;
+  flex: 1;
+}
+
+.account-panel[hidden] {
+  display: none !important;
+}
+
+.account-panel__cta {
+  display: inline-flex;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.account-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.account-panel__actions .xp-btn {
+  text-decoration: none;
+}
+
+.account-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-order {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "id price"
+    "meta status";
+  gap: 2px 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  background: #f7f7f7;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+
+.account-order:hover {
+  background: #fff;
+  border-color: #000;
+}
+
+.account-order:active {
+  transform: scale(0.99);
+}
+
+.account-order__id {
+  grid-area: id;
+  font-weight: 700;
   font-size: 12px;
 }
 
-.start-item span {
-  display: block;
-  opacity: 0.8;
+.account-order__meta {
+  grid-area: meta;
   font-size: 10px;
+  color: #666;
 }
 
-.start-item:hover span {
-  opacity: 1;
+.account-order__price {
+  grid-area: price;
+  font-family: Impact, Haettenschweiler, sans-serif;
+  font-size: 14px;
+  color: #e10600;
+  text-align: right;
 }
 
-.start-menu__footer {
-  grid-column: 1 / -1;
+.account-order__status {
+  grid-area: status;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: right;
+  color: #163f8c;
+  text-transform: uppercase;
+}
+
+.account-info {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #bbb;
+}
+
+.account-info__row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 8px;
+  padding: 9px 10px;
+  border-bottom: 1px solid #ddd;
+  background: #fafafa;
+}
+
+.account-info__row:nth-child(even) {
+  background: #fff;
+}
+
+.account-info__row:last-child {
+  border-bottom: none;
+}
+
+.account-info__row dt {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.account-info__row dd {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.account-menu__footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   background: linear-gradient(180deg, #3a9af5, #0d58c7);
+  flex-shrink: 0;
 }
 
-.start-menu__footer .xp-btn {
-  height: 24px;
+.account-menu__footer .xp-btn {
+  height: 26px;
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.xp-account__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.xp-account__stats--preview {
+  grid-template-columns: 1fr 1fr;
+}
+
+.xp-stat {
+  border: 1px solid #000;
+  padding: 8px 6px;
+  text-align: center;
+  background: #f7f7f7;
+}
+
+.xp-stat__label {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.xp-stat__value {
+  display: block;
+  font-family: Impact, Haettenschweiler, sans-serif;
+  font-size: 15px;
   color: #000;
+}
+
+.xp-account__progress {
+  margin-bottom: 10px;
+}
+
+.xp-account__progress-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.xp-account__bar {
+  height: 12px;
+  border: 1px solid #000;
+  background: #ece9d8;
+  overflow: hidden;
+}
+
+.xp-account__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e10600, #ff4d47);
+  min-width: 0;
+  transition: width 220ms ease-out;
+}
+
+.xp-account__ladder {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.xp-rank {
+  text-align: center;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 6px 1px;
+  border: 1px solid #bbb;
+  color: #888;
+  background: #f3f3f3;
+}
+
+.xp-rank.is-current {
+  border-color: #e10600;
+  background: #000;
+  color: #fff;
+}
+
+.xp-account__guest-copy {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #333;
 }
 
 /* toast */
@@ -1123,9 +1448,5 @@ a {
 
   .bliss-brand {
     font-size: 3.2rem;
-  }
-
-  .start-menu {
-    width: min(320px, calc(100vw - 8px));
   }
 }
