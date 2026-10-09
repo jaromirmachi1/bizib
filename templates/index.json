@@ -101,6 +101,9 @@
       "settings": {
         "collection_live": "2026",
         "collection_archive": "main-page",
+        "collection_upsell": "accessories",
+        "upsell_heading": "ADD THIS TOO",
+        "upsell_limit": 2,
         "products_to_show": 24,
         "instagram_url": "https://www.instagram.com/biziboiz/",
         "show_announce": true,

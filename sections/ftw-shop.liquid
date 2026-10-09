@@ -25,6 +25,12 @@
   endif
   assign live = section.settings.collection_live
   assign archive = section.settings.collection_archive
+  assign upsell = section.settings.collection_upsell
+  if upsell == blank
+    assign upsell = live
+  endif
+  assign upsell_heading = section.settings.upsell_heading | default: 'ADD THIS TOO'
+  assign upsell_limit = section.settings.upsell_limit | default: 2
   assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
   assign limit = section.settings.products_to_show
   assign show_announce = section.settings.show_announce
@@ -73,6 +79,8 @@
   id="ftw-shop"
   data-cart-count="{{ cart.item_count }}"
   data-money-format="{{ shop.money_format | escape }}"
+  data-upsell-heading="{{ upsell_heading | escape }}"
+  data-upsell-limit="{{ upsell_limit }}"
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   {%- if show_announce and announce_count > 0 -%}
@@ -319,6 +327,8 @@
       <div class="ftw-drawer__body" id="cart-body">
         <div class="ftw-empty">CART EMPTY.</div>
       </div>
+      <div class="ftw-upsell" id="cart-upsell" hidden></div>
+      <div class="cart-footer" id="cart-footer" hidden></div>
     </div>
   </div>
 
@@ -469,6 +479,31 @@
   <div class="ftw-toast" id="toast" role="status" aria-live="polite">
     <div id="toast-body">Added to cart.</div>
   </div>
+
+  {%- capture ftw_upsell_json -%}
+[
+{%- assign upsell_i = 0 -%}
+{%- if upsell != blank -%}
+  {%- for product in upsell.products limit: 12 -%}
+    {%- if product.available -%}
+      {%- assign uv = product.selected_or_first_available_variant -%}
+      {%- if upsell_i > 0 -%},{%- endif -%}
+      {
+        "id":{{ product.id }},
+        "handle":{{ product.handle | json }},
+        "title":{{ product.title | json }},
+        "price":{{ product.price | money | json }},
+        "image":{% if product.featured_media %}{{ product.featured_media | image_url: width: 240 | json }}{% else %}{{ logo_url | json }}{% endif %},
+        "variantId":{{ uv.id }},
+        "available":true
+      }
+      {%- assign upsell_i = upsell_i | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+]
+  {%- endcapture -%}
+  <script type="application/json" id="ftw-upsell-data">{{ ftw_upsell_json | strip }}</script>
 </div>
 
 {% schema %}
@@ -491,6 +526,31 @@
       "type": "collection",
       "id": "collection_archive",
       "label": "Archive collection"
+    },
+    {
+      "type": "header",
+      "content": "Cart upsell"
+    },
+    {
+      "type": "collection",
+      "id": "collection_upsell",
+      "label": "Upsell collection",
+      "info": "Shown in the cart drawer. Falls back to the New / live collection."
+    },
+    {
+      "type": "text",
+      "id": "upsell_heading",
+      "label": "Upsell heading",
+      "default": "ADD THIS TOO"
+    },
+    {
+      "type": "range",
+      "id": "upsell_limit",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "label": "Upsell products to show",
+      "default": 2
     },
     {
       "type": "range",

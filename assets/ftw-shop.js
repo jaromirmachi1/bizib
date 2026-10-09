@@ -89,14 +89,93 @@
       .replace(/"/g, "&quot;");
   }
 
+  function getUpsellPool() {
+    const raw = $("#ftw-upsell-data")?.textContent;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed.filter((p) => p && p.variantId);
+      } catch (_) {}
+    }
+    return $$(".ftw-product", root)
+      .filter((card) => card.dataset.available !== "0")
+      .map((card) => ({
+        id: Number(card.dataset.productId) || 0,
+        handle: card.dataset.product || "",
+        title: card.dataset.title || "",
+        price: card.dataset.price || "",
+        image: card.dataset.image || "",
+        variantId: Number(card.dataset.variantId),
+        available: true,
+      }))
+      .filter((p) => p.variantId);
+  }
+
+  function renderUpsell(cart) {
+    const host = $("#cart-upsell");
+    if (!host) return;
+    const limit = Math.max(1, Number(root.dataset.upsellLimit || 2));
+    const heading = (root.dataset.upsellHeading || "ADD THIS TOO").toUpperCase();
+    const inCartIds = new Set((cart.items || []).map((i) => Number(i.product_id)));
+    const inCartHandles = new Set((cart.items || []).map((i) => i.handle).filter(Boolean));
+    const picks = getUpsellPool()
+      .filter((p) => {
+        if (p.available === false) return false;
+        if (p.id && inCartIds.has(Number(p.id))) return false;
+        if (p.handle && inCartHandles.has(p.handle)) return false;
+        return true;
+      })
+      .slice(0, limit);
+
+    if (!picks.length) {
+      host.hidden = true;
+      host.innerHTML = "";
+      return;
+    }
+
+    host.hidden = false;
+    host.innerHTML = `
+      <div class="ftw-upsell__head">${escapeHtml(heading)}</div>
+      <div class="ftw-upsell__list">
+        ${picks
+          .map(
+            (p) => `<div class="ftw-upsell__item">
+            <div class="ftw-upsell__media">
+              ${
+                p.image
+                  ? `<img src="${escapeHtml(p.image)}" alt="" width="56" height="56" loading="lazy">`
+                  : ""
+              }
+            </div>
+            <div class="ftw-upsell__meta">
+              <div class="ftw-upsell__title">${escapeHtml(p.title)}</div>
+              <div class="ftw-upsell__price">${escapeHtml(p.price)}</div>
+            </div>
+            <button type="button" class="ftw-upsell__add" data-upsell-add="${p.variantId}">+</button>
+          </div>`
+          )
+          .join("")}
+      </div>`;
+  }
+
   async function renderCart() {
     const body = $("#cart-body");
+    const footer = $("#cart-footer");
+    const upsell = $("#cart-upsell");
     if (!body) return;
     try {
       const cart = await fetchCart();
       updateTrayCart(cart.item_count);
       if (!cart.item_count) {
         body.innerHTML = `<div class="ftw-empty">CART EMPTY.</div>`;
+        if (footer) {
+          footer.hidden = true;
+          footer.innerHTML = "";
+        }
+        if (upsell) {
+          upsell.hidden = true;
+          upsell.innerHTML = "";
+        }
         return;
       }
       const lines = cart.items
@@ -120,14 +199,24 @@
           </div>`;
         })
         .join("");
-      body.innerHTML = `
-        <div class="ftw-cart-lines">${lines}</div>
-        <div class="cart-footer">
+      body.innerHTML = `<div class="ftw-cart-lines">${lines}</div>`;
+      renderUpsell(cart);
+      if (footer) {
+        footer.hidden = false;
+        footer.innerHTML = `
           <strong>TOTAL: ${formatMoney(cart.total_price)}</strong>
-          <a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>
-        </div>`;
+          <a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>`;
+      }
     } catch {
       body.innerHTML = `<div class="ftw-empty">Couldn't load cart.</div>`;
+      if (footer) {
+        footer.hidden = true;
+        footer.innerHTML = "";
+      }
+      if (upsell) {
+        upsell.hidden = true;
+        upsell.innerHTML = "";
+      }
     }
   }
 
@@ -516,37 +605,48 @@
     sheetImages = [];
   }
 
+  async function addVariantToCart(variantId, { openBag = false, sourceBtn = null } = {}) {
+    if (!variantId) return false;
+
+    if (isLocal) {
+      const count = Number($("#cart-count")?.textContent || 0) + 1;
+      updateTrayCart(count);
+      toast("ADDED TO CART.");
+      if (openBag) openDrawer("ftw-bag");
+      return true;
+    }
+
+    if (sourceBtn) sourceBtn.disabled = true;
+    try {
+      const res = await fetch("/cart/add.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ id: Number(variantId), quantity: 1 }),
+      });
+      if (!res.ok) throw new Error("add failed");
+      const cart = await fetchCart();
+      updateTrayCart(cart.item_count);
+      toast("ADDED TO CART.");
+      if (openBag) openDrawer("ftw-bag");
+      else if (!$("#ftw-bag")?.hidden) renderCart();
+      return true;
+    } catch {
+      toast("COULDN'T ADD. TRY AGAIN.");
+      if (sourceBtn) sourceBtn.disabled = false;
+      return false;
+    }
+  }
+
   async function addToCart() {
     const addBtn = $("#ftw-sheet-add");
     if (!selectedVariantId || addBtn?.disabled) {
       toast("PICK YOUR OPTIONS.");
       return;
     }
-
-    if (isLocal) {
-      const count = Number($("#cart-count")?.textContent || 0) + 1;
-      updateTrayCart(count);
-      toast("ADDED TO CART.");
-      closeSheet();
-      return;
-    }
-
     addBtn.disabled = true;
-    try {
-      const res = await fetch("/cart/add.js", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ id: selectedVariantId, quantity: 1 }),
-      });
-      if (!res.ok) throw new Error("add failed");
-      const cart = await fetchCart();
-      updateTrayCart(cart.item_count);
-      toast("ADDED TO CART.");
-      closeSheet();
-    } catch {
-      toast("COULDN'T ADD. TRY AGAIN.");
-      addBtn.disabled = false;
-    }
+    const ok = await addVariantToCart(selectedVariantId, { openBag: true, sourceBtn: addBtn });
+    if (ok) closeSheet(true);
+    else addBtn.disabled = false;
   }
 
   $("#ftw-bag-btn")?.addEventListener("click", () => {
@@ -603,6 +703,12 @@
     if (product && root.contains(product)) {
       e.preventDefault();
       openSheet(product);
+      return;
+    }
+
+    const upsellBtn = e.target.closest("[data-upsell-add]");
+    if (upsellBtn) {
+      addVariantToCart(upsellBtn.dataset.upsellAdd, { sourceBtn: upsellBtn });
       return;
     }
 

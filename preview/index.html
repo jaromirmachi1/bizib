@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=34">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=36">
     <script>
       (function () {
         try {
@@ -34,7 +34,7 @@
     </style>
   </head>
   <body class="ftw-mode">
-    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" style="--ftw-announce-speed: 36s;">
+    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" style="--ftw-announce-speed: 36s;">
       <div class="ftw-announce" role="region" aria-label="Announcement">
         <a class="ftw-announce__hit" href="https://www.instagram.com/biziboiz/" aria-label="Follow BIZIBOIZ"></a>
         <span class="ftw-announce__live" aria-hidden="true">
@@ -165,6 +165,8 @@
           <div class="ftw-drawer__body" id="cart-body">
             <div class="ftw-empty">CART EMPTY.</div>
           </div>
+          <div class="ftw-upsell" id="cart-upsell" hidden></div>
+          <div class="cart-footer" id="cart-footer" hidden></div>
         </div>
       </div>
 
@@ -321,6 +323,12 @@
         </a>`;
       }).join("");
     </script>
-    <script src="/assets/ftw-shop.js?v=14"></script>
+    <script type="application/json" id="ftw-upsell-data">
+      [
+        {"id":901,"handle":"alcatraz-cap","title":"ALCATRAZ CAP [DIRTY]","price":"790 Kč","image":"./assets/panacek-3-black.png","variantId":1901,"available":true},
+        {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
+      ]
+    </script>
+    <script src="/assets/ftw-shop.js?v=16"></script>
   </body>
 </html>
