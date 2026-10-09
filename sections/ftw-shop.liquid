@@ -81,6 +81,8 @@
   data-money-format="{{ shop.money_format | escape }}"
   data-upsell-heading="{{ upsell_heading | escape }}"
   data-upsell-limit="{{ upsell_limit }}"
+  data-figure-light="{{ logo_url | escape }}"
+  data-figure-dark="{{ logo_dark_url | escape }}"
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   {%- if show_announce and announce_count > 0 -%}
@@ -254,7 +256,9 @@
           </svg>
           CART (<span id="cart-count">{{ cart.item_count }}</span>)
         </button>
-        <a class="ftw-top__item" href="/checkout">CHECKOUT</a>
+        <button class="ftw-top__item" type="button" id="ftw-account-top-btn" aria-expanded="false" aria-controls="ftw-account">
+          ACCOUNT
+        </button>
       </header>
 
       <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
@@ -472,6 +476,43 @@
           </div>
 
         </aside>
+      </div>
+    </div>
+  </div>
+
+  <div class="ftw-outfit" id="ftw-outfit" hidden>
+    <div class="ftw-outfit__panel" role="dialog" aria-modal="true" aria-labelledby="ftw-outfit-title">
+      <header class="ftw-outfit__head">
+        <h2 id="ftw-outfit-title">OUTFIT CHECKER</h2>
+        <div class="ftw-outfit__head-actions">
+          <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">CLEAR</button>
+          <button type="button" class="ftw-outfit__close" id="ftw-outfit-close" aria-label="Close outfit checker">×</button>
+        </div>
+      </header>
+      <div class="ftw-outfit__body">
+        <aside class="ftw-outfit__rack" aria-label="Pieces">
+          <div class="ftw-outfit__rack-label">DRAG PIECES</div>
+          <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
+        </aside>
+        <div class="ftw-outfit__stage" id="ftw-outfit-stage">
+          <img
+            class="ftw-outfit__figure ftw-outfit__figure--light"
+            src="{{ logo_url }}"
+            alt=""
+            width="320"
+            height="400"
+            draggable="false"
+          >
+          <img
+            class="ftw-outfit__figure ftw-outfit__figure--dark"
+            src="{{ logo_dark_url }}"
+            alt=""
+            width="320"
+            height="400"
+            draggable="false"
+          >
+          <p class="ftw-outfit__hint" id="ftw-outfit-hint">DROP ITEMS ON THE FIGURE</p>
+        </div>
       </div>
     </div>
   </div>

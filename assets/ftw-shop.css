@@ -920,9 +920,13 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   display: none;
 }
 
+.cart-footer .ftw-btn,
+.cart-footer .ftw-btn--primary {
+  width: 100%;
+}
+
 .cart-footer .ftw-btn--primary {
   color: var(--ftw-on-ink);
-  width: 100%;
 }
 
 .ftw-btn {
@@ -1077,6 +1081,314 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
 .ftw-contact textarea {
   min-height: 100px;
   resize: vertical;
+}
+
+/* —— Outfit checker —— */
+.ftw-outfit {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  display: grid;
+  place-items: stretch;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ftw-ease);
+}
+
+.ftw-outfit[hidden] {
+  display: none;
+}
+
+.ftw-outfit.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ftw-outfit__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: 100dvh;
+  background: var(--ftw-bg);
+  color: var(--ftw-fg);
+  transform: translateY(10px);
+  transition: transform 220ms var(--ftw-ease);
+}
+
+.ftw-outfit.is-open .ftw-outfit__panel {
+  transform: translateY(0);
+}
+
+.ftw-outfit__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ftw-line);
+  flex-shrink: 0;
+}
+
+.ftw-outfit__head h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.ftw-outfit__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ftw-outfit__clear,
+.ftw-outfit__close {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ftw-outfit__clear {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 8px 10px;
+  border: 1px solid var(--ftw-line);
+}
+
+.ftw-outfit__clear:active,
+.ftw-outfit__close:active {
+  transform: scale(0.97);
+}
+
+.ftw-outfit__close {
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.ftw-outfit__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr);
+}
+
+.ftw-outfit__rack {
+  border-right: 1px solid var(--ftw-line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ftw-panel-2);
+}
+
+.ftw-outfit__rack-label {
+  padding: 12px 12px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ftw-muted);
+}
+
+.ftw-outfit__rack-list {
+  flex: 1;
+  overflow: auto;
+  padding: 0 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ftw-outfit__empty {
+  margin: 8px 2px;
+  font-size: 11px;
+  color: var(--ftw-muted);
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+}
+
+.ftw-outfit__rack-item {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--ftw-line);
+  background: var(--ftw-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: border-color 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
+}
+
+.ftw-outfit__rack-item:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.ftw-outfit__rack-item img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.ftw-outfit__rack-item span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ftw-outfit__stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08), transparent 62%),
+    var(--ftw-panel);
+  touch-action: none;
+}
+
+.ftw-outfit__figure {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(42%, 280px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.22;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.ftw-outfit__figure--dark {
+  display: none;
+}
+
+html[data-ftw-theme="dark"] .ftw-outfit__figure--light {
+  display: none;
+}
+
+html[data-ftw-theme="dark"] .ftw-outfit__figure--dark {
+  display: block;
+}
+
+.ftw-outfit__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ftw-muted);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ftw-outfit__hint[hidden] {
+  display: none;
+}
+
+.ftw-outfit__piece {
+  position: absolute;
+  width: 96px;
+  z-index: 2;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+}
+
+.ftw-outfit__piece:active {
+  cursor: grabbing;
+  z-index: 5;
+}
+
+.ftw-outfit__piece img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+
+.ftw-outfit__piece-kill {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--ftw-line);
+  border-radius: 0;
+  background: var(--ftw-bg);
+  color: var(--ftw-fg);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.ftw-outfit__piece-kill:active {
+  transform: scale(0.94);
+}
+
+body.ftw-outfit-open {
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .ftw-outfit__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) 150px;
+  }
+
+  .ftw-outfit__rack {
+    border-right: 0;
+    border-top: 1px solid var(--ftw-line);
+    order: 2;
+  }
+
+  .ftw-outfit__stage {
+    order: 1;
+  }
+
+  .ftw-outfit__rack-list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px 12px;
+  }
+
+  .ftw-outfit__rack-item {
+    flex: 0 0 132px;
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .ftw-outfit__rack-item img {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .ftw-toast {

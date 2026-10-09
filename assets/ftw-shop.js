@@ -239,6 +239,7 @@
         footer.hidden = false;
         footer.innerHTML = `
           <strong>TOTAL: ${formatMoney(cart.total_price)}</strong>
+          <button type="button" class="ftw-btn" id="ftw-outfit-open">OUTFIT CHECKER</button>
           <a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>`;
       }
     } catch {
@@ -260,7 +261,9 @@
       d.hidden = d.id !== id;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", String(id === "ftw-bag"));
-    $("#ftw-account-btn")?.setAttribute("aria-expanded", String(id === "ftw-account"));
+    $$("#ftw-account-btn, #ftw-account-top-btn", root).forEach((btn) => {
+      btn.setAttribute("aria-expanded", String(id === "ftw-account"));
+    });
     if (id === "ftw-bag") renderCart();
   }
 
@@ -269,7 +272,171 @@
       d.hidden = true;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", "false");
-    $("#ftw-account-btn")?.setAttribute("aria-expanded", "false");
+    $$("#ftw-account-btn, #ftw-account-top-btn", root).forEach((btn) => {
+      btn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function toggleAccountDrawer() {
+    const account = $("#ftw-account");
+    if (account?.hidden) openDrawer("ftw-account");
+    else closeDrawers();
+  }
+
+  let outfitPieceId = 0;
+  let outfitDrag = null;
+
+  function collectOutfitPieces() {
+    const seen = new Set();
+    const pieces = [];
+
+    const push = (title, image, idHint) => {
+      if (!image) return;
+      const key = `${title}::${image}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      pieces.push({
+        id: idHint || key,
+        title: title || "Piece",
+        image,
+      });
+    };
+
+    $$(".ftw-cart-line", root).forEach((line) => {
+      const img = line.querySelector("img")?.src;
+      const title = line.querySelector(".ftw-cart-line__title")?.textContent?.trim();
+      push(title, img);
+    });
+
+    getUpsellPool().forEach((p) => push(p.title, p.image, p.handle || p.id));
+
+    $$(".ftw-product", root).forEach((card) => {
+      if (card.dataset.available === "0") return;
+      push(card.dataset.title, card.dataset.image || card.querySelector("img")?.src, card.dataset.product);
+    });
+
+    return pieces.slice(0, 24);
+  }
+
+  function syncOutfitHint() {
+    const hint = $("#ftw-outfit-hint");
+    const stage = $("#ftw-outfit-stage");
+    if (!hint || !stage) return;
+    const hasPieces = !!stage.querySelector(".ftw-outfit__piece");
+    hint.hidden = hasPieces;
+  }
+
+  function buildOutfitRack() {
+    const rack = $("#ftw-outfit-rack");
+    if (!rack) return;
+    const pieces = collectOutfitPieces();
+    if (!pieces.length) {
+      rack.innerHTML = `<p class="ftw-outfit__empty">ADD PIECES TO CART OR BROWSE THE DROP.</p>`;
+      return;
+    }
+    rack.innerHTML = pieces
+      .map(
+        (p) => `<button type="button" class="ftw-outfit__rack-item" data-outfit-src="${escapeHtml(p.image)}" data-outfit-title="${escapeHtml(p.title)}" aria-label="Add ${escapeHtml(p.title)}">
+          <img src="${escapeHtml(p.image)}" alt="" width="72" height="72" draggable="false" loading="lazy">
+          <span>${escapeHtml(p.title)}</span>
+        </button>`
+      )
+      .join("");
+  }
+
+  function placeOutfitPiece(src, title, clientX, clientY) {
+    const stage = $("#ftw-outfit-stage");
+    if (!stage || !src) return;
+    const rect = stage.getBoundingClientRect();
+    const piece = document.createElement("div");
+    piece.className = "ftw-outfit__piece";
+    piece.dataset.pieceId = String(++outfitPieceId);
+    const left = Math.min(Math.max(clientX - rect.left - 48, 8), rect.width - 96);
+    const top = Math.min(Math.max(clientY - rect.top - 48, 8), rect.height - 96);
+    piece.style.left = `${left}px`;
+    piece.style.top = `${top}px`;
+    piece.innerHTML = `
+      <img src="${escapeHtml(src)}" alt="${escapeHtml(title || "")}" draggable="false">
+      <button type="button" class="ftw-outfit__piece-kill" aria-label="Remove piece">×</button>`;
+    stage.appendChild(piece);
+    syncOutfitHint();
+  }
+
+  function clearOutfitStage() {
+    $$(".ftw-outfit__piece", root).forEach((el) => el.remove());
+    syncOutfitHint();
+  }
+
+  function openOutfitChecker() {
+    const outfit = $("#ftw-outfit");
+    if (!outfit) return;
+    closeSheet(true);
+    closeDrawers();
+    setNavOpen(false);
+    buildOutfitRack();
+    syncOutfitHint();
+    outfit.hidden = false;
+    document.body.classList.add("ftw-outfit-open");
+    requestAnimationFrame(() => {
+      outfit.classList.add("is-open");
+      $("#ftw-outfit-close")?.focus();
+    });
+  }
+
+  function closeOutfitChecker() {
+    const outfit = $("#ftw-outfit");
+    if (!outfit || outfit.hidden) return;
+    outfit.classList.remove("is-open");
+    document.body.classList.remove("ftw-outfit-open");
+    setTimeout(() => {
+      outfit.hidden = true;
+      outfitDrag = null;
+    }, 200);
+  }
+
+  function startOutfitDrag(e, mode, payload) {
+    if (e.button != null && e.button !== 0) return;
+    const pointerId = e.pointerId;
+    outfitDrag = { mode, ...payload, pointerId, moved: false };
+    try {
+      e.currentTarget.setPointerCapture?.(pointerId);
+    } catch (_) {}
+  }
+
+  function onOutfitPointerMove(e) {
+    if (!outfitDrag || e.pointerId !== outfitDrag.pointerId) return;
+    outfitDrag.moved = true;
+    if (outfitDrag.mode === "move" && outfitDrag.el) {
+      const stage = $("#ftw-outfit-stage");
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+      const left = Math.min(Math.max(e.clientX - rect.left - outfitDrag.ox, 0), rect.width - 40);
+      const top = Math.min(Math.max(e.clientY - rect.top - outfitDrag.oy, 0), rect.height - 40);
+      outfitDrag.el.style.left = `${left}px`;
+      outfitDrag.el.style.top = `${top}px`;
+    }
+  }
+
+  function onOutfitPointerUp(e) {
+    if (!outfitDrag || e.pointerId !== outfitDrag.pointerId) return;
+    const drag = outfitDrag;
+    outfitDrag = null;
+
+    if (drag.mode === "rack") {
+      const stage = $("#ftw-outfit-stage");
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+      const over =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+      if (over || !drag.moved) {
+        const x = over ? e.clientX : rect.left + rect.width / 2;
+        const y = over ? e.clientY : rect.top + rect.height * 0.42;
+        placeOutfitPiece(drag.src, drag.title, x, y);
+      }
+    }
   }
 
   function setTab(id) {
@@ -689,11 +856,8 @@
     else closeDrawers();
   });
 
-  $("#ftw-account-btn")?.addEventListener("click", () => {
-    const account = $("#ftw-account");
-    if (account?.hidden) openDrawer("ftw-account");
-    else closeDrawers();
-  });
+  $("#ftw-account-btn")?.addEventListener("click", toggleAccountDrawer);
+  $("#ftw-account-top-btn")?.addEventListener("click", toggleAccountDrawer);
 
   $("#ftw-contact-open")?.addEventListener("click", () => openDrawer("ftw-contact"));
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
@@ -702,13 +866,57 @@
   $("#ftw-theme-btn")?.addEventListener("click", () => {
     setTheme(getTheme() === "dark" ? "light" : "dark");
   });
+  $("#ftw-outfit-close")?.addEventListener("click", closeOutfitChecker);
+  $("#ftw-outfit-clear")?.addEventListener("click", clearOutfitStage);
 
   $("#ftw-search-input")?.addEventListener("input", (e) => {
     searchQuery = e.target.value || "";
     applyFilters();
   });
 
+  root.addEventListener("pointermove", onOutfitPointerMove);
+  root.addEventListener("pointerup", onOutfitPointerUp);
+  root.addEventListener("pointercancel", onOutfitPointerUp);
+
+  root.addEventListener("pointerdown", (e) => {
+    const kill = e.target.closest(".ftw-outfit__piece-kill");
+    if (kill) return;
+
+    const rackItem = e.target.closest(".ftw-outfit__rack-item");
+    if (rackItem) {
+      e.preventDefault();
+      startOutfitDrag(e, "rack", {
+        src: rackItem.dataset.outfitSrc,
+        title: rackItem.dataset.outfitTitle,
+      });
+      return;
+    }
+
+    const piece = e.target.closest(".ftw-outfit__piece");
+    if (piece) {
+      e.preventDefault();
+      const rect = piece.getBoundingClientRect();
+      startOutfitDrag(e, "move", {
+        el: piece,
+        ox: e.clientX - rect.left,
+        oy: e.clientY - rect.top,
+      });
+    }
+  });
+
   root.addEventListener("click", (e) => {
+    if (e.target.closest("#ftw-outfit-open")) {
+      openOutfitChecker();
+      return;
+    }
+
+    const pieceKill = e.target.closest(".ftw-outfit__piece-kill");
+    if (pieceKill) {
+      pieceKill.closest(".ftw-outfit__piece")?.remove();
+      syncOutfitHint();
+      return;
+    }
+
     if (e.target.closest("[data-close-sheet]")) {
       closeSheet();
       return;
@@ -777,9 +985,12 @@
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && sheetOpen) {
-      closeSheet();
+    if (e.key !== "Escape") return;
+    if (!$("#ftw-outfit")?.hidden) {
+      closeOutfitChecker();
+      return;
     }
+    if (sheetOpen) closeSheet();
   });
 
   $("#contact-form")?.addEventListener("submit", (e) => {

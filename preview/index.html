@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=38">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=39">
     <script>
       (function () {
         try {
@@ -34,7 +34,7 @@
     </style>
   </head>
   <body class="ftw-mode">
-    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" style="--ftw-announce-speed: 36s;">
+    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" data-figure-light="./assets/panacek-3-black.png" data-figure-dark="./assets/panacek-3-white.png" style="--ftw-announce-speed: 36s;">
       <div class="ftw-announce" role="region" aria-label="Announcement">
         <a class="ftw-announce__hit" href="https://www.instagram.com/biziboiz/" aria-label="Follow BIZIBOIZ"></a>
         <span class="ftw-announce__live" aria-hidden="true">
@@ -148,7 +148,9 @@
               </svg>
               CART (<span id="cart-count">0</span>)
             </button>
-            <a class="ftw-top__item" href="#">CHECKOUT</a>
+            <button class="ftw-top__item" type="button" id="ftw-account-top-btn" aria-expanded="false" aria-controls="ftw-account">
+              ACCOUNT
+            </button>
           </header>
 
           <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
@@ -262,6 +264,29 @@
         </div>
       </div>
 
+      <div class="ftw-outfit" id="ftw-outfit" hidden>
+        <div class="ftw-outfit__panel" role="dialog" aria-modal="true" aria-labelledby="ftw-outfit-title">
+          <header class="ftw-outfit__head">
+            <h2 id="ftw-outfit-title">OUTFIT CHECKER</h2>
+            <div class="ftw-outfit__head-actions">
+              <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">CLEAR</button>
+              <button type="button" class="ftw-outfit__close" id="ftw-outfit-close" aria-label="Close outfit checker">×</button>
+            </div>
+          </header>
+          <div class="ftw-outfit__body">
+            <aside class="ftw-outfit__rack" aria-label="Pieces">
+              <div class="ftw-outfit__rack-label">DRAG PIECES</div>
+              <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
+            </aside>
+            <div class="ftw-outfit__stage" id="ftw-outfit-stage">
+              <img class="ftw-outfit__figure ftw-outfit__figure--light" src="./assets/panacek-3-black.png" alt="" width="320" height="400" draggable="false">
+              <img class="ftw-outfit__figure ftw-outfit__figure--dark" src="./assets/panacek-3-white.png" alt="" width="320" height="400" draggable="false">
+              <p class="ftw-outfit__hint" id="ftw-outfit-hint">DROP ITEMS ON THE FIGURE</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="ftw-toast" id="toast" role="status" aria-live="polite">
         <div id="toast-body">Added to cart.</div>
       </div>
@@ -329,6 +354,6 @@
         {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=17"></script>
+    <script src="/assets/ftw-shop.js?v=19"></script>
   </body>
 </html>
