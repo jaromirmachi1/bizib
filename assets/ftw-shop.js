@@ -70,6 +70,31 @@
     return res.json();
   }
 
+  async function changeCartLine(key, quantity) {
+    if (!key) return false;
+    const qty = Math.max(0, Number(quantity) || 0);
+
+    if (isLocal) {
+      toast(qty === 0 ? "REMOVED." : "CART UPDATED.");
+      return true;
+    }
+
+    try {
+      const res = await fetch("/cart/change.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ id: key, quantity: qty }),
+      });
+      if (!res.ok) throw new Error("change failed");
+      await renderCart();
+      if (qty === 0) toast("REMOVED.");
+      return true;
+    } catch {
+      toast("COULDN'T UPDATE CART.");
+      return false;
+    }
+  }
+
   function cartImageUrl(item) {
     const raw =
       item?.image ||
@@ -189,11 +214,20 @@
           const media = img
             ? `<img src="${escapeHtml(img)}" alt="" width="64" height="64" loading="lazy">`
             : "";
-          return `<div class="ftw-cart-line">
+          const key = escapeHtml(i.key || String(i.id));
+          const qty = Number(i.quantity) || 1;
+          return `<div class="ftw-cart-line" data-cart-key="${key}">
             <div class="ftw-cart-line__media">${media}</div>
             <div class="ftw-cart-line__meta">
               <div class="ftw-cart-line__title">${title}${variant}</div>
-              <div class="ftw-cart-line__qty">QTY ${i.quantity}</div>
+              <div class="ftw-cart-line__controls">
+                <div class="ftw-cart-qty" role="group" aria-label="Quantity">
+                  <button type="button" class="ftw-cart-qty__btn" data-cart-qty="${qty - 1}" data-cart-key="${key}" aria-label="Decrease quantity">−</button>
+                  <span class="ftw-cart-qty__val">${qty}</span>
+                  <button type="button" class="ftw-cart-qty__btn" data-cart-qty="${qty + 1}" data-cart-key="${key}" aria-label="Increase quantity">+</button>
+                </div>
+                <button type="button" class="ftw-cart-line__remove" data-cart-qty="0" data-cart-key="${key}">REMOVE</button>
+              </div>
             </div>
             <div class="ftw-cart-line__price">${formatMoney(i.final_line_price)}</div>
           </div>`;
@@ -703,6 +737,17 @@
     if (product && root.contains(product)) {
       e.preventDefault();
       openSheet(product);
+      return;
+    }
+
+    const cartQtyBtn = e.target.closest("[data-cart-key][data-cart-qty]");
+    if (cartQtyBtn) {
+      const key = cartQtyBtn.dataset.cartKey;
+      const qty = Number(cartQtyBtn.dataset.cartQty);
+      cartQtyBtn.disabled = true;
+      changeCartLine(key, qty).finally(() => {
+        cartQtyBtn.disabled = false;
+      });
       return;
     }
 
