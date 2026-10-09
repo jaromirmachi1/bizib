@@ -80,6 +80,10 @@
       {%- if announce_link != blank -%}
         <a class="ftw-announce__hit" href="{{ announce_link }}"></a>
       {%- endif -%}
+      <span class="ftw-announce__live" aria-hidden="true">
+        <span class="ftw-announce__dot"></span>
+        LIVE
+      </span>
       <div class="ftw-announce__viewport">
         <div class="ftw-announce__track">
           {%- for i in (1..2) -%}

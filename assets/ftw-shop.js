@@ -68,6 +68,25 @@
     return res.json();
   }
 
+  function cartImageUrl(item) {
+    const raw =
+      item?.image ||
+      item?.featured_image?.url ||
+      item?.featured_image ||
+      "";
+    if (!raw || typeof raw !== "string") return "";
+    if (raw.startsWith("//")) return `https:${raw}`;
+    return raw;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   async function renderCart() {
     const body = $("#cart-body");
     if (!body) return;
@@ -78,21 +97,29 @@
         body.innerHTML = `<div class="ftw-empty">CART EMPTY.</div>`;
         return;
       }
+      const lines = cart.items
+        .map((i) => {
+          const title = escapeHtml(i.product_title || i.title || "Item");
+          const variant =
+            i.variant_title && i.variant_title !== "Default Title"
+              ? ` — ${escapeHtml(i.variant_title)}`
+              : "";
+          const img = cartImageUrl(i);
+          const media = img
+            ? `<img src="${escapeHtml(img)}" alt="" width="64" height="64" loading="lazy">`
+            : "";
+          return `<div class="ftw-cart-line">
+            <div class="ftw-cart-line__media">${media}</div>
+            <div class="ftw-cart-line__meta">
+              <div class="ftw-cart-line__title">${title}${variant}</div>
+              <div class="ftw-cart-line__qty">QTY ${i.quantity}</div>
+            </div>
+            <div class="ftw-cart-line__price">${formatMoney(i.final_line_price)}</div>
+          </div>`;
+        })
+        .join("");
       body.innerHTML = `
-        <table class="cart-table">
-          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
-          <tbody>
-            ${cart.items
-              .map(
-                (i) => `<tr>
-                <td>${i.product_title}${i.variant_title && i.variant_title !== "Default Title" ? ` — ${i.variant_title}` : ""}</td>
-                <td>${i.quantity}</td>
-                <td>${formatMoney(i.final_line_price)}</td>
-              </tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
+        <div class="ftw-cart-lines">${lines}</div>
         <div class="cart-footer">
           <strong>TOTAL: ${formatMoney(cart.total_price)}</strong>
           <a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>
