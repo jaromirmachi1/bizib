@@ -56,7 +56,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   right: 0;
   z-index: 140;
   height: var(--ftw-announce);
-  background: #111;
+  background: #e10600;
   color: #fff;
   overflow: hidden;
   isolation: isolate;
