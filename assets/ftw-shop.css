@@ -1170,7 +1170,7 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   min-height: 0;
   height: 100%;
   overflow: auto;
-  padding: 56px 24px 32px;
+  padding: 36px 20px 20px;
   background: var(--ftw-panel);
   display: flex;
   flex-direction: column;
@@ -1427,7 +1427,7 @@ body.ftw-sheet-open {
 
   .ftw-sheet__stage {
     height: min(44vh, 400px);
-    padding: 52px 14px 12px;
+    padding: 32px 14px 12px;
     gap: 8px;
   }
 
