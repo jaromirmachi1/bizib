@@ -3,6 +3,30 @@
     "ftw_shop": {
       "type": "ftw-shop",
       "blocks": {
+        "announce_1": {
+          "type": "announce",
+          "settings": {
+            "text": "BIZIBOIZ — NEW DROP LIVE"
+          }
+        },
+        "announce_2": {
+          "type": "announce",
+          "settings": {
+            "text": "FREE CZ SHIPPING OVER 1500 KČ"
+          }
+        },
+        "announce_3": {
+          "type": "announce",
+          "settings": {
+            "text": "LIMITED RUNS — NO RESTOCKS"
+          }
+        },
+        "announce_4": {
+          "type": "announce",
+          "settings": {
+            "text": "FOLLOW @BIZIBOIZ"
+          }
+        },
         "cat_jackets": {
           "type": "category",
           "settings": {
@@ -61,6 +85,10 @@
         }
       },
       "block_order": [
+        "announce_1",
+        "announce_2",
+        "announce_3",
+        "announce_4",
         "cat_jackets",
         "cat_bottoms",
         "cat_hats",
@@ -74,7 +102,10 @@
         "collection_live": "2026",
         "collection_archive": "main-page",
         "products_to_show": 24,
-        "instagram_url": "https://www.instagram.com/biziboiz/"
+        "instagram_url": "https://www.instagram.com/biziboiz/",
+        "show_announce": true,
+        "announce_link": "https://www.instagram.com/biziboiz/",
+        "announce_speed": 36
       }
     }
   },

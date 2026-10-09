@@ -15,6 +15,18 @@
   assign archive = section.settings.collection_archive
   assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
   assign limit = section.settings.products_to_show
+  assign show_announce = section.settings.show_announce
+  assign announce_link = section.settings.announce_link
+  assign announce_speed = section.settings.announce_speed | default: 36
+  assign announce_count = 0
+  for block in section.blocks
+    if block.type == 'announce' and block.settings.text != blank
+      assign announce_count = announce_count | plus: 1
+    endif
+  endfor
+  if show_announce and announce_count == 0
+    assign announce_count = 4
+  endif
 
   assign orders = 0
   assign points = 0
@@ -45,11 +57,46 @@
 -%}
 
 <div
-  class="ftw-shop"
+  class="ftw-shop{% if show_announce and announce_count > 0 %} ftw-shop--announce{% endif %}"
   id="ftw-shop"
   data-cart-count="{{ cart.item_count }}"
   data-money-format="{{ shop.money_format | escape }}"
+  {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
+  {%- if show_announce and announce_count > 0 -%}
+    <div class="ftw-announce" role="region" aria-label="Announcement">
+      {%- if announce_link != blank -%}
+        <a class="ftw-announce__hit" href="{{ announce_link }}"></a>
+      {%- endif -%}
+      <div class="ftw-announce__viewport">
+        <div class="ftw-announce__track">
+          {%- for i in (1..2) -%}
+            <div class="ftw-announce__group" {% if i == 2 %}aria-hidden="true"{% endif %}>
+              {%- assign rendered_announce = 0 -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'announce' and block.settings.text != blank -%}
+                  <span class="ftw-announce__item" {{ block.shopify_attributes }}>{{ block.settings.text | upcase | escape }}</span>
+                  <span class="ftw-announce__sep" aria-hidden="true">★</span>
+                  {%- assign rendered_announce = rendered_announce | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered_announce == 0 -%}
+                <span class="ftw-announce__item">BIZIBOIZ — NEW DROP LIVE</span>
+                <span class="ftw-announce__sep" aria-hidden="true">★</span>
+                <span class="ftw-announce__item">FREE CZ SHIPPING OVER 1500 KČ</span>
+                <span class="ftw-announce__sep" aria-hidden="true">★</span>
+                <span class="ftw-announce__item">LIMITED RUNS — NO RESTOCKS</span>
+                <span class="ftw-announce__sep" aria-hidden="true">★</span>
+                <span class="ftw-announce__item">FOLLOW @BIZIBOIZ</span>
+                <span class="ftw-announce__sep" aria-hidden="true">★</span>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
   <div class="ftw-nav-scrim" id="ftw-nav-scrim" hidden></div>
 
   <div class="ftw-shell">
@@ -430,6 +477,31 @@
       "id": "instagram_url",
       "label": "Instagram URL",
       "default": "https://www.instagram.com/biziboiz/"
+    },
+    {
+      "type": "header",
+      "content": "Announcement bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announce",
+      "label": "Show announcement ticker",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "announce_link",
+      "label": "Announcement link (optional)"
+    },
+    {
+      "type": "range",
+      "id": "announce_speed",
+      "min": 18,
+      "max": 80,
+      "step": 2,
+      "unit": "s",
+      "label": "Ticker loop speed",
+      "default": 36
     }
   ],
   "blocks": [
@@ -450,12 +522,28 @@
           "info": "Always shown in the sidebar. Used to find a collection by handle if the picker is empty."
         }
       ]
+    },
+    {
+      "type": "announce",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Message",
+          "default": "NEW DROP LIVE"
+        }
+      ]
     }
   ],
   "presets": [
     {
       "name": "FTW Shop",
       "blocks": [
+        { "type": "announce", "settings": { "text": "BIZIBOIZ — NEW DROP LIVE" } },
+        { "type": "announce", "settings": { "text": "FREE CZ SHIPPING OVER 1500 KČ" } },
+        { "type": "announce", "settings": { "text": "LIMITED RUNS — NO RESTOCKS" } },
+        { "type": "announce", "settings": { "text": "FOLLOW @BIZIBOIZ" } },
         { "type": "category", "settings": { "label": "JACKETS" } },
         { "type": "category", "settings": { "label": "BOTTOMS" } },
         { "type": "category", "settings": { "label": "HATS" } },
