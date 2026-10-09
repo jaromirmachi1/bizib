@@ -12,6 +12,8 @@
   let selectedVariantId = null;
   let sheetOpen = false;
   let sheetVariants = [];
+  let sheetOptionDefs = [];
+  let sheetSelectedOptions = [];
   let sheetImages = [];
   let sheetImageIndex = 0;
   let sheetAvailable = true;
@@ -320,42 +322,143 @@
     });
   }
 
+  function parseOptions(raw) {
+    try {
+      const parsed = JSON.parse(raw || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function variantOptionValues(v) {
+    if (Array.isArray(v.options) && v.options.length) return v.options.map(String);
+    if (v.title && v.title !== "Default Title") {
+      return String(v.title)
+        .split(" / ")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }
+
+  function inferOptionDefs(variants) {
+    const names = ["Option 1", "Option 2", "Option 3"];
+    const buckets = [[], [], []];
+    variants.forEach((v) => {
+      variantOptionValues(v).forEach((val, i) => {
+        if (i < 3 && val && !buckets[i].includes(val)) buckets[i].push(val);
+      });
+    });
+    return buckets
+      .map((values, i) => ({ name: names[i], values }))
+      .filter((o) => o.values.length);
+  }
+
+  function findMatchingVariant() {
+    return (
+      sheetVariants.find((v) => {
+        const opts = variantOptionValues(v);
+        if (!sheetSelectedOptions.length) return false;
+        return sheetSelectedOptions.every((val, i) => opts[i] === val);
+      }) || null
+    );
+  }
+
+  function optionHasAnyVariant(index, value, draft) {
+    const probe = draft.slice();
+    probe[index] = value;
+    return sheetVariants.some((v) => {
+      const opts = variantOptionValues(v);
+      return probe.every((val, i) => val == null || val === "" || opts[i] === val);
+    });
+  }
+
+  function syncVariantFromOptions() {
+    const match = findMatchingVariant();
+    selectedVariantId = match ? match.id : null;
+    if (match?.price) $("#ftw-sheet-price").textContent = match.price;
+
+    const btn = $("#ftw-sheet-add");
+    if (!btn) return;
+    if (!match) {
+      btn.textContent = "UNAVAILABLE";
+      btn.disabled = true;
+      return;
+    }
+    if (!match.available) {
+      btn.textContent = "SOLD OUT";
+      btn.disabled = true;
+      return;
+    }
+    sheetAvailable = true;
+    syncAddButton();
+  }
+
   function buildSizes(card) {
-    const sizes = $("#ftw-sheet-sizes");
-    sizes.innerHTML = "";
+    const host = $("#ftw-sheet-sizes");
+    host.innerHTML = "";
     selectedVariantId = null;
+    sheetOptionDefs = parseOptions(card.dataset.options);
+    if (!sheetOptionDefs.length) sheetOptionDefs = inferOptionDefs(sheetVariants);
 
-    const usable = sheetVariants.filter((v) => v.title && v.title !== "Default Title");
-    const list = usable.length ? usable : sheetVariants;
+    const hasRealOptions = sheetOptionDefs.some((o) => o.values && o.values.length);
+    const onlyDefault =
+      sheetVariants.length <= 1 &&
+      (!sheetVariants[0] || !sheetVariants[0].title || sheetVariants[0].title === "Default Title");
 
-    if (!list.length) {
-      selectedVariantId = Number(card.dataset.variantId) || null;
+    if (!hasRealOptions || onlyDefault) {
+      selectedVariantId = Number(card.dataset.variantId) || sheetVariants[0]?.id || null;
       syncAddButton();
       return;
     }
 
-    list.forEach((v, i) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "ftw-sheet__size";
-      btn.textContent = v.title;
-      btn.disabled = !v.available;
-      btn.dataset.variantId = String(v.id);
-      if (v.available && !selectedVariantId) {
-        btn.classList.add("is-active");
-        selectedVariantId = v.id;
-        if (v.price) $("#ftw-sheet-price").textContent = v.price;
-      } else if (!v.available && i === 0 && !selectedVariantId) {
-        /* skip sold first */
-      }
-      sizes.appendChild(btn);
+    const firstAvailable = sheetVariants.find((v) => v.available) || sheetVariants[0];
+    sheetSelectedOptions = variantOptionValues(firstAvailable || {});
+
+    sheetOptionDefs.forEach((opt, index) => {
+      if (!sheetSelectedOptions[index]) sheetSelectedOptions[index] = opt.values[0];
+
+      const wrap = document.createElement("label");
+      wrap.className = "ftw-sheet__option";
+
+      const label = document.createElement("span");
+      label.className = "ftw-sheet__option-label";
+      label.textContent = String(opt.name || `Option ${index + 1}`).toUpperCase();
+
+      const select = document.createElement("select");
+      select.className = "ftw-sheet__select";
+      select.dataset.optionIndex = String(index);
+      select.setAttribute("aria-label", opt.name || `Option ${index + 1}`);
+
+      opt.values.forEach((value) => {
+        const optionEl = document.createElement("option");
+        optionEl.value = value;
+        optionEl.textContent = String(value).toUpperCase();
+        const exists = optionHasAnyVariant(index, value, sheetSelectedOptions);
+        optionEl.disabled = !exists;
+        if (sheetSelectedOptions[index] === value) optionEl.selected = true;
+        select.appendChild(optionEl);
+      });
+
+      select.addEventListener("change", () => {
+        sheetSelectedOptions[index] = select.value;
+        // refresh disabled states for other selects
+        $$(".ftw-sheet__select", host).forEach((sel) => {
+          const i = Number(sel.dataset.optionIndex);
+          [...sel.options].forEach((optEl) => {
+            optEl.disabled = !optionHasAnyVariant(i, optEl.value, sheetSelectedOptions);
+          });
+        });
+        syncVariantFromOptions();
+      });
+
+      wrap.appendChild(label);
+      wrap.appendChild(select);
+      host.appendChild(wrap);
     });
 
-    if (!selectedVariantId) {
-      const first = list.find((v) => v.available);
-      selectedVariantId = first ? first.id : null;
-    }
-    syncAddButton();
+    syncVariantFromOptions();
   }
 
   function openSheet(card) {
@@ -416,7 +519,7 @@
   async function addToCart() {
     const addBtn = $("#ftw-sheet-add");
     if (!selectedVariantId || addBtn?.disabled) {
-      toast("PICK A SIZE.");
+      toast("PICK YOUR OPTIONS.");
       return;
     }
 
