@@ -60,6 +60,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   color: #fff;
   overflow: hidden;
   isolation: isolate;
+  border-top: 2px solid #111;
   border-bottom: 2px solid #111;
   box-sizing: border-box;
 }
