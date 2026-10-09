@@ -1,8 +1,14 @@
 /* BIZIBOIZ — Corteiz-type utilitarian shop */
 
 body.ftw-mode {
-  background: #f2f2f2 !important;
+  background: var(--ftw-body-bg, #f2f2f2) !important;
   overflow-x: hidden;
+  color-scheme: light;
+}
+
+html[data-ftw-theme="dark"] body.ftw-mode {
+  --ftw-body-bg: #111;
+  color-scheme: dark;
 }
 
 body.ftw-mode .skip-to-content-link,
@@ -27,6 +33,12 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   --ftw-fg: #111;
   --ftw-muted: #666;
   --ftw-line: #cfcfcf;
+  --ftw-panel: #ececec;
+  --ftw-panel-2: #f7f7f7;
+  --ftw-ink: #111;
+  --ftw-on-ink: #fff;
+  --ftw-soft: #ddd;
+  --ftw-scrim: rgba(0, 0, 0, 0.28);
   --ftw-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --ftw-sans: "Barlow Condensed", "Arial Narrow", sans-serif;
   --ftw-side: 180px;
@@ -42,6 +54,32 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   letter-spacing: 0.04em;
   line-height: 1.25;
   text-transform: uppercase;
+  transition: background-color 180ms var(--ftw-ease), color 180ms var(--ftw-ease);
+}
+
+html[data-ftw-theme="dark"] .ftw-shop {
+  --ftw-bg: #111;
+  --ftw-fg: #f2f2f2;
+  --ftw-muted: #8a8a8a;
+  --ftw-line: #2c2c2c;
+  --ftw-panel: #1a1a1a;
+  --ftw-panel-2: #1f1f1f;
+  --ftw-ink: #f2f2f2;
+  --ftw-on-ink: #111;
+  --ftw-soft: #333;
+  --ftw-scrim: rgba(0, 0, 0, 0.55);
+}
+
+.ftw-logo img.ftw-logo__dark {
+  display: none;
+}
+
+html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__light {
+  display: none;
+}
+
+html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
+  display: block;
 }
 
 .ftw-shop--announce {
@@ -51,7 +89,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 /* —— Announcement ticker —— */
 .ftw-announce {
   position: fixed;
-  top: 0;
+  top: auto;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 140;
@@ -60,8 +99,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   color: #fff;
   overflow: hidden;
   isolation: isolate;
-  border-top: 2px solid #111;
-  border-bottom: 2px solid #111;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
   box-sizing: border-box;
 }
 
@@ -108,10 +147,11 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 
 .ftw-announce__sep {
   flex-shrink: 0;
-  padding: 0 0.15rem;
-  font-size: 9px;
-  opacity: 0.45;
-  letter-spacing: 0;
+  padding: 0 0.2rem;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.55;
+  letter-spacing: 0.08em;
 }
 
 @keyframes ftw-marquee {
@@ -140,8 +180,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-shop ::selection {
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
 }
 
 .ftw-shop a {
@@ -153,16 +193,16 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   display: block;
   min-height: 100dvh;
   padding-left: var(--ftw-side);
-  padding-top: var(--ftw-announce);
+  padding-bottom: var(--ftw-announce);
   box-sizing: border-box;
 }
 
 /* —— Sidebar —— */
 .ftw-side {
   position: fixed;
-  top: var(--ftw-announce);
+  top: 0;
   left: 0;
-  bottom: 0;
+  bottom: var(--ftw-announce);
   width: var(--ftw-side);
   height: calc(100dvh - var(--ftw-announce));
   max-height: calc(100dvh - var(--ftw-announce));
@@ -267,6 +307,16 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.ftw-theme-btn .ftw-theme-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.ftw-theme-btn:active {
+  transform: scale(0.97);
 }
 
 .ftw-side__links a,
@@ -411,6 +461,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   max-height: none;
   object-fit: contain;
   object-position: center center;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.28))
+    drop-shadow(0 0 28px rgba(255, 255, 255, 0.12));
 }
 
 .ftw-product__stamp {
@@ -419,8 +471,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   margin: 0 auto;
   width: fit-content;
   padding: 2px 8px;
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
   font-size: 11px;
   letter-spacing: 0.12em;
 }
@@ -457,7 +509,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--ftw-scrim);
   display: grid;
   justify-content: end;
 }
@@ -574,9 +626,9 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   justify-content: center;
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid #111;
+  border: 1px solid var(--ftw-ink);
   background: transparent;
-  color: #111;
+  color: var(--ftw-fg);
   font: inherit;
   letter-spacing: 0.1em;
   cursor: pointer;
@@ -584,8 +636,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-btn:hover {
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
 }
 
 .ftw-btn:active {
@@ -593,12 +645,12 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-btn--primary {
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
 }
 
 .ftw-btn--primary:hover {
-  background: #333;
+  opacity: 0.88;
 }
 
 .ftw-actions {
@@ -622,13 +674,13 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 
 .ftw-bar {
   height: 3px;
-  background: #ddd;
+  background: var(--ftw-soft);
   margin-bottom: 8px;
 }
 
 .ftw-bar__fill {
   height: 100%;
-  background: #111;
+  background: var(--ftw-ink);
 }
 
 .ftw-muted {
@@ -650,9 +702,9 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-ladder span.is-on {
-  background: #111;
-  color: #fff;
-  border-color: #111;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
+  border-color: var(--ftw-ink);
 }
 
 .ftw-orders {
@@ -709,7 +761,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 .ftw-contact input,
 .ftw-contact textarea {
   border: 1px solid var(--ftw-line);
-  background: #fff;
+  background: var(--ftw-panel-2);
   padding: 8px 10px;
   font: inherit;
   letter-spacing: inherit;
@@ -725,11 +777,11 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 .ftw-toast {
   position: fixed;
   left: 50%;
-  bottom: 24px;
+  bottom: calc(var(--ftw-announce) + 24px);
   z-index: 110;
   transform: translateX(-50%) translateY(12px);
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
   padding: 10px 16px;
   font-size: 12px;
   letter-spacing: 0.08em;
@@ -747,9 +799,9 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 .ftw-sheet {
   --ftw-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   position: fixed;
-  top: var(--ftw-announce);
+  top: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--ftw-announce);
   left: var(--ftw-side);
   z-index: 100;
   width: auto;
@@ -762,8 +814,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 .ftw-sheet__panel {
   position: absolute;
   inset: 0;
-  background: #ececec;
-  border-left: 1px solid #ddd;
+  background: var(--ftw-panel);
+  border-left: 1px solid var(--ftw-line);
   opacity: 0;
   transform: translateX(10px);
   transition: opacity 220ms var(--ftw-drawer), transform 280ms var(--ftw-drawer);
@@ -786,15 +838,15 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   padding: 0 12px 0 8px;
   border: 0;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #111;
+  background: color-mix(in srgb, var(--ftw-bg) 92%, transparent);
+  color: var(--ftw-fg);
   font: inherit;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   transition: transform 120ms var(--ftw-ease);
 }
 
@@ -814,7 +866,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   height: 100%;
   overflow: auto;
   padding: 56px 24px 32px;
-  background: #ececec;
+  background: var(--ftw-panel);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -841,6 +893,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.26))
+    drop-shadow(0 0 32px rgba(255, 255, 255, 0.1));
 }
 
 .ftw-sheet__side {
@@ -849,7 +903,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   align-self: start;
   height: calc(100dvh - var(--ftw-announce));
   max-height: calc(100dvh - var(--ftw-announce));
-  background: #f7f7f7;
+  background: var(--ftw-panel-2);
   padding: 28px 28px 20px;
   display: flex;
   flex-direction: column;
@@ -896,7 +950,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #111;
+  color: var(--ftw-fg);
 }
 
 .ftw-sheet__note {
@@ -905,7 +959,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #111;
+  color: var(--ftw-fg);
 }
 
 .ftw-sheet__sizes {
@@ -921,8 +975,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   height: 42px;
   padding: 0 14px;
   border: 1px solid transparent;
-  background: #ececec;
-  color: #111;
+  background: var(--ftw-panel);
+  color: var(--ftw-fg);
   font: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -933,8 +987,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-sheet__size.is-active {
-  background: #fff;
-  border-color: #111;
+  background: var(--ftw-bg);
+  border-color: var(--ftw-ink);
 }
 
 .ftw-sheet__size:disabled {
@@ -951,8 +1005,8 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   width: 100%;
   height: 48px;
   border: 0;
-  background: #111;
-  color: #fff;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -960,11 +1014,11 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   text-transform: uppercase;
   cursor: pointer;
   margin-bottom: 14px;
-  transition: background 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
+  transition: background 140ms var(--ftw-ease), transform 120ms var(--ftw-ease), opacity 140ms var(--ftw-ease);
 }
 
 .ftw-sheet__add:hover {
-  background: #222;
+  opacity: 0.88;
 }
 
 .ftw-sheet__add:active {
@@ -990,7 +1044,7 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   padding: 0;
   border: 0;
   background: none;
-  color: #777;
+  color: var(--ftw-muted);
   font: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -1001,13 +1055,13 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
 }
 
 .ftw-sheet__link:hover {
-  color: #111;
+  color: var(--ftw-fg);
 }
 
 .ftw-sheet__detail {
   margin: 0 0 4px;
   padding: 0;
-  color: #555;
+  color: var(--ftw-muted);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;

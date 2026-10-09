@@ -16,6 +16,32 @@
   let sheetImageIndex = 0;
   let sheetAvailable = true;
 
+  const THEME_KEY = "ftw-theme";
+
+  function getTheme() {
+    const t = document.documentElement.getAttribute("data-ftw-theme");
+    return t === "dark" ? "dark" : "light";
+  }
+
+  function syncThemeButton(theme) {
+    const btn = $("#ftw-theme-btn");
+    if (!btn) return;
+    const isDark = theme === "dark";
+    btn.setAttribute("aria-pressed", isDark ? "true" : "false");
+    btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  }
+
+  function setTheme(theme) {
+    const next = theme === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-ftw-theme", next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch (_) {}
+    syncThemeButton(next);
+  }
+
+  syncThemeButton(getTheme());
+
   function toast(msg) {
     const el = $("#toast");
     if (!el) return;
@@ -409,6 +435,9 @@
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
   $("#ftw-nav-scrim")?.addEventListener("click", () => setNavOpen(false));
   $("#ftw-sheet-add")?.addEventListener("click", addToCart);
+  $("#ftw-theme-btn")?.addEventListener("click", () => {
+    setTheme(getTheme() === "dark" ? "light" : "dark");
+  });
 
   $("#ftw-search-input")?.addEventListener("input", (e) => {
     searchQuery = e.target.value || "";
