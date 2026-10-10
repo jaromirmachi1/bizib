@@ -947,6 +947,14 @@
     });
   }
 
+  function sortGridByNewest() {
+    const grid = $("#ftw-grid", root);
+    if (!grid) return;
+    $$(".ftw-product", grid)
+      .sort((a, b) => Number(b.dataset.created || 0) - Number(a.dataset.created || 0))
+      .forEach((card) => grid.appendChild(card));
+  }
+
   function applyFilters() {
     const q = searchQuery.trim().toLowerCase();
     const active = normalize(activeFilter);
@@ -1521,6 +1529,7 @@
 
   updateTrayCart(Number(root.dataset.cartCount || 0));
   if (!isLocal) renderCart();
+  sortGridByNewest();
   applyFilters();
 
   /* —— Mobile lock intro —— */

@@ -28,7 +28,6 @@
   assign upsell_heading = section.settings.upsell_heading | default: 'ADD THIS TOO'
   assign upsell_limit = section.settings.upsell_limit | default: 2
   assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
-  assign limit = section.settings.products_to_show
   assign show_announce = section.settings.show_announce
   assign announce_link = section.settings.announce_link
   assign announce_speed = section.settings.announce_speed | default: 36
@@ -309,14 +308,16 @@
         {%- assign rendered = 0 -%}
 
         {%- if live != blank -%}
-          {%- for product in live.products limit: limit -%}
-            {%- assign key = product.handle | prepend: '|' | append: '|' -%}
-            {%- unless seen contains key -%}
-              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
-              {%- assign seen = seen | append: product.handle | append: '|' -%}
-              {%- assign rendered = rendered | plus: 1 -%}
-            {%- endunless -%}
-          {%- endfor -%}
+          {%- paginate live.products by 250 -%}
+            {%- for product in live.products -%}
+              {%- assign key = product.handle | prepend: '|' | append: '|' -%}
+              {%- unless seen contains key -%}
+                {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+                {%- assign seen = seen | append: product.handle | append: '|' -%}
+                {%- assign rendered = rendered | plus: 1 -%}
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- endpaginate -%}
         {%- endif -%}
 
         {%- for block in section.blocks -%}
@@ -333,19 +334,19 @@
               endif
             -%}
             {%- if cat != blank -%}
-              {%- for product in cat.products limit: limit -%}
-                {%- assign key = product.handle | prepend: '|' | append: '|' -%}
-                {%- unless seen contains key -%}
-                  {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
-                  {%- assign seen = seen | append: product.handle | append: '|' -%}
-                  {%- assign rendered = rendered | plus: 1 -%}
-                {%- endunless -%}
-              {%- endfor -%}
+              {%- paginate cat.products by 250 -%}
+                {%- for product in cat.products -%}
+                  {%- assign key = product.handle | prepend: '|' | append: '|' -%}
+                  {%- unless seen contains key -%}
+                    {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+                    {%- assign seen = seen | append: product.handle | append: '|' -%}
+                    {%- assign rendered = rendered | plus: 1 -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+              {%- endpaginate -%}
             {%- endif -%}
           {%- endif -%}
         {%- endfor -%}
-
-        {%- endif -%}
 
         {%- if rendered == 0 -%}
           <p class="ftw-empty">Connect collections in the theme editor (NEW + category blocks).</p>
@@ -681,15 +682,6 @@
       "step": 1,
       "label": "Upsell products to show",
       "default": 2
-    },
-    {
-      "type": "range",
-      "id": "products_to_show",
-      "min": 4,
-      "max": 36,
-      "step": 1,
-      "label": "Products per collection",
-      "default": 18
     },
     {
       "type": "text",

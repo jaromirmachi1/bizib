@@ -412,7 +412,8 @@
         return `
         <a class="ftw-product${p.sold ? " is-sold" : ""}" href="#" role="listitem"
            data-product="${p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"
-           data-title="${p.name}" data-collections="${p.collections}" data-drop="${p.drop}"
+           data-title="${p.name}" data-collections="${p.collections}" data-type="${(p.collections || "").split(",")[0] || ""}" data-drop="${p.drop}"
+           data-created="${Math.floor(Date.now() / 1000) - i * 86400}"
            data-price="${p.price}" data-image="./assets/panacek-3-black.png"
            data-outfit-image="./assets/panacek-3-black.png"
            data-images='${JSON.stringify(["./assets/panacek-3-black.png"])}'
@@ -438,6 +439,6 @@
         {"id":903,"handle":"ftw-box-tee","title":"FTW BOX TEE [BLACK]","price":"1 290 Kč","image":"./assets/panacek-3-black.png","variantId":1903,"collections":"t-shirts","available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=39"></script>
+    <script src="/assets/ftw-shop.js?v=40"></script>
   </body>
 </html>
