@@ -824,13 +824,14 @@
     hoodies: ["hoodie", "sweat", "crew"],
     hats: ["hat", "cap", "beanie", "trucker"],
     bottoms: ["short", "pant", "bottom", "track"],
-    jackets: ["jacket", "shell", "zip"],
+    jackets: ["jacket", "shell", "puffer", "windbreaker", "parka", "bomber"],
     womens: ["bikini", "women"],
     lifestyle: ["towel", "lifestyle"],
     accessories: ["bag", "tote", "accessory"],
   };
 
   function matchesCategory(cols, title, active) {
+    if (active === "jackets" && /(hoodie|sweatshirt|crewneck|\bcrew\b)/.test(title)) return false;
     if (cols.includes(active)) return true;
     const alts = FILTER_ALIASES[active] || [];
     if (alts.some((a) => cols.includes(a))) return true;
