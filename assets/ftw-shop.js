@@ -1730,7 +1730,17 @@
       document.body.classList.remove("ftw-locked");
       return;
     }
+    if (lockEl.parentElement !== document.body) document.body.appendChild(lockEl);
     lockEl.hidden = false;
+    lockEl.style.display = "grid";
+    lockEl.style.position = "fixed";
+    lockEl.style.top = "0";
+    lockEl.style.right = "0";
+    lockEl.style.bottom = "0";
+    lockEl.style.left = "0";
+    lockEl.style.width = "100%";
+    lockEl.style.height = "100dvh";
+    lockEl.style.zIndex = "300";
     document.body.classList.add("ftw-locked");
     syncLockClock();
     setLockProgress(0, 1);
