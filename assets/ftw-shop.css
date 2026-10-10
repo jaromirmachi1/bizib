@@ -75,15 +75,18 @@ html[data-ftw-theme="dark"] .ftw-shop {
   --ftw-scrim: rgba(0, 0, 0, 0.55);
 }
 
-.ftw-logo img.ftw-logo__dark {
+.ftw-logo img.ftw-logo__dark,
+.ftw-top__logo img.ftw-logo__dark {
   display: none;
 }
 
-html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__light {
+html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__light,
+html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__light {
   display: none;
 }
 
-html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
+html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark,
+html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   display: block;
 }
 
@@ -413,6 +416,25 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   min-height: 28px;
 }
 
+.ftw-top__logo {
+  display: none;
+  width: 44px;
+  height: auto;
+  flex-shrink: 0;
+  transition: transform 160ms var(--ftw-ease);
+}
+
+.ftw-top__logo:active {
+  transform: scale(0.97);
+}
+
+.ftw-top__logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 .ftw-top__item {
   display: inline-flex;
   align-items: center;
@@ -465,6 +487,14 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
 .ftw-search input::placeholder {
   color: var(--ftw-fg);
   opacity: 1;
+}
+
+.ftw-side__search {
+  display: none;
+}
+
+.ftw-side__account {
+  display: none;
 }
 
 /* —— Product grid —— */
@@ -1878,12 +1908,59 @@ body.ftw-sheet-open {
   }
 
   .ftw-top {
-    justify-content: space-between;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    min-height: 44px;
   }
 
   .ftw-menu-btn {
     display: inline-flex;
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .ftw-top__logo {
+    display: block;
+    width: 48px;
+    justify-self: center;
+    grid-column: 2;
+  }
+
+  .ftw-top__search,
+  .ftw-top__account {
+    display: none;
+  }
+
+  .ftw-top__cart {
+    justify-self: end;
+    grid-column: 3;
+  }
+
+  .ftw-side__search {
+    display: inline-flex;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 20px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .ftw-side__search input {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .ftw-side__account {
+    display: block;
+  }
+
+  .ftw-side .ftw-logo {
+    width: 96px;
+    margin-bottom: 18px;
   }
 
   .ftw-grid {
@@ -1898,9 +1975,5 @@ body.ftw-sheet-open {
   .ftw-product__name,
   .ftw-product__price {
     font-size: 11px;
-  }
-
-  .ftw-top {
-    flex-wrap: wrap;
   }
 }

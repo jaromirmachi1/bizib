@@ -132,6 +132,14 @@
         <img class="ftw-logo__dark" src="{{ logo_dark_url }}" alt="" width="280" height="280">
       </a>
 
+      <label class="ftw-search ftw-side__search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="M16.5 16.5L21 21"></path>
+        </svg>
+        <input type="search" id="ftw-search-input-side" placeholder="SEARCH" autocomplete="off" aria-label="Search products">
+      </label>
+
       <nav class="ftw-cats" aria-label="Categories">
         <button type="button" class="is-active" data-ftw-filter="all">NEW</button>
         {%- assign ftw_cat_count = 0 -%}
@@ -226,6 +234,7 @@
           </button>
         </div>
         <div class="ftw-side__links">
+          <button type="button" class="ftw-side__account" id="ftw-account-side-btn" aria-expanded="false" aria-controls="ftw-account">ACCOUNT</button>
           <button type="button" data-ftw-filter="archive">ARCHIVE</button>
           <button type="button" id="ftw-contact-open">NEWSLETTER</button>
           <a href="/policies/shipping-policy">SHIPPING POLICY</a>
@@ -236,27 +245,31 @@
 
     <div class="ftw-main">
       <header class="ftw-top">
-        <button class="ftw-top__item ftw-menu-btn" type="button" id="ftw-menu-btn" aria-label="Open menu" aria-controls="ftw-side">
+        <button class="ftw-top__item ftw-menu-btn" type="button" id="ftw-menu-btn" aria-label="Open menu" aria-controls="ftw-side" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16"></path>
           </svg>
           MENU
         </button>
-        <label class="ftw-search">
+        <a class="ftw-top__logo" href="{{ routes.root_url }}" aria-label="BIZIBOIZ home">
+          <img class="ftw-logo__light" src="{{ logo_url }}" alt="" width="120" height="120">
+          <img class="ftw-logo__dark" src="{{ logo_dark_url }}" alt="" width="120" height="120">
+        </a>
+        <label class="ftw-search ftw-top__search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <circle cx="11" cy="11" r="6.5"></circle>
             <path d="M16.5 16.5L21 21"></path>
           </svg>
           <input type="search" id="ftw-search-input" placeholder="SEARCH" autocomplete="off" aria-label="Search products">
         </label>
-        <button class="ftw-top__item" type="button" id="ftw-bag-btn" aria-expanded="false" aria-controls="ftw-bag">
+        <button class="ftw-top__item ftw-top__cart" type="button" id="ftw-bag-btn" aria-expanded="false" aria-controls="ftw-bag">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
             <path d="M6.5 8.5h11l-.8 11.2a1.5 1.5 0 0 1-1.5 1.3H8.8a1.5 1.5 0 0 1-1.5-1.3L6.5 8.5Z"></path>
             <path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"></path>
           </svg>
           CART (<span id="cart-count">{{ cart.item_count }}</span>)
         </button>
-        <button class="ftw-top__item" type="button" id="ftw-account-top-btn" aria-expanded="false" aria-controls="ftw-account">
+        <button class="ftw-top__item ftw-top__account" type="button" id="ftw-account-top-btn" aria-expanded="false" aria-controls="ftw-account">
           ACCOUNT
         </button>
       </header>

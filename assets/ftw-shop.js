@@ -257,11 +257,12 @@
 
   function openDrawer(id) {
     closeSheet(true);
+    setNavOpen(false);
     $$(".ftw-drawer", root).forEach((d) => {
       d.hidden = d.id !== id;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", String(id === "ftw-bag"));
-    $$("#ftw-account-btn, #ftw-account-top-btn", root).forEach((btn) => {
+    $$("#ftw-account-btn, #ftw-account-top-btn, #ftw-account-side-btn", root).forEach((btn) => {
       btn.setAttribute("aria-expanded", String(id === "ftw-account"));
     });
     if (id === "ftw-bag") renderCart();
@@ -272,7 +273,7 @@
       d.hidden = true;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", "false");
-    $$("#ftw-account-btn, #ftw-account-top-btn", root).forEach((btn) => {
+    $$("#ftw-account-btn, #ftw-account-top-btn, #ftw-account-side-btn", root).forEach((btn) => {
       btn.setAttribute("aria-expanded", "false");
     });
   }
@@ -454,6 +455,7 @@
     root.classList.toggle("is-nav-open", open);
     const scrim = $("#ftw-nav-scrim");
     if (scrim) scrim.hidden = !open;
+    $("#ftw-menu-btn")?.setAttribute("aria-expanded", String(!!open));
   }
 
   let activeFilter = "all";
@@ -862,6 +864,7 @@
 
   $("#ftw-account-btn")?.addEventListener("click", toggleAccountDrawer);
   $("#ftw-account-top-btn")?.addEventListener("click", toggleAccountDrawer);
+  $("#ftw-account-side-btn")?.addEventListener("click", toggleAccountDrawer);
 
   $("#ftw-contact-open")?.addEventListener("click", () => openDrawer("ftw-contact"));
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
@@ -873,10 +876,16 @@
   $("#ftw-outfit-close")?.addEventListener("click", closeOutfitChecker);
   $("#ftw-outfit-clear")?.addEventListener("click", clearOutfitStage);
 
-  $("#ftw-search-input")?.addEventListener("input", (e) => {
+  function onSearchInput(e) {
     searchQuery = e.target.value || "";
+    const otherId = e.target.id === "ftw-search-input" ? "ftw-search-input-side" : "ftw-search-input";
+    const other = $(`#${otherId}`);
+    if (other && other.value !== searchQuery) other.value = searchQuery;
     applyFilters();
-  });
+  }
+
+  $("#ftw-search-input")?.addEventListener("input", onSearchInput);
+  $("#ftw-search-input-side")?.addEventListener("input", onSearchInput);
 
   root.addEventListener("pointermove", onOutfitPointerMove);
   root.addEventListener("pointerup", onOutfitPointerUp);
