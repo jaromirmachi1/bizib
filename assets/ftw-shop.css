@@ -630,7 +630,7 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
 }
 
 .ftw-product__name {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.06em;
   line-height: 1.3;
@@ -1628,8 +1628,16 @@ body.ftw-outfit-open {
   align-items: flex-start;
 }
 
+.ftw-shop h1,
+.ftw-shop h2,
+.ftw-shop h3 {
+  color: var(--ftw-fg);
+  font-family: inherit;
+}
+
 .ftw-sheet__side h2 {
   margin: 0 0 8px;
+  color: var(--ftw-fg);
   font-size: clamp(22px, 2.4vw, 34px);
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -2015,7 +2023,10 @@ body.ftw-sheet-open {
     aspect-ratio: 1 / 1.1;
   }
 
-  .ftw-product__name,
+  .ftw-product__name {
+    font-size: 12px;
+  }
+
   .ftw-product__price {
     font-size: 11px;
   }
