@@ -835,9 +835,17 @@
     hat: "hats",
     "hoodies-sweatshirts": "hoodies-sweatshirts",
     hoodies: "hoodies-sweatshirts",
+    hoodie: "hoodies-sweatshirts",
     sweatshirts: "hoodies-sweatshirts",
+    sweatshirt: "hoodies-sweatshirts",
+    crewneck: "hoodies-sweatshirts",
+    crewnecks: "hoodies-sweatshirts",
     jackets: "jackets",
     jacket: "jackets",
+    "puffer-jackets": "jackets",
+    "puffer-jacket": "jackets",
+    puffers: "jackets",
+    puffer: "jackets",
     accessories: "accessories",
     accessory: "accessories",
   };
@@ -854,10 +862,12 @@
 
   function matchesCategory(cols, active, card) {
     const types = productTypeKeys(card);
-    if (types.size) return types.has(active);
-    if (cols.includes(active)) return true;
+    if (types.has(active)) return true;
     const alts = FILTER_ALIASES[active] || [];
-    return alts.some((a) => cols.includes(a));
+    if (alts.some((alias) => types.has(alias) || types.has(TYPE_FILTER[alias] || alias))) return true;
+    if (types.size) return false;
+    if (cols.includes(active)) return true;
+    return alts.some((alias) => cols.includes(alias));
   }
 
   const productFitCache = new Map();
@@ -945,6 +955,145 @@
       img.dataset.fitBound = "1";
       img.addEventListener("load", () => fitProductImage(img), { once: true });
     });
+  }
+
+  function catalogCard(product, collections) {
+    const variants = (product.variants || []).map((variant) => {
+      const cents = Math.round(Number(variant.price || 0) * 100);
+      const options = [variant.option1, variant.option2, variant.option3].filter(
+        (value) => value && value !== "Default Title"
+      );
+      const image = variant.featured_image?.src || variant.featured_image || null;
+      return {
+        id: variant.id,
+        title: variant.title,
+        available: variant.available !== false,
+        price: formatMoney(cents),
+        options,
+        image: typeof image === "string" ? image : null,
+      };
+    });
+    const images = (product.images || []).map((image) => image.src).filter(Boolean);
+    const first = variants.find((variant) => variant.available) || variants[0];
+    const available = variants.some((variant) => variant.available);
+    const created = Math.floor(new Date(product.created_at || 0).getTime() / 1000) || 0;
+    const title = product.title || "Piece";
+    const type = product.product_type || "";
+    const price = first?.price || "";
+    const img = images[0] || first?.image || "";
+    const outfitImage = variants.find((variant) => variant.image)?.image || img;
+    const options = Array.isArray(product.options) ? product.options : [];
+    return `<a class="ftw-product${available ? "" : " is-sold"}" href="/products/${escapeHtml(product.handle)}" role="listitem"
+      data-product="${escapeHtml(product.handle)}"
+      data-title="${escapeHtml(title)}"
+      data-collections="${escapeHtml(collections || "")}"
+      data-type="${escapeHtml(type)}"
+      data-drop="new"
+      data-created="${created}"
+      data-price="${escapeHtml(price)}"
+      data-image="${escapeHtml(img)}"
+      data-outfit-image="${escapeHtml(outfitImage)}"
+      data-images='${escapeHtml(JSON.stringify(images))}'
+      data-url="/products/${escapeHtml(product.handle)}"
+      data-variant-id="${first?.id || ""}"
+      data-available="${available ? "1" : "0"}"
+      data-description=""
+      data-options='${escapeHtml(JSON.stringify(options))}'
+      data-variants='${escapeHtml(JSON.stringify(variants))}'>
+      <div class="ftw-product__media">
+        ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)}" width="600" height="720" loading="lazy" crossorigin="anonymous">` : ""}
+        ${
+          available
+            ? `<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Quick add to bag">+ ADD</button>`
+            : `<span class="ftw-product__stamp">SOLD</span>`
+        }
+      </div>
+      <div class="ftw-product__meta">
+        <span class="ftw-product__name">${escapeHtml(title)}</span>
+        <span class="ftw-product__price">${available ? escapeHtml(price) : "SOLD OUT"}</span>
+      </div>
+    </a>`;
+  }
+
+  async function fetchPaged(base) {
+    const items = [];
+    for (let page = 1; page <= 20; page += 1) {
+      const joiner = base.includes("?") ? "&" : "?";
+      const res = await fetch(`${base}${joiner}limit=250&page=${page}`, {
+        headers: { Accept: "application/json" },
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      const list = data.products || data.collections || [];
+      if (!list.length) break;
+      items.push(...list);
+      if (list.length < 250) break;
+    }
+    return items;
+  }
+
+  function rememberCollection(product, handle) {
+    const cols = new Set(product._collections || []);
+    if (handle && handle !== "all" && handle !== "frontpage") cols.add(handle);
+    product._collections = [...cols];
+  }
+
+  async function hydrateCatalog() {
+    if (isLocal) return;
+    const grid = $("#ftw-grid", root);
+    if (!grid) return;
+    const byHandle = new Map();
+    const addProduct = (product, collectionHandle) => {
+      if (!product?.handle) return;
+      const existing = byHandle.get(product.handle);
+      if (existing) {
+        rememberCollection(existing, collectionHandle);
+        return;
+      }
+      rememberCollection(product, collectionHandle);
+      byHandle.set(product.handle, product);
+    };
+
+    try {
+      const collections = await fetchPaged("/collections.json");
+      const queue = collections.map((collection) => collection.handle).filter(Boolean);
+      const workers = Array.from({ length: Math.min(6, queue.length) }, async () => {
+        while (queue.length) {
+          const handle = queue.shift();
+          try {
+            const products = await fetchPaged(`/collections/${encodeURIComponent(handle)}/products.json`);
+            products.forEach((product) => addProduct(product, handle));
+          } catch (_) {}
+        }
+      });
+      await Promise.all(workers);
+    } catch (_) {}
+
+    try {
+      const loose = await fetchPaged("/products.json");
+      loose.forEach((product) => addProduct(product, ""));
+    } catch (_) {}
+
+    const cards = new Map($$(".ftw-product", grid).map((card) => [card.dataset.product, card]));
+    let html = "";
+    byHandle.forEach((product, handle) => {
+      const cols = (product._collections || []).join(",");
+      const card = cards.get(handle);
+      if (card) {
+        if (cols) {
+          const merged = new Set(
+            `${card.dataset.collections || ""},${cols}`
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean)
+          );
+          card.dataset.collections = [...merged].join(",");
+        }
+        return;
+      }
+      html += catalogCard(product, cols);
+    });
+    if (html) grid.insertAdjacentHTML("beforeend", html);
   }
 
   function sortGridByNewest() {
@@ -1529,8 +1678,11 @@
 
   updateTrayCart(Number(root.dataset.cartCount || 0));
   if (!isLocal) renderCart();
-  sortGridByNewest();
-  applyFilters();
+  hydrateCatalog().finally(() => {
+    sortGridByNewest();
+    applyFilters();
+    fitProductImages();
+  });
 
   /* —— Mobile lock intro —— */
   const LOCK_KEY = "ftw-unlocked";

@@ -189,10 +189,10 @@
               if cat_label == blank and cat != blank
                 assign cat_label = cat.title
               endif
-              if cat != blank
-                assign filter_key = cat.handle
-              elsif cat_label != blank
+              if cat_label != blank
                 assign filter_key = cat_label | handleize
+              elsif cat != blank
+                assign filter_key = cat.handle
               else
                 assign filter_key = ''
               endif
@@ -304,50 +304,18 @@
       <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
 
       <div class="ftw-grid" id="ftw-grid" role="list">
-        {%- assign seen = '|' -%}
+        {%- assign rendered_handles = '|' -%}
         {%- assign rendered = 0 -%}
-
-        {%- if live != blank -%}
-          {%- paginate live.products by 250 -%}
-            {%- for product in live.products -%}
-              {%- assign key = product.handle | prepend: '|' | append: '|' -%}
-              {%- unless seen contains key -%}
-                {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
-                {%- assign seen = seen | append: product.handle | append: '|' -%}
-                {%- assign rendered = rendered | plus: 1 -%}
-              {%- endunless -%}
-            {%- endfor -%}
-          {%- endpaginate -%}
-        {%- endif -%}
-
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'category' -%}
-            {%- liquid
-              assign cat = block.settings.collection
-              assign try_handle = ''
-              if cat == blank and block.settings.label != blank
-                assign try_handle = block.settings.label | handleize
-                assign cat = collections[try_handle]
-              endif
-              if cat == blank and try_handle == 'hoodies-sweatshirts'
-                assign cat = collections['hoodies']
-              endif
-            -%}
-            {%- if cat != blank -%}
-              {%- paginate cat.products by 250 -%}
-                {%- for product in cat.products -%}
-                  {%- assign key = product.handle | prepend: '|' | append: '|' -%}
-                  {%- unless seen contains key -%}
-                    {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
-                    {%- assign seen = seen | append: product.handle | append: '|' -%}
-                    {%- assign rendered = rendered | plus: 1 -%}
-                  {%- endunless -%}
-                {%- endfor -%}
-              {%- endpaginate -%}
-            {%- endif -%}
-          {%- endif -%}
+        {%- for collection in collections -%}
+          {%- for product in collection.products -%}
+            {%- capture token -%}|{{ product.handle }}|{%- endcapture -%}
+            {%- unless rendered_handles contains token -%}
+              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+              {%- assign rendered_handles = rendered_handles | append: product.handle | append: '|' -%}
+              {%- assign rendered = rendered | plus: 1 -%}
+            {%- endunless -%}
+          {%- endfor -%}
         {%- endfor -%}
-
         {%- if rendered == 0 -%}
           <p class="ftw-empty">Connect collections in the theme editor (NEW + category blocks).</p>
         {%- endif -%}
