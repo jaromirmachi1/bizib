@@ -117,12 +117,22 @@
       .replace(/"/g, "&quot;");
   }
 
+  const UPSELL_COLLECTION_RE =
+    /(^|[\s,/|-])(accessories?|hats?|caps?|beanies?|t-shirts?|tees?|tee)([\s,/|-]|$)/i;
+
+  function isUpsellAllowed(product) {
+    const blob = [product.collections, product.handle, product.title].filter(Boolean).join(" ");
+    return UPSELL_COLLECTION_RE.test(blob);
+  }
+
   function getUpsellPool() {
     const raw = $("#ftw-upsell-data")?.textContent;
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length) return parsed.filter((p) => p && p.variantId);
+        if (Array.isArray(parsed) && parsed.length) {
+          return parsed.filter((p) => p && p.variantId && isUpsellAllowed(p));
+        }
       } catch (_) {}
     }
     return $$(".ftw-product", root)
@@ -133,10 +143,11 @@
         title: card.dataset.title || "",
         price: card.dataset.price || "",
         image: card.dataset.image || "",
+        collections: card.dataset.collections || "",
         variantId: Number(card.dataset.variantId),
         available: true,
       }))
-      .filter((p) => p.variantId);
+      .filter((p) => p.variantId && isUpsellAllowed(p));
   }
 
   function renderUpsell(cart) {
@@ -289,10 +300,15 @@
 
   const OUTFIT_SLOTS = ["head", "top", "bottom"];
   const OUTFIT_SLOT_LAYOUT = {
-    head: { x: 0.5, y: 0.08, scale: 0.7 },
-    top: { x: 0.5, y: 0.28, scale: 1 },
-    bottom: { x: 0.5, y: 0.58, scale: 1.05 },
+    head: { x: 0.5, y: 0.1, scale: 0.72 },
+    top: { x: 0.5, y: 0.34, scale: 1 },
+    bottom: { x: 0.5, y: 0.62, scale: 1.05 },
   };
+
+  function outfitPieceWidth(stage) {
+    const w = stage?.clientWidth || 900;
+    return Math.round(Math.min(320, Math.max(168, w * 0.24)));
+  }
   let outfitDefaults = [];
   let outfitPieceId = 0;
   let outfitDrag = null;
@@ -477,7 +493,7 @@
     const rect = stage.getBoundingClientRect();
     const slot = meta.slot || "top";
     const layout = OUTFIT_SLOT_LAYOUT[slot] || OUTFIT_SLOT_LAYOUT.top;
-    const baseW = 120;
+    const baseW = outfitPieceWidth(stage);
     const s = scale != null ? scale : layout.scale;
     const left =
       leftPx != null
@@ -497,6 +513,7 @@
     piece.dataset.outfitPrice = meta.price || "";
     piece.dataset.variantId = meta.variantId ? String(meta.variantId) : "";
     piece.dataset.slot = slot;
+    piece.style.width = `${baseW}px`;
     piece.style.left = `${left}px`;
     piece.style.top = `${top}px`;
     setOutfitPieceScale(piece, s);
@@ -612,10 +629,18 @@
       const stage = $("#ftw-outfit-stage");
       if (!stage) return;
       const rect = stage.getBoundingClientRect();
-      const left = Math.min(Math.max(e.clientX - rect.left - outfitDrag.ox, 0), rect.width - 36);
-      const top = Math.min(Math.max(e.clientY - rect.top - outfitDrag.oy, 0), rect.height - 36);
-      outfitDrag.el.style.left = `${left}px`;
-      outfitDrag.el.style.top = `${top}px`;
+      const el = outfitDrag.el;
+      const scale = Number(el.dataset.scale || 1);
+      const baseW = el.offsetWidth || 120;
+      const baseH = el.offsetHeight || 120;
+      const overflowX = Math.max(0, (baseW * (scale - 1)) / 2);
+      const overflowY = Math.max(0, (baseH * (scale - 1)) / 2);
+      let left = outfitDrag.originLeft + (e.clientX - outfitDrag.startX);
+      let top = outfitDrag.originTop + (e.clientY - outfitDrag.startY);
+      left = Math.min(Math.max(left, -overflowX), rect.width - baseW + overflowX);
+      top = Math.min(Math.max(top, -overflowY), rect.height - baseH + overflowY);
+      el.style.left = `${left}px`;
+      el.style.top = `${top}px`;
       return;
     }
 
@@ -642,8 +667,9 @@
         e.clientY <= rect.bottom;
       if (over || !drag.moved) {
         const layout = OUTFIT_SLOT_LAYOUT[drag.slot] || OUTFIT_SLOT_LAYOUT.top;
-        const x = over ? e.clientX - rect.left - 60 : rect.width * layout.x - 60;
-        const y = over ? e.clientY - rect.top - 40 : rect.height * layout.y - 20;
+        const base = outfitPieceWidth(stage);
+        const x = over ? e.clientX - rect.left - base / 2 : rect.width * layout.x - base / 2;
+        const y = over ? e.clientY - rect.top - base * 0.28 : rect.height * layout.y - base * 0.16;
         placeOutfitPiece(
           {
             id: drag.id,
@@ -734,6 +760,93 @@
     return hints.some((h) => title.includes(h));
   }
 
+  const productFitCache = new Map();
+
+  function productContentBounds(img) {
+    const key = img.currentSrc || img.src;
+    if (productFitCache.has(key)) return productFitCache.get(key);
+    const n = 48;
+    const canvas = document.createElement("canvas");
+    canvas.width = n;
+    canvas.height = n;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    try {
+      ctx.drawImage(img, 0, 0, n, n);
+      const data = ctx.getImageData(0, 0, n, n).data;
+      const at = (x, y) => {
+        const i = (y * n + x) * 4;
+        return [data[i], data[i + 1], data[i + 2], data[i + 3]];
+      };
+      const probes = [at(1, 1), at(n - 2, 1), at(1, n - 2), at(n - 2, n - 2)];
+      const bg = probes
+        .reduce((sum, px) => [sum[0] + px[0], sum[1] + px[1], sum[2] + px[2]], [0, 0, 0])
+        .map((v) => v / probes.length);
+      let minX = n;
+      let minY = n;
+      let maxX = -1;
+      let maxY = -1;
+      for (let y = 0; y < n; y += 1) {
+        for (let x = 0; x < n; x += 1) {
+          const i = (y * n + x) * 4;
+          const alpha = data[i + 3];
+          if (alpha < 18) continue;
+          const dist =
+            Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]);
+          if (dist < 46) continue;
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+      if (maxX < 0) {
+        productFitCache.set(key, null);
+        return null;
+      }
+      const bounds = {
+        w: Math.max(0.08, (maxX - minX + 1) / n),
+        h: Math.max(0.08, (maxY - minY + 1) / n),
+      };
+      productFitCache.set(key, bounds);
+      return bounds;
+    } catch (_) {
+      productFitCache.set(key, null);
+      return null;
+    }
+  }
+
+  function fitProductImage(img) {
+    const box = img.closest(".ftw-product__media");
+    if (!box || !img.naturalWidth || !img.naturalHeight) return;
+    const boxW = box.clientWidth;
+    const boxH = box.clientHeight;
+    if (!boxW || !boxH) return;
+    const bounds = productContentBounds(img);
+    if (!bounds) return;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const boxRatio = boxW / boxH;
+    const drawW = imgRatio > boxRatio ? boxW : boxH * imgRatio;
+    const drawH = imgRatio > boxRatio ? boxW / imgRatio : boxH;
+    const contentW = drawW * bounds.w;
+    const contentH = drawH * bounds.h;
+    const target = 0.84;
+    const scale = Math.min(2.35, Math.max(0.8, Math.min((boxW * target) / contentW, (boxH * target) / contentH)));
+    img.style.transform = `scale(${scale})`;
+  }
+
+  function fitProductImages() {
+    $$(".ftw-product__media img", root).forEach((img) => {
+      if (img.complete && img.naturalWidth) {
+        fitProductImage(img);
+        return;
+      }
+      if (img.dataset.fitBound) return;
+      img.dataset.fitBound = "1";
+      img.addEventListener("load", () => fitProductImage(img), { once: true });
+    });
+  }
+
   function applyFilters() {
     const q = searchQuery.trim().toLowerCase();
     const active = normalize(activeFilter);
@@ -774,6 +887,7 @@
     } else if (empty) {
       empty.hidden = true;
     }
+    fitProductImages();
   }
 
   function setFilter(key) {
@@ -1160,11 +1274,10 @@
     if (piece) {
       e.preventDefault();
       selectOutfitPiece(piece);
-      const rect = piece.getBoundingClientRect();
       startOutfitDrag(e, "move", {
         el: piece,
-        ox: e.clientX - rect.left,
-        oy: e.clientY - rect.top,
+        originLeft: parseFloat(piece.style.left) || 0,
+        originTop: parseFloat(piece.style.top) || 0,
       });
     }
   });
@@ -1460,4 +1573,6 @@
   else mobileMq.addListener?.(onMobileChange);
 
   showLock();
+  fitProductImages();
+  window.addEventListener("resize", () => fitProductImages());
 })();

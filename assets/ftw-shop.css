@@ -102,8 +102,9 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   position: fixed;
   top: auto;
   bottom: 0;
-  left: var(--ftw-frame-inset);
-  right: var(--ftw-frame-inset);
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 140;
   height: var(--ftw-announce);
   background: #e10600;
@@ -547,6 +548,7 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   margin-bottom: 12px;
   padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .ftw-product__media img {
@@ -1231,7 +1233,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 .ftw-outfit__head h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.12em;
 }
@@ -1252,10 +1254,10 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 }
 
 .ftw-outfit__clear {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--ftw-line);
 }
 
@@ -1275,7 +1277,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) minmax(180px, 240px);
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(260px, 340px);
 }
 
 .ftw-outfit__rack {
@@ -1287,8 +1289,8 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 }
 
 .ftw-outfit__rack-label {
-  padding: 12px 12px 8px;
-  font-size: 10px;
+  padding: 16px 16px 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: var(--ftw-muted);
@@ -1313,11 +1315,11 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 .ftw-outfit__rack-item {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   width: 100%;
-  padding: 6px;
+  padding: 8px;
   border: 1px solid var(--ftw-line);
   background: var(--ftw-bg);
   color: inherit;
@@ -1344,18 +1346,18 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 
 .ftw-outfit__rack-item img {
-  width: 52px;
-  height: 52px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
   display: block;
   pointer-events: none;
 }
 
 .ftw-outfit__rack-item span {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  line-height: 1.25;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -1381,17 +1383,17 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 .ftw-outfit__bag-item {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid var(--ftw-line);
   background: var(--ftw-bg);
 }
 
 .ftw-outfit__bag-item img {
-  width: 64px;
-  height: 64px;
+  width: 88px;
+  height: 88px;
   object-fit: cover;
   display: block;
 }
@@ -1404,7 +1406,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 }
 
 .ftw-outfit__bag-title {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.3;
@@ -1415,7 +1417,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 }
 
 .ftw-outfit__bag-price {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
@@ -1429,7 +1431,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   background: var(--ftw-fg);
   color: var(--ftw-bg);
   font: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   cursor: pointer;
@@ -1469,7 +1471,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 .ftw-outfit__piece {
   --outfit-scale: 1;
   position: absolute;
-  width: 120px;
+  width: clamp(168px, 22vw, 320px);
   z-index: 2;
   cursor: grab;
   touch-action: none;
@@ -1578,7 +1580,7 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   transform: translateX(-50%);
   margin: 0;
   z-index: 4;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: var(--ftw-muted);

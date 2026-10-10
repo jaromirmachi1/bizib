@@ -25,10 +25,6 @@
   endif
   assign live = section.settings.collection_live
   assign archive = section.settings.collection_archive
-  assign upsell = section.settings.collection_upsell
-  if upsell == blank
-    assign upsell = live
-  endif
   assign upsell_heading = section.settings.upsell_heading | default: 'ADD THIS TOO'
   assign upsell_limit = section.settings.upsell_limit | default: 2
   assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
@@ -570,24 +566,36 @@
   {%- capture ftw_upsell_json -%}
 [
 {%- assign upsell_i = 0 -%}
-{%- if upsell != blank -%}
-  {%- for product in upsell.products limit: 12 -%}
-    {%- if product.available -%}
-      {%- assign uv = product.selected_or_first_available_variant -%}
-      {%- if upsell_i > 0 -%},{%- endif -%}
-      {
-        "id":{{ product.id }},
-        "handle":{{ product.handle | json }},
-        "title":{{ product.title | json }},
-        "price":{{ product.price | money | json }},
-        "image":{% if product.featured_media %}{{ product.featured_media | image_url: width: 240 | json }}{% else %}{{ logo_url | json }}{% endif %},
-        "variantId":{{ uv.id }},
-        "available":true
-      }
-      {%- assign upsell_i = upsell_i | plus: 1 -%}
-    {%- endif -%}
-  {%- endfor -%}
-{%- endif -%}
+{%- assign upsell_seen = ',' -%}
+{%- assign upsell_sources = 'accessories,hats,caps,t-shirts' | split: ',' -%}
+{%- for source_handle in upsell_sources -%}
+  {%- assign upsell_col = collections[source_handle] -%}
+  {%- if upsell_col != blank -%}
+    {%- for product in upsell_col.products limit: 12 -%}
+      {%- assign upsell_id_token = product.id | prepend: ',' | append: ',' -%}
+      {%- unless upsell_seen contains upsell_id_token -%}
+        {%- if product.available -%}
+          {%- assign uv = product.selected_or_first_available_variant -%}
+          {%- if uv != blank -%}
+            {%- if upsell_i > 0 -%},{%- endif -%}
+            {
+              "id":{{ product.id }},
+              "handle":{{ product.handle | json }},
+              "title":{{ product.title | json }},
+              "price":{{ product.price | money | json }},
+              "image":{% if product.featured_media %}{{ product.featured_media | image_url: width: 240 | json }}{% else %}{{ logo_url | json }}{% endif %},
+              "variantId":{{ uv.id }},
+              "collections":{{ source_handle | json }},
+              "available":true
+            }
+            {%- assign upsell_seen = upsell_seen | append: product.id | append: ',' -%}
+            {%- assign upsell_i = upsell_i | plus: 1 -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endfor -%}
 ]
   {%- endcapture -%}
   <script type="application/json" id="ftw-upsell-data">{{ ftw_upsell_json | strip }}</script>
@@ -619,10 +627,8 @@
       "content": "Cart upsell"
     },
     {
-      "type": "collection",
-      "id": "collection_upsell",
-      "label": "Upsell collection",
-      "info": "Shown in the cart drawer. Falls back to the New / live collection."
+      "type": "paragraph",
+      "content": "Cart upsell always pulls from Accessories, Hats/Caps, and T-Shirts."
     },
     {
       "type": "text",
