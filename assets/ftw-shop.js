@@ -442,10 +442,12 @@
     piece.style.top = `${top}px`;
     setOutfitPieceScale(piece, s);
     piece.innerHTML = `
-      <div class="ftw-outfit__piece-tools" aria-hidden="true">
-        <button type="button" class="ftw-outfit__piece-scale" data-outfit-scale="-0.1" aria-label="Make smaller">−</button>
-        <button type="button" class="ftw-outfit__piece-scale" data-outfit-scale="0.1" aria-label="Make bigger">+</button>
-      </div>
+      <button type="button" class="ftw-outfit__piece-resize" aria-label="Drag to resize">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+          <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+        </svg>
+      </button>
       <img src="${escapeHtml(src)}" alt="${escapeHtml(title || "")}" draggable="false">
       <button type="button" class="ftw-outfit__piece-kill" aria-label="Remove piece">×</button>`;
     layer.appendChild(piece);
@@ -558,6 +560,13 @@
       const top = Math.min(Math.max(e.clientY - rect.top - outfitDrag.oy, 0), rect.height - 36);
       outfitDrag.el.style.left = `${left}px`;
       outfitDrag.el.style.top = `${top}px`;
+      return;
+    }
+
+    if (outfitDrag.mode === "resize" && outfitDrag.el) {
+      const dist = Math.hypot(e.clientX - outfitDrag.cx, e.clientY - outfitDrag.cy);
+      const ratio = outfitDrag.startDist > 8 ? dist / outfitDrag.startDist : 1;
+      setOutfitPieceScale(outfitDrag.el, outfitDrag.startScale * ratio);
     }
   }
 
@@ -1043,7 +1052,27 @@
 
   root.addEventListener("pointerdown", (e) => {
     if (e.target.closest(".ftw-outfit__piece-kill")) return;
-    if (e.target.closest(".ftw-outfit__piece-scale")) return;
+
+    const resizeHandle = e.target.closest(".ftw-outfit__piece-resize");
+    if (resizeHandle) {
+      e.preventDefault();
+      e.stopPropagation();
+      const piece = resizeHandle.closest(".ftw-outfit__piece");
+      if (!piece) return;
+      selectOutfitPiece(piece);
+      const rect = piece.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const startDist = Math.max(8, Math.hypot(e.clientX - cx, e.clientY - cy));
+      startOutfitDrag(e, "resize", {
+        el: piece,
+        cx,
+        cy,
+        startDist,
+        startScale: Number(piece.dataset.scale || 1),
+      });
+      return;
+    }
 
     const rackItem = e.target.closest(".ftw-outfit__rack-item");
     if (rackItem) {
@@ -1072,18 +1101,6 @@
   root.addEventListener("click", (e) => {
     if (e.target.closest("#ftw-outfit-open")) {
       openOutfitChecker();
-      return;
-    }
-
-    const scaleBtn = e.target.closest(".ftw-outfit__piece-scale");
-    if (scaleBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      const piece = scaleBtn.closest(".ftw-outfit__piece");
-      if (!piece) return;
-      selectOutfitPiece(piece);
-      const delta = Number(scaleBtn.dataset.outfitScale || 0);
-      setOutfitPieceScale(piece, Number(piece.dataset.scale || 1) + delta);
       return;
     }
 
