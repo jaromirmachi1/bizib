@@ -2352,19 +2352,19 @@ body.ftw-sheet-open {
   }
 
   .ftw-cats {
-    gap: 14px;
+    gap: 12px;
   }
 
   .ftw-cats a,
   .ftw-cats button {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.06em;
     line-height: 1.15;
   }
 
   .ftw-side__search {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .ftw-side__search svg {
