@@ -29,7 +29,7 @@
 {%- capture variants_json -%}
 [
 {%- for v in product.variants -%}
-  {"id":{{ v.id }},"title":{{ v.title | json }},"available":{% if v.available %}true{% else %}false{% endif %},"price":{{ v.price | money | json }},"options":{{ v.options | json }}}{% unless forloop.last %},{% endunless %}
+  {"id":{{ v.id }},"title":{{ v.title | json }},"available":{% if v.available %}true{% else %}false{% endif %},"price":{{ v.price | money | json }},"options":{{ v.options | json }},"image":{% if v.image %}{{ v.image | image_url: width: 1200 | json }}{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
 {%- endfor -%}
 ]
 {%- endcapture -%}
@@ -46,6 +46,15 @@
 {%- if img_i == 0 -%}{{ img | json }}{%- endif -%}
 ]
 {%- endcapture -%}
+{%- liquid
+  assign outfit_img = ''
+  for v in product.variants
+    if v.image != blank
+      assign outfit_img = v.image | image_url: width: 1200
+      break
+    endif
+  endfor
+-%}
 <a
   class="ftw-product{% unless product.available %} is-sold{% endunless %}"
   href="{{ product.url }}"
@@ -56,6 +65,7 @@
   data-drop="{{ drop_key }}"
   data-price="{{ product.price | money | escape }}"
   data-image="{{ img | escape }}"
+  data-outfit-image="{{ outfit_img | escape }}"
   data-images="{{ images_json | strip | escape }}"
   data-url="{{ product.url }}"
   data-variant-id="{{ variant.id }}"

@@ -301,15 +301,22 @@
     return "top";
   }
 
+  function colorOptionIndex(options) {
+    return options.findIndex((o) => /^(color|colour|barva|farbe|couleur)$/i.test(String(o?.name || "").trim()));
+  }
+
   function collectOutfitPieces() {
     const seen = new Set();
+    const seenImages = new Set();
     const pieces = [];
 
     const push = (title, image, idHint, collections) => {
       if (!image) return;
+      if (seenImages.has(image)) return;
       const key = `${title}::${image}`;
       if (seen.has(key)) return;
       seen.add(key);
+      seenImages.add(image);
       pieces.push({
         id: String(idHint || key),
         title: title || "Piece",
@@ -321,22 +328,37 @@
     $$(".ftw-cart-line", root).forEach((line) => {
       const img = line.querySelector("img")?.src;
       const title = line.querySelector(".ftw-cart-line__title")?.textContent?.trim();
-      push(title, img, title, "");
+      push(title, img, `cart-${title}`, "");
     });
-
-    getUpsellPool().forEach((p) => push(p.title, p.image, p.handle || p.id, p.collections || ""));
 
     $$(".ftw-product", root).forEach((card) => {
       if (card.dataset.available === "0") return;
-      push(
-        card.dataset.title,
-        card.dataset.image || card.querySelector("img")?.src,
-        card.dataset.product,
-        card.dataset.collections || ""
-      );
+      const collections = card.dataset.collections || "";
+      const baseTitle = card.dataset.title || "Piece";
+      const handle = card.dataset.product || baseTitle;
+      const options = parseVariants(card.dataset.options);
+      const variants = parseVariants(card.dataset.variants);
+      const colorIdx = colorOptionIndex(options);
+      let added = 0;
+
+      variants.forEach((v) => {
+        if (!v?.image) return;
+        const color = colorIdx >= 0 ? v.options?.[colorIdx] : null;
+        const title = color ? `${baseTitle} — ${String(color).toUpperCase()}` : baseTitle;
+        push(title, v.image, `${handle}-${color || v.id}`, collections);
+        added += 1;
+      });
+
+      if (added) return;
+
+      // Only fall back when the product has a single gallery shot (no multi-color collage).
+      const gallery = parseImages(card.dataset.images, card.dataset.outfitImage || "");
+      if (gallery.length === 1) {
+        push(baseTitle, gallery[0], handle, collections);
+      }
     });
 
-    return pieces.slice(0, 28);
+    return pieces.slice(0, 36);
   }
 
   function pickOutfitDefaults(pieces) {
@@ -1015,4 +1037,157 @@
   updateTrayCart(Number(root.dataset.cartCount || 0));
   if (!isLocal) renderCart();
   applyFilters();
+
+  /* —— Mobile lock intro —— */
+  const LOCK_KEY = "ftw-unlocked";
+  const lockEl = $("#ftw-lock");
+  const lockKnob = $("#ftw-lock-knob");
+  const lockSlider = $("#ftw-lock-slider");
+  const mobileMq = window.matchMedia("(max-width: 720px)");
+  let lockDrag = null;
+  let lockClockTimer = null;
+
+  function wasUnlocked() {
+    try {
+      return sessionStorage.getItem(LOCK_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function markUnlocked() {
+    try {
+      sessionStorage.setItem(LOCK_KEY, "1");
+    } catch (_) {}
+  }
+
+  function syncLockClock() {
+    const clock = $("#ftw-lock-clock");
+    const dateEl = $("#ftw-lock-date");
+    if (!clock || !dateEl) return;
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    dateEl.textContent = now.toLocaleDateString([], {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  function setLockProgress(px, maxX) {
+    const x = Math.max(0, Math.min(px, maxX));
+    const p = maxX > 0 ? x / maxX : 0;
+    lockEl?.style.setProperty("--ftw-lock-x", `${x}px`);
+    lockEl?.style.setProperty("--ftw-lock-p", String(p));
+    if (lockKnob) lockKnob.style.transform = `translateX(${x}px)`;
+    lockSlider?.setAttribute("aria-valuenow", String(Math.round(p * 100)));
+    return { x, p, maxX };
+  }
+
+  function resetLockKnob() {
+    if (!lockKnob || !lockEl) return;
+    lockKnob.style.transition = "transform 200ms var(--ftw-ease)";
+    setLockProgress(0, 1);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (lockKnob) lockKnob.style.transition = "";
+      }, 220);
+    });
+  }
+
+  function dismissLock() {
+    if (!lockEl || lockEl.hidden) return;
+    markUnlocked();
+    lockEl.classList.add("is-unlocking");
+    document.body.classList.remove("ftw-locked");
+    if (lockClockTimer) {
+      clearInterval(lockClockTimer);
+      lockClockTimer = null;
+    }
+    setTimeout(() => {
+      lockEl.hidden = true;
+      lockEl.classList.remove("is-unlocking");
+    }, 280);
+  }
+
+  function showLock() {
+    if (!lockEl || !mobileMq.matches || wasUnlocked()) {
+      if (lockEl) lockEl.hidden = true;
+      document.body.classList.remove("ftw-locked");
+      return;
+    }
+    lockEl.hidden = false;
+    document.body.classList.add("ftw-locked");
+    syncLockClock();
+    setLockProgress(0, 1);
+    if (lockClockTimer) clearInterval(lockClockTimer);
+    lockClockTimer = setInterval(syncLockClock, 30000);
+  }
+
+  function lockMaxX() {
+    const track = lockEl?.querySelector(".ftw-lock__track");
+    if (!track || !lockKnob) return 0;
+    return Math.max(0, track.clientWidth - lockKnob.offsetWidth - 6);
+  }
+
+  lockKnob?.addEventListener("pointerdown", (e) => {
+    if (!mobileMq.matches || lockEl?.hidden) return;
+    if (e.button != null && e.button !== 0) return;
+    e.preventDefault();
+    const maxX = lockMaxX();
+    const startX = e.clientX;
+    const current = Number.parseFloat(getComputedStyle(lockEl).getPropertyValue("--ftw-lock-x")) || 0;
+    lockDrag = { pointerId: e.pointerId, startX, origin: current, maxX };
+    lockKnob.style.transition = "";
+    try {
+      lockKnob.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  lockKnob?.addEventListener("pointermove", (e) => {
+    if (!lockDrag || e.pointerId !== lockDrag.pointerId) return;
+    const dx = e.clientX - lockDrag.startX;
+    setLockProgress(lockDrag.origin + dx, lockDrag.maxX);
+  });
+
+  function endLockDrag(e) {
+    if (!lockDrag || (e && e.pointerId !== lockDrag.pointerId)) return;
+    const maxX = lockDrag.maxX || lockMaxX();
+    const x = Number.parseFloat(getComputedStyle(lockEl).getPropertyValue("--ftw-lock-x")) || 0;
+    const { p } = setLockProgress(x, maxX);
+    lockDrag = null;
+    if (p >= 0.72) {
+      setLockProgress(maxX, maxX);
+      dismissLock();
+    } else {
+      resetLockKnob();
+    }
+  }
+
+  lockKnob?.addEventListener("pointerup", endLockDrag);
+  lockKnob?.addEventListener("pointercancel", endLockDrag);
+
+  lockSlider?.addEventListener("keydown", (e) => {
+    if (lockEl?.hidden) return;
+    if (e.key === "Enter" || e.key === " " || e.key === "ArrowRight") {
+      e.preventDefault();
+      dismissLock();
+    }
+  });
+
+  lockEl?.querySelector(".ftw-lock__hint")?.addEventListener("click", dismissLock);
+  lockEl?.addEventListener("dblclick", dismissLock);
+
+  const onMobileChange = () => {
+    if (mobileMq.matches) showLock();
+    else {
+      if (lockEl) lockEl.hidden = true;
+      document.body.classList.remove("ftw-locked");
+    }
+  };
+
+  if (mobileMq.addEventListener) mobileMq.addEventListener("change", onMobileChange);
+  else mobileMq.addListener?.(onMobileChange);
+
+  showLock();
 })();

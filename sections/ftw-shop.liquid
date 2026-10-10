@@ -85,6 +85,42 @@
   data-figure-dark="{{ logo_dark_url | escape }}"
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
+  <div class="ftw-lock" id="ftw-lock" hidden>
+    <div class="ftw-lock__wallpaper" aria-hidden="true"></div>
+    <header class="ftw-lock__top">
+      <time class="ftw-lock__clock" id="ftw-lock-clock">00:00</time>
+      <p class="ftw-lock__date" id="ftw-lock-date"></p>
+    </header>
+    <div class="ftw-lock__hero" aria-hidden="true">
+      <img class="ftw-lock__brand" src="{{ logo_dark_url }}" alt="" width="420" height="420">
+      <p class="ftw-lock__mark">BIZIBOIZ</p>
+    </div>
+    <div class="ftw-lock__bottom">
+      <div
+        class="ftw-lock__slider"
+        id="ftw-lock-slider"
+        role="slider"
+        aria-label="Slide to unlock"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        tabindex="0"
+      >
+        <div class="ftw-lock__track">
+          <button type="button" class="ftw-lock__knob" id="ftw-lock-knob" aria-label="Slide to unlock">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <span class="ftw-lock__label" aria-hidden="true">
+            <span class="ftw-lock__shimmer">slide to unlock</span>
+          </span>
+        </div>
+      </div>
+      <p class="ftw-lock__hint">SLIDE OR TAP TO ENTER</p>
+    </div>
+  </div>
+
   {%- if show_announce and announce_count > 0 -%}
     <div class="ftw-announce" role="region" aria-label="Announcement">
       {%- if announce_link != blank -%}
