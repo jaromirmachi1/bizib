@@ -818,28 +818,46 @@
     accessories: ["accessory", "bags", "bag"],
   };
 
-  const FILTER_TITLE_HINTS = {
-    "t-shirts": ["t-shirt", "tee", "tshirt"],
-    "hoodies-sweatshirts": ["hoodie", "sweat", "crew"],
-    hoodies: ["hoodie", "sweat", "crew"],
-    hats: ["hat", "cap", "beanie", "trucker"],
-    bottoms: ["short", "pant", "bottom", "track"],
-    jackets: ["jacket", "shell", "puffer", "windbreaker", "parka", "bomber"],
-    womens: ["bikini", "women"],
-    lifestyle: ["towel", "lifestyle"],
-    accessories: ["bag", "tote", "accessory"],
+  const TYPE_FILTER = {
+    "t-shirts": "t-shirts",
+    "t-shirt": "t-shirts",
+    tshirts: "t-shirts",
+    shirts: "t-shirts",
+    shirt: "t-shirts",
+    "tank-tops": "t-shirts",
+    "tank-top": "t-shirts",
+    tanktops: "t-shirts",
+    womens: "womens",
+    women: "womens",
+    bottoms: "bottoms",
+    lifestyle: "lifestyle",
+    hats: "hats",
+    hat: "hats",
+    "hoodies-sweatshirts": "hoodies-sweatshirts",
+    hoodies: "hoodies-sweatshirts",
+    sweatshirts: "hoodies-sweatshirts",
+    jackets: "jackets",
+    jacket: "jackets",
+    accessories: "accessories",
+    accessory: "accessories",
   };
 
-  function matchesCategory(cols, title, active) {
-    if (active === "jackets" && /(hoodie|sweatshirt|crewneck|\bcrew\b)/.test(title)) return false;
+  function productTypeKeys(card) {
+    const keys = new Set();
+    [card.dataset.type, card.dataset.category].forEach((value) => {
+      const handle = normalize(value);
+      if (!handle) return;
+      keys.add(TYPE_FILTER[handle] || handle);
+    });
+    return keys;
+  }
+
+  function matchesCategory(cols, active, card) {
+    const types = productTypeKeys(card);
+    if (types.size) return types.has(active);
     if (cols.includes(active)) return true;
     const alts = FILTER_ALIASES[active] || [];
-    if (alts.some((a) => cols.includes(a))) return true;
-    if (cols.some((c) => c === active || c.startsWith(active + "-") || active.startsWith(c + "-"))) {
-      return true;
-    }
-    const hints = FILTER_TITLE_HINTS[active] || [active.replace(/-/g, " ")];
-    return hints.some((h) => title.includes(h));
+    return alts.some((a) => cols.includes(a));
   }
 
   const productFitCache = new Map();
@@ -944,7 +962,7 @@
       } else if (active === "all" || active === "new") {
         show = drop !== "archive";
       } else {
-        show = matchesCategory(cols, title, active);
+        show = matchesCategory(cols, active, card);
       }
 
       if (show && q) show = title.includes(q);

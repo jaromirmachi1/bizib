@@ -62,6 +62,8 @@
   data-product="{{ product.handle }}"
   data-title="{{ product.title | escape }}"
   data-collections="{{ collections_csv | strip | escape }}"
+  data-type="{{ product.type | escape }}"
+  data-category="{{ product.category.name | escape }}"
   data-drop="{{ drop_key }}"
   data-price="{{ product.price | money | escape }}"
   data-image="{{ img | escape }}"
