@@ -305,9 +305,44 @@
     bottom: { x: 0.5, y: 0.62, scale: 1.05 },
   };
 
-  function outfitPieceWidth(stage) {
-    const w = stage?.clientWidth || 900;
-    return Math.round(Math.min(320, Math.max(168, w * 0.24)));
+  function outfitFrames(stage) {
+    const stageW = stage?.clientWidth || 800;
+    const stageH = stage?.clientHeight || 700;
+    const col = Math.round(Math.min(480, Math.max(230, Math.min(stageW, stageH) * 0.42)));
+    const headW = Math.round(col * 0.42);
+    const headH = Math.round(col * 0.36);
+    const topW = col;
+    const topH = Math.round(col * 1.08);
+    const botW = Math.round(col * 0.9);
+    const botH = Math.round(col * 0.78);
+    const stack = headH * 0.35 + topH * 0.7 + botH * 0.55;
+    const start = Math.max(12, (stageH - stack) / 2);
+    const cx = stageW / 2;
+    const topTop = start + headH * 0.22;
+    return {
+      head: { width: headW, height: headH, left: cx - headW / 2, top: start + headH * 0.08 },
+      top: { width: topW, height: topH, left: cx - topW / 2, top: topTop },
+      bottom: { width: botW, height: botH, left: cx - botW / 2, top: topTop + topH * 0.58 },
+    };
+  }
+
+  function fitContainedImage(img, target = 0.94) {
+    const box = img.parentElement;
+    if (!box || !img.naturalWidth || !img.naturalHeight) return;
+    const boxW = box.clientWidth;
+    const boxH = box.clientHeight;
+    if (!boxW || !boxH) return;
+    const bounds = productContentBounds(img);
+    if (!bounds) return;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const boxRatio = boxW / boxH;
+    const drawW = imgRatio > boxRatio ? boxW : boxH * imgRatio;
+    const drawH = imgRatio > boxRatio ? boxW / imgRatio : boxH;
+    const scale = Math.min(
+      2.6,
+      Math.max(0.85, Math.min((boxW * target) / (drawW * bounds.w), (boxH * target) / (drawH * bounds.h)))
+    );
+    img.style.transform = `scale(${scale})`;
   }
   let outfitDefaults = [];
   let outfitPieceId = 0;
@@ -426,7 +461,7 @@
     if (!bag) return;
     const pieces = $$(".ftw-outfit__piece", root);
     if (!pieces.length) {
-      bag.innerHTML = `<p class="ftw-outfit__empty">DROP PIECES ON THE MAP.</p>`;
+      bag.innerHTML = `<p class="ftw-outfit__empty">CLICK A PIECE TO BUILD THE FIT.</p>`;
       return;
     }
 
@@ -472,10 +507,7 @@
   function selectOutfitPiece(piece) {
     $$(".ftw-outfit__piece", root).forEach((el) => el.classList.remove("is-selected"));
     outfitSelected = piece || null;
-    if (piece) {
-      piece.classList.add("is-selected");
-      piece.parentElement?.appendChild(piece);
-    }
+    if (piece) piece.classList.add("is-selected");
   }
 
   function setOutfitPieceScale(piece, scale) {
@@ -485,24 +517,26 @@
     piece.style.setProperty("--outfit-scale", String(next));
   }
 
-  function placeOutfitPiece(meta, leftPx, topPx, scale) {
+  function bindOutfitImage(img, src) {
+    const fit = () => fitContainedImage(img, 0.94);
+    img.crossOrigin = "anonymous";
+    img.alt = img.alt || "";
+    img.style.transform = "";
+    if (img.getAttribute("src") === src && img.complete && img.naturalWidth) {
+      fit();
+      return;
+    }
+    img.addEventListener("load", fit, { once: true });
+    img.src = src;
+  }
+
+  function placeOutfitPiece(meta, frame) {
     const layer = $("#ftw-outfit-layer");
     const stage = $("#ftw-outfit-stage");
     const src = meta?.image || meta?.src;
     if (!layer || !stage || !src) return null;
-    const rect = stage.getBoundingClientRect();
     const slot = meta.slot || "top";
-    const layout = OUTFIT_SLOT_LAYOUT[slot] || OUTFIT_SLOT_LAYOUT.top;
-    const baseW = outfitPieceWidth(stage);
-    const s = scale != null ? scale : layout.scale;
-    const left =
-      leftPx != null
-        ? leftPx
-        : Math.max(8, Math.min(rect.width - baseW - 8, rect.width * layout.x - baseW / 2));
-    const top =
-      topPx != null
-        ? topPx
-        : Math.max(8, Math.min(rect.height - baseW - 8, rect.height * layout.y - 20));
+    const box = frame || outfitFrames(stage)[slot] || outfitFrames(stage).top;
 
     const piece = document.createElement("div");
     piece.className = "ftw-outfit__piece";
@@ -513,10 +547,11 @@
     piece.dataset.outfitPrice = meta.price || "";
     piece.dataset.variantId = meta.variantId ? String(meta.variantId) : "";
     piece.dataset.slot = slot;
-    piece.style.width = `${baseW}px`;
-    piece.style.left = `${left}px`;
-    piece.style.top = `${top}px`;
-    setOutfitPieceScale(piece, s);
+    piece.style.width = `${box.width}px`;
+    piece.style.height = `${box.height}px`;
+    piece.style.left = `${box.left}px`;
+    piece.style.top = `${box.top}px`;
+    setOutfitPieceScale(piece, 1);
     piece.innerHTML = `
       <button type="button" class="ftw-outfit__piece-resize" aria-label="Drag to resize">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -524,12 +559,38 @@
           <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
         </svg>
       </button>
-      <img src="${escapeHtml(src)}" alt="${escapeHtml(meta.title || "")}" draggable="false">
+      <img alt="${escapeHtml(meta.title || "")}" draggable="false">
       <button type="button" class="ftw-outfit__piece-kill" aria-label="Remove piece">×</button>`;
     layer.appendChild(piece);
+    const img = piece.querySelector("img");
+    if (img) bindOutfitImage(img, src);
     selectOutfitPiece(piece);
     syncOutfitLists();
     return piece;
+  }
+
+  function wearOutfitPiece(meta) {
+    const layer = $("#ftw-outfit-layer");
+    const stage = $("#ftw-outfit-stage");
+    const src = meta?.image || meta?.src;
+    if (!layer || !stage || !src) return null;
+    const slot = meta.slot || "top";
+    const existing = layer.querySelector(`.ftw-outfit__piece[data-slot="${slot}"]`);
+    if (!existing) return placeOutfitPiece(meta, outfitFrames(stage)[slot]);
+
+    existing.dataset.outfitId = meta.id || src;
+    existing.dataset.outfitSrc = src;
+    existing.dataset.outfitTitle = meta.title || "Piece";
+    existing.dataset.outfitPrice = meta.price || "";
+    existing.dataset.variantId = meta.variantId ? String(meta.variantId) : "";
+    const img = existing.querySelector("img");
+    if (img) {
+      img.alt = meta.title || "";
+      bindOutfitImage(img, src);
+    }
+    selectOutfitPiece(existing);
+    syncOutfitLists();
+    return existing;
   }
 
   function clearOutfitLayer() {
@@ -541,10 +602,11 @@
 
   function seedDefaultOutfit() {
     clearOutfitLayer();
-    outfitDefaults.forEach((p) => {
-      placeOutfitPiece(p);
+    ["bottom", "top", "head"].forEach((slot) => {
+      const piece = outfitDefaults.find((p) => p.slot === slot);
+      if (piece) wearOutfitPiece(piece);
     });
-    selectOutfitPiece($(".ftw-outfit__piece", root));
+    selectOutfitPiece($(".ftw-outfit__piece[data-slot='top']", root) || $(".ftw-outfit__piece", root));
     outfitSeeded = true;
   }
 
@@ -560,7 +622,7 @@
     }
     rack.innerHTML = pieces
       .map(
-        (p) => `<button type="button" class="ftw-outfit__rack-item" data-outfit-id="${escapeHtml(p.id)}" data-outfit-src="${escapeHtml(p.image)}" data-outfit-title="${escapeHtml(p.title)}" data-outfit-price="${escapeHtml(p.price || "")}" data-outfit-variant="${escapeHtml(p.variantId || "")}" data-outfit-slot="${escapeHtml(p.slot)}" aria-label="Add ${escapeHtml(p.title)}">
+        (p) => `<button type="button" class="ftw-outfit__rack-item" data-outfit-id="${escapeHtml(p.id)}" data-outfit-src="${escapeHtml(p.image)}" data-outfit-title="${escapeHtml(p.title)}" data-outfit-price="${escapeHtml(p.price || "")}" data-outfit-variant="${escapeHtml(p.variantId || "")}" data-outfit-slot="${escapeHtml(p.slot)}" aria-label="Swap in ${escapeHtml(p.title)}">
           <img src="${escapeHtml(p.image)}" alt="" width="72" height="72" draggable="false" loading="lazy">
           <span>${escapeHtml(p.title)}</span>
         </button>`
@@ -656,36 +718,7 @@
     const drag = outfitDrag;
     outfitDrag = null;
 
-    if (drag.mode === "rack") {
-      const stage = $("#ftw-outfit-stage");
-      if (!stage) return;
-      const rect = stage.getBoundingClientRect();
-      const over =
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom;
-      if (over || !drag.moved) {
-        const layout = OUTFIT_SLOT_LAYOUT[drag.slot] || OUTFIT_SLOT_LAYOUT.top;
-        const base = outfitPieceWidth(stage);
-        const x = over ? e.clientX - rect.left - base / 2 : rect.width * layout.x - base / 2;
-        const y = over ? e.clientY - rect.top - base * 0.28 : rect.height * layout.y - base * 0.16;
-        placeOutfitPiece(
-          {
-            id: drag.id,
-            image: drag.src,
-            title: drag.title,
-            price: drag.price,
-            variantId: drag.variantId,
-            slot: drag.slot,
-          },
-          x,
-          y,
-          layout.scale
-        );
-      }
-      return;
-    }
+    if (drag.mode === "rack") return;
 
     if (drag.mode === "move" && drag.el && !drag.moved) {
       selectOutfitPiece(drag.el);
@@ -1259,9 +1292,9 @@
     const rackItem = e.target.closest(".ftw-outfit__rack-item");
     if (rackItem) {
       e.preventDefault();
-      startOutfitDrag(e, "rack", {
+      wearOutfitPiece({
         id: rackItem.dataset.outfitId,
-        src: rackItem.dataset.outfitSrc,
+        image: rackItem.dataset.outfitSrc,
         title: rackItem.dataset.outfitTitle,
         price: rackItem.dataset.outfitPrice,
         variantId: rackItem.dataset.outfitVariant,

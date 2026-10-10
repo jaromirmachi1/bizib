@@ -1325,8 +1325,8 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: grab;
-  touch-action: none;
+  cursor: pointer;
+  touch-action: manipulation;
   user-select: none;
   transition: border-color 140ms var(--ftw-ease), opacity 140ms var(--ftw-ease), transform 120ms var(--ftw-ease);
 }
@@ -1481,8 +1481,16 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.16));
 }
 
-.ftw-outfit__piece.is-selected {
-  z-index: 5;
+.ftw-outfit__piece[data-slot="top"] {
+  z-index: 1;
+}
+
+.ftw-outfit__piece[data-slot="bottom"] {
+  z-index: 2;
+}
+
+.ftw-outfit__piece[data-slot="head"] {
+  z-index: 3;
 }
 
 .ftw-outfit__piece:active {
@@ -1491,9 +1499,12 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 .ftw-outfit__piece img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
   display: block;
   pointer-events: none;
+  transform-origin: center center;
 }
 
 .ftw-outfit__piece-resize {
