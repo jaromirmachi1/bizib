@@ -18,7 +18,6 @@
 {%- liquid
   assign logo = section.settings.logo
   assign logo_dark_url = 'panacek-3-white.png' | asset_url
-  assign mannequin_url = 'ftw-mannequin.jpg' | asset_url
   if logo == blank
     assign logo_url = 'panacek-3-black.png' | asset_url
   else
@@ -82,8 +81,6 @@
   data-money-format="{{ shop.money_format | escape }}"
   data-upsell-heading="{{ upsell_heading | escape }}"
   data-upsell-limit="{{ upsell_limit }}"
-  data-figure-light="{{ logo_url | escape }}"
-  data-figure-dark="{{ logo_dark_url | escape }}"
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   <div class="ftw-lock" id="ftw-lock" hidden>
@@ -551,21 +548,17 @@
       </header>
       <div class="ftw-outfit__body">
         <aside class="ftw-outfit__rack" aria-label="Pieces">
-          <div class="ftw-outfit__rack-label">DRAG ONTO FIGURE</div>
+          <div class="ftw-outfit__rack-label">DRAG ONTO MAP</div>
           <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
         </aside>
         <div class="ftw-outfit__stage" id="ftw-outfit-stage">
-          <img
-            class="ftw-outfit__figure"
-            src="{{ mannequin_url }}"
-            alt=""
-            width="432"
-            height="576"
-            draggable="false"
-          >
           <div class="ftw-outfit__layer" id="ftw-outfit-layer"></div>
           <p class="ftw-outfit__hint" id="ftw-outfit-hint">DRAG PIECES · PULL HANDLE TO RESIZE</p>
         </div>
+        <aside class="ftw-outfit__bag" aria-label="Outfit items">
+          <div class="ftw-outfit__rack-label">ON THE MAP</div>
+          <div class="ftw-outfit__bag-list" id="ftw-outfit-bag"></div>
+        </aside>
       </div>
     </div>
   </div>

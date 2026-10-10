@@ -318,7 +318,7 @@
     const seenImages = new Set();
     const pieces = [];
 
-    const push = (title, image, idHint, collections) => {
+    const push = (title, image, idHint, collections, price, variantId) => {
       if (!image) return;
       if (seenImages.has(image)) return;
       const key = `${title}::${image}`;
@@ -329,6 +329,8 @@
         id: String(idHint || key),
         title: title || "Piece",
         image,
+        price: price || "",
+        variantId: variantId ? String(variantId) : "",
         slot: inferOutfitSlot(collections, title),
       });
     };
@@ -336,7 +338,9 @@
     $$(".ftw-cart-line", root).forEach((line) => {
       const img = line.querySelector("img")?.src;
       const title = line.querySelector(".ftw-cart-line__title")?.textContent?.trim();
-      push(title, img, `cart-${title}`, "");
+      const price = line.querySelector(".ftw-cart-line__price")?.textContent?.trim() || "";
+      const variantId = line.dataset.variantId || "";
+      push(title, img, `cart-${title}`, "", price, variantId);
     });
 
     $$(".ftw-product", root).forEach((card) => {
@@ -344,6 +348,7 @@
       const collections = card.dataset.collections || "";
       const baseTitle = card.dataset.title || "Piece";
       const handle = card.dataset.product || baseTitle;
+      const basePrice = card.dataset.price || "";
       const options = parseVariants(card.dataset.options);
       const variants = parseVariants(card.dataset.variants);
       const colorIdx = colorOptionIndex(options);
@@ -353,7 +358,7 @@
         if (!v?.image) return;
         const color = colorIdx >= 0 ? v.options?.[colorIdx] : null;
         const title = color ? `${baseTitle} — ${String(color).toUpperCase()}` : baseTitle;
-        push(title, v.image, `${handle}-${color || v.id}`, collections);
+        push(title, v.image, `${handle}-${color || v.id}`, collections, v.price || basePrice, v.id);
         added += 1;
       });
 
@@ -361,7 +366,7 @@
 
       const gallery = parseImages(card.dataset.images, card.dataset.outfitImage || "");
       if (gallery.length === 1) {
-        push(baseTitle, gallery[0], handle, collections);
+        push(baseTitle, gallery[0], handle, collections, basePrice, card.dataset.variantId);
       }
     });
 
@@ -393,11 +398,59 @@
 
   function syncOutfitRackActive() {
     const worn = new Set(
-      $$(".ftw-outfit__piece img", root).map((img) => img.getAttribute("src"))
+      $$(".ftw-outfit__piece", root).map((el) => el.dataset.outfitSrc).filter(Boolean)
     );
     $$(".ftw-outfit__rack-item", root).forEach((btn) => {
       btn.classList.toggle("is-worn", worn.has(btn.dataset.outfitSrc));
     });
+  }
+
+  function renderOutfitBag() {
+    const bag = $("#ftw-outfit-bag");
+    if (!bag) return;
+    const pieces = $$(".ftw-outfit__piece", root);
+    if (!pieces.length) {
+      bag.innerHTML = `<p class="ftw-outfit__empty">DROP PIECES ON THE MAP.</p>`;
+      return;
+    }
+
+    const seen = new Set();
+    const rows = [];
+    pieces.forEach((piece) => {
+      const key = piece.dataset.variantId || piece.dataset.outfitSrc || piece.dataset.pieceId;
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      rows.push(piece);
+    });
+
+    bag.innerHTML = rows
+      .map((piece) => {
+        const title = piece.dataset.outfitTitle || "Piece";
+        const price = piece.dataset.outfitPrice || "";
+        const src = piece.dataset.outfitSrc || "";
+        const variantId = piece.dataset.variantId || "";
+        const canAdd = Boolean(variantId);
+        return `<article class="ftw-outfit__bag-item">
+          <img src="${escapeHtml(src)}" alt="" width="72" height="72" loading="lazy">
+          <div class="ftw-outfit__bag-meta">
+            <div class="ftw-outfit__bag-title">${escapeHtml(title)}</div>
+            ${price ? `<div class="ftw-outfit__bag-price">${escapeHtml(price)}</div>` : ""}
+            <button
+              type="button"
+              class="ftw-outfit__bag-add"
+              data-outfit-add="${escapeHtml(variantId)}"
+              ${canAdd ? "" : "disabled"}
+            >${canAdd ? "ADD TO CART" : "UNAVAILABLE"}</button>
+          </div>
+        </article>`;
+      })
+      .join("");
+  }
+
+  function syncOutfitLists() {
+    syncOutfitHint();
+    syncOutfitRackActive();
+    renderOutfitBag();
   }
 
   function selectOutfitPiece(piece) {
@@ -416,11 +469,13 @@
     piece.style.setProperty("--outfit-scale", String(next));
   }
 
-  function placeOutfitPiece(src, title, slot, leftPx, topPx, scale) {
+  function placeOutfitPiece(meta, leftPx, topPx, scale) {
     const layer = $("#ftw-outfit-layer");
     const stage = $("#ftw-outfit-stage");
+    const src = meta?.image || meta?.src;
     if (!layer || !stage || !src) return null;
     const rect = stage.getBoundingClientRect();
+    const slot = meta.slot || "top";
     const layout = OUTFIT_SLOT_LAYOUT[slot] || OUTFIT_SLOT_LAYOUT.top;
     const baseW = 120;
     const s = scale != null ? scale : layout.scale;
@@ -436,8 +491,12 @@
     const piece = document.createElement("div");
     piece.className = "ftw-outfit__piece";
     piece.dataset.pieceId = String(++outfitPieceId);
-    piece.dataset.outfitId = title || src;
-    piece.dataset.slot = slot || "top";
+    piece.dataset.outfitId = meta.id || src;
+    piece.dataset.outfitSrc = src;
+    piece.dataset.outfitTitle = meta.title || "Piece";
+    piece.dataset.outfitPrice = meta.price || "";
+    piece.dataset.variantId = meta.variantId ? String(meta.variantId) : "";
+    piece.dataset.slot = slot;
     piece.style.left = `${left}px`;
     piece.style.top = `${top}px`;
     setOutfitPieceScale(piece, s);
@@ -448,12 +507,11 @@
           <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
         </svg>
       </button>
-      <img src="${escapeHtml(src)}" alt="${escapeHtml(title || "")}" draggable="false">
+      <img src="${escapeHtml(src)}" alt="${escapeHtml(meta.title || "")}" draggable="false">
       <button type="button" class="ftw-outfit__piece-kill" aria-label="Remove piece">×</button>`;
     layer.appendChild(piece);
     selectOutfitPiece(piece);
-    syncOutfitHint();
-    syncOutfitRackActive();
+    syncOutfitLists();
     return piece;
   }
 
@@ -461,14 +519,13 @@
     const layer = $("#ftw-outfit-layer");
     if (layer) layer.innerHTML = "";
     outfitSelected = null;
-    syncOutfitHint();
-    syncOutfitRackActive();
+    syncOutfitLists();
   }
 
   function seedDefaultOutfit() {
     clearOutfitLayer();
     outfitDefaults.forEach((p) => {
-      placeOutfitPiece(p.image, p.title, p.slot);
+      placeOutfitPiece(p);
     });
     selectOutfitPiece($(".ftw-outfit__piece", root));
     outfitSeeded = true;
@@ -486,7 +543,7 @@
     }
     rack.innerHTML = pieces
       .map(
-        (p) => `<button type="button" class="ftw-outfit__rack-item" data-outfit-id="${escapeHtml(p.id)}" data-outfit-src="${escapeHtml(p.image)}" data-outfit-title="${escapeHtml(p.title)}" data-outfit-slot="${escapeHtml(p.slot)}" aria-label="Add ${escapeHtml(p.title)}">
+        (p) => `<button type="button" class="ftw-outfit__rack-item" data-outfit-id="${escapeHtml(p.id)}" data-outfit-src="${escapeHtml(p.image)}" data-outfit-title="${escapeHtml(p.title)}" data-outfit-price="${escapeHtml(p.price || "")}" data-outfit-variant="${escapeHtml(p.variantId || "")}" data-outfit-slot="${escapeHtml(p.slot)}" aria-label="Add ${escapeHtml(p.title)}">
           <img src="${escapeHtml(p.image)}" alt="" width="72" height="72" draggable="false" loading="lazy">
           <span>${escapeHtml(p.title)}</span>
         </button>`
@@ -513,8 +570,7 @@
       if (!outfitSeeded || !$("#ftw-outfit-layer")?.querySelector(".ftw-outfit__piece")) {
         seedDefaultOutfit();
       } else {
-        syncOutfitHint();
-        syncOutfitRackActive();
+        syncOutfitLists();
       }
       $("#ftw-outfit-close")?.focus();
     });
@@ -588,7 +644,19 @@
         const layout = OUTFIT_SLOT_LAYOUT[drag.slot] || OUTFIT_SLOT_LAYOUT.top;
         const x = over ? e.clientX - rect.left - 60 : rect.width * layout.x - 60;
         const y = over ? e.clientY - rect.top - 40 : rect.height * layout.y - 20;
-        placeOutfitPiece(drag.src, drag.title, drag.slot, x, y, layout.scale);
+        placeOutfitPiece(
+          {
+            id: drag.id,
+            image: drag.src,
+            title: drag.title,
+            price: drag.price,
+            variantId: drag.variantId,
+            slot: drag.slot,
+          },
+          x,
+          y,
+          layout.scale
+        );
       }
       return;
     }
@@ -1078,8 +1146,11 @@
     if (rackItem) {
       e.preventDefault();
       startOutfitDrag(e, "rack", {
+        id: rackItem.dataset.outfitId,
         src: rackItem.dataset.outfitSrc,
         title: rackItem.dataset.outfitTitle,
+        price: rackItem.dataset.outfitPrice,
+        variantId: rackItem.dataset.outfitVariant,
         slot: rackItem.dataset.outfitSlot,
       });
       return;
@@ -1109,8 +1180,23 @@
       const piece = pieceKill.closest(".ftw-outfit__piece");
       if (piece === outfitSelected) outfitSelected = null;
       piece?.remove();
-      syncOutfitHint();
-      syncOutfitRackActive();
+      syncOutfitLists();
+      return;
+    }
+
+    const outfitAdd = e.target.closest("[data-outfit-add]");
+    if (outfitAdd) {
+      const variantId = outfitAdd.dataset.outfitAdd;
+      if (!variantId) return;
+      addVariantToCart(variantId, { openBag: false, sourceBtn: outfitAdd }).then((ok) => {
+        if (ok) {
+          outfitAdd.textContent = "ADDED";
+          outfitAdd.disabled = true;
+        } else {
+          outfitAdd.disabled = false;
+          outfitAdd.textContent = "ADD TO CART";
+        }
+      });
       return;
     }
 

@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=56">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=60">
     <script>
       (function () {
         try {
@@ -34,7 +34,7 @@
     </style>
   </head>
   <body class="ftw-mode">
-    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" data-figure-light="./assets/panacek-3-black.png" data-figure-dark="./assets/panacek-3-white.png" style="--ftw-announce-speed: 36s;">
+    <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" style="--ftw-announce-speed: 36s;">
       <div class="ftw-lock" id="ftw-lock" hidden>
         <div class="ftw-lock__wallpaper" aria-hidden="true"></div>
         <header class="ftw-lock__top">
@@ -334,14 +334,17 @@
           </header>
           <div class="ftw-outfit__body">
             <aside class="ftw-outfit__rack" aria-label="Pieces">
-              <div class="ftw-outfit__rack-label">DRAG ONTO FIGURE</div>
+              <div class="ftw-outfit__rack-label">DRAG ONTO MAP</div>
               <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
             </aside>
             <div class="ftw-outfit__stage" id="ftw-outfit-stage">
-              <img class="ftw-outfit__figure" src="/assets/ftw-mannequin.jpg" alt="" width="432" height="576" draggable="false">
               <div class="ftw-outfit__layer" id="ftw-outfit-layer"></div>
               <p class="ftw-outfit__hint" id="ftw-outfit-hint">DRAG PIECES · PULL HANDLE TO RESIZE</p>
             </div>
+            <aside class="ftw-outfit__bag" aria-label="Outfit items">
+              <div class="ftw-outfit__rack-label">ON THE MAP</div>
+              <div class="ftw-outfit__bag-list" id="ftw-outfit-bag"></div>
+            </aside>
           </div>
         </div>
       </div>
@@ -416,6 +419,6 @@
         {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=28"></script>
+    <script src="/assets/ftw-shop.js?v=29"></script>
   </body>
 </html>
