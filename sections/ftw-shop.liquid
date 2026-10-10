@@ -508,13 +508,13 @@
       <header class="ftw-outfit__head">
         <h2 id="ftw-outfit-title">OUTFIT CHECKER</h2>
         <div class="ftw-outfit__head-actions">
-          <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">CLEAR</button>
+          <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">RESET</button>
           <button type="button" class="ftw-outfit__close" id="ftw-outfit-close" aria-label="Close outfit checker">×</button>
         </div>
       </header>
       <div class="ftw-outfit__body">
         <aside class="ftw-outfit__rack" aria-label="Pieces">
-          <div class="ftw-outfit__rack-label">DRAG PIECES</div>
+          <div class="ftw-outfit__rack-label">TAP TO SWAP</div>
           <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
         </aside>
         <div class="ftw-outfit__stage" id="ftw-outfit-stage">
@@ -534,7 +534,12 @@
             height="400"
             draggable="false"
           >
-          <p class="ftw-outfit__hint" id="ftw-outfit-hint">DROP ITEMS ON THE FIGURE</p>
+          <div class="ftw-outfit__mannequin" aria-hidden="true">
+            <div class="ftw-outfit__slot ftw-outfit__slot--head" data-slot="head"></div>
+            <div class="ftw-outfit__slot ftw-outfit__slot--top" data-slot="top"></div>
+            <div class="ftw-outfit__slot ftw-outfit__slot--bottom" data-slot="bottom"></div>
+          </div>
+          <p class="ftw-outfit__hint" id="ftw-outfit-hint">TAP A PIECE TO SWAP</p>
         </div>
       </div>
     </div>

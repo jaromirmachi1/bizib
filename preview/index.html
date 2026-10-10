@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=47">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=48">
     <script>
       (function () {
         try {
@@ -292,19 +292,24 @@
           <header class="ftw-outfit__head">
             <h2 id="ftw-outfit-title">OUTFIT CHECKER</h2>
             <div class="ftw-outfit__head-actions">
-              <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">CLEAR</button>
+              <button type="button" class="ftw-outfit__clear" id="ftw-outfit-clear">RESET</button>
               <button type="button" class="ftw-outfit__close" id="ftw-outfit-close" aria-label="Close outfit checker">×</button>
             </div>
           </header>
           <div class="ftw-outfit__body">
             <aside class="ftw-outfit__rack" aria-label="Pieces">
-              <div class="ftw-outfit__rack-label">DRAG PIECES</div>
+              <div class="ftw-outfit__rack-label">TAP TO SWAP</div>
               <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
             </aside>
             <div class="ftw-outfit__stage" id="ftw-outfit-stage">
               <img class="ftw-outfit__figure ftw-outfit__figure--light" src="./assets/panacek-3-black.png" alt="" width="320" height="400" draggable="false">
               <img class="ftw-outfit__figure ftw-outfit__figure--dark" src="./assets/panacek-3-white.png" alt="" width="320" height="400" draggable="false">
-              <p class="ftw-outfit__hint" id="ftw-outfit-hint">DROP ITEMS ON THE FIGURE</p>
+              <div class="ftw-outfit__mannequin" aria-hidden="true">
+                <div class="ftw-outfit__slot ftw-outfit__slot--head" data-slot="head"></div>
+                <div class="ftw-outfit__slot ftw-outfit__slot--top" data-slot="top"></div>
+                <div class="ftw-outfit__slot ftw-outfit__slot--bottom" data-slot="bottom"></div>
+              </div>
+              <p class="ftw-outfit__hint" id="ftw-outfit-hint">TAP A PIECE TO SWAP</p>
             </div>
           </div>
         </div>
@@ -377,6 +382,6 @@
         {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=22"></script>
+    <script src="/assets/ftw-shop.js?v=23"></script>
   </body>
 </html>
