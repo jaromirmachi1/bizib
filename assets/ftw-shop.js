@@ -197,9 +197,23 @@
       </div>`;
   }
 
+  function renderCartFooter(cart) {
+    const footer = $("#cart-footer");
+    if (!footer) return;
+    const empty = !cart?.item_count;
+    footer.hidden = false;
+    footer.innerHTML = `
+      <strong>${empty ? "TOTAL: —" : `TOTAL: ${formatMoney(cart.total_price)}`}</strong>
+      <button type="button" class="ftw-btn" id="ftw-outfit-open">OUTFIT CHECKER</button>
+      ${
+        empty
+          ? `<button type="button" class="ftw-btn ftw-btn--primary" disabled aria-disabled="true">CHECKOUT</button>`
+          : `<a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>`
+      }`;
+  }
+
   async function renderCart() {
     const body = $("#cart-body");
-    const footer = $("#cart-footer");
     const upsell = $("#cart-upsell");
     if (!body) return;
     try {
@@ -207,14 +221,11 @@
       updateTrayCart(cart.item_count);
       if (!cart.item_count) {
         body.innerHTML = `<div class="ftw-empty">CART EMPTY.</div>`;
-        if (footer) {
-          footer.hidden = true;
-          footer.innerHTML = "";
-        }
         if (upsell) {
           upsell.hidden = true;
           upsell.innerHTML = "";
         }
+        renderCartFooter(cart);
         return;
       }
       const lines = cart.items
@@ -249,23 +260,14 @@
         .join("");
       body.innerHTML = `<div class="ftw-cart-lines">${lines}</div>`;
       renderUpsell(cart);
-      if (footer) {
-        footer.hidden = false;
-        footer.innerHTML = `
-          <strong>TOTAL: ${formatMoney(cart.total_price)}</strong>
-          <button type="button" class="ftw-btn" id="ftw-outfit-open">OUTFIT CHECKER</button>
-          <a class="ftw-btn ftw-btn--primary" href="/checkout">CHECKOUT</a>`;
-      }
+      renderCartFooter(cart);
     } catch {
       body.innerHTML = `<div class="ftw-empty">Couldn't load cart.</div>`;
-      if (footer) {
-        footer.hidden = true;
-        footer.innerHTML = "";
-      }
       if (upsell) {
         upsell.hidden = true;
         upsell.innerHTML = "";
       }
+      renderCartFooter({ item_count: 0 });
     }
   }
 
