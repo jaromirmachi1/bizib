@@ -1481,11 +1481,11 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.16));
 }
 
-.ftw-outfit__piece[data-slot="top"] {
+.ftw-outfit__piece[data-slot="bottom"] {
   z-index: 1;
 }
 
-.ftw-outfit__piece[data-slot="bottom"] {
+.ftw-outfit__piece[data-slot="top"] {
   z-index: 2;
 }
 
