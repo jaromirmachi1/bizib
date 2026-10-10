@@ -400,22 +400,6 @@
     });
   }
 
-  function syncOutfitSizeUi() {
-    const bar = $("#ftw-outfit-size");
-    const range = $("#ftw-outfit-scale");
-    const val = $("#ftw-outfit-scale-val");
-    if (!bar || !range || !val) return;
-    if (!outfitSelected) {
-      bar.hidden = true;
-      return;
-    }
-    const scale = Number(outfitSelected.dataset.scale || 1);
-    const pct = Math.round(scale * 100);
-    range.value = String(pct);
-    val.textContent = `${pct}%`;
-    bar.hidden = false;
-  }
-
   function selectOutfitPiece(piece) {
     $$(".ftw-outfit__piece", root).forEach((el) => el.classList.remove("is-selected"));
     outfitSelected = piece || null;
@@ -423,7 +407,6 @@
       piece.classList.add("is-selected");
       piece.parentElement?.appendChild(piece);
     }
-    syncOutfitSizeUi();
   }
 
   function setOutfitPieceScale(piece, scale) {
@@ -431,7 +414,6 @@
     const next = Math.min(1.8, Math.max(0.4, scale));
     piece.dataset.scale = String(next);
     piece.style.setProperty("--outfit-scale", String(next));
-    if (piece === outfitSelected) syncOutfitSizeUi();
   }
 
   function placeOutfitPiece(src, title, slot, leftPx, topPx, scale) {
@@ -460,6 +442,10 @@
     piece.style.top = `${top}px`;
     setOutfitPieceScale(piece, s);
     piece.innerHTML = `
+      <div class="ftw-outfit__piece-tools" aria-hidden="true">
+        <button type="button" class="ftw-outfit__piece-scale" data-outfit-scale="-0.1" aria-label="Make smaller">−</button>
+        <button type="button" class="ftw-outfit__piece-scale" data-outfit-scale="0.1" aria-label="Make bigger">+</button>
+      </div>
       <img src="${escapeHtml(src)}" alt="${escapeHtml(title || "")}" draggable="false">
       <button type="button" class="ftw-outfit__piece-kill" aria-label="Remove piece">×</button>`;
     layer.appendChild(piece);
@@ -473,7 +459,6 @@
     const layer = $("#ftw-outfit-layer");
     if (layer) layer.innerHTML = "";
     outfitSelected = null;
-    syncOutfitSizeUi();
     syncOutfitHint();
     syncOutfitRackActive();
   }
@@ -1041,11 +1026,6 @@
   $("#ftw-outfit-close")?.addEventListener("click", closeOutfitChecker);
   $("#ftw-outfit-clear")?.addEventListener("click", resetOutfitStage);
 
-  $("#ftw-outfit-scale")?.addEventListener("input", (e) => {
-    if (!outfitSelected) return;
-    setOutfitPieceScale(outfitSelected, Number(e.target.value) / 100);
-  });
-
   function onSearchInput(e) {
     searchQuery = e.target.value || "";
     const otherId = e.target.id === "ftw-search-input" ? "ftw-search-input-side" : "ftw-search-input";
@@ -1063,7 +1043,7 @@
 
   root.addEventListener("pointerdown", (e) => {
     if (e.target.closest(".ftw-outfit__piece-kill")) return;
-    if (e.target.closest(".ftw-outfit__size")) return;
+    if (e.target.closest(".ftw-outfit__piece-scale")) return;
 
     const rackItem = e.target.closest(".ftw-outfit__rack-item");
     if (rackItem) {
@@ -1095,12 +1075,23 @@
       return;
     }
 
+    const scaleBtn = e.target.closest(".ftw-outfit__piece-scale");
+    if (scaleBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const piece = scaleBtn.closest(".ftw-outfit__piece");
+      if (!piece) return;
+      selectOutfitPiece(piece);
+      const delta = Number(scaleBtn.dataset.outfitScale || 0);
+      setOutfitPieceScale(piece, Number(piece.dataset.scale || 1) + delta);
+      return;
+    }
+
     const pieceKill = e.target.closest(".ftw-outfit__piece-kill");
     if (pieceKill) {
       const piece = pieceKill.closest(".ftw-outfit__piece");
       if (piece === outfitSelected) outfitSelected = null;
       piece?.remove();
-      syncOutfitSizeUi();
       syncOutfitHint();
       syncOutfitRackActive();
       return;

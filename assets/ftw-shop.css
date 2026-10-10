@@ -1336,12 +1336,6 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   transform: scale(0.97);
 }
 
-.ftw-outfit__workspace {
-  min-width: 0;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-}
 
 .ftw-outfit__rack-item img {
   width: 52px;
@@ -1415,8 +1409,6 @@ html[data-ftw-theme="dark"] .ftw-outfit__figure {
 
 .ftw-outfit__piece.is-selected {
   z-index: 5;
-  outline: 1px solid var(--ftw-fg);
-  outline-offset: 4px;
 }
 
 .ftw-outfit__piece:active {
@@ -1428,6 +1420,44 @@ html[data-ftw-theme="dark"] .ftw-outfit__figure {
   height: auto;
   display: block;
   pointer-events: none;
+}
+
+.ftw-outfit__piece-tools {
+  position: absolute;
+  left: 50%;
+  top: -34px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--ftw-line);
+  background: var(--ftw-bg);
+  transform: translateX(-50%) scale(calc(1 / var(--outfit-scale)));
+  transform-origin: center bottom;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms var(--ftw-ease);
+}
+
+.ftw-outfit__piece-scale {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: var(--ftw-ink);
+  color: var(--ftw-on-ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.ftw-outfit__piece-scale:active {
+  transform: scale(0.94);
 }
 
 .ftw-outfit__piece-kill {
@@ -1445,44 +1475,33 @@ html[data-ftw-theme="dark"] .ftw-outfit__figure {
   display: grid;
   place-items: center;
   padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms var(--ftw-ease);
+  transform: scale(calc(1 / var(--outfit-scale)));
+  transform-origin: center center;
 }
 
 .ftw-outfit__piece-kill:active {
-  transform: scale(0.94);
+  transform: scale(calc(0.94 / var(--outfit-scale)));
 }
 
-.ftw-outfit__size {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px 12px;
-  border-top: 1px solid var(--ftw-line);
-  background: var(--ftw-panel-2);
+@media (hover: hover) and (pointer: fine) {
+  .ftw-outfit__piece:hover .ftw-outfit__piece-tools,
+  .ftw-outfit__piece:hover .ftw-outfit__piece-kill,
+  .ftw-outfit__piece.is-selected .ftw-outfit__piece-tools,
+  .ftw-outfit__piece.is-selected .ftw-outfit__piece-kill {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-.ftw-outfit__size[hidden] {
-  display: none;
-}
-
-.ftw-outfit__size-label,
-.ftw-outfit__size-val {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  flex-shrink: 0;
-}
-
-.ftw-outfit__size-val {
-  min-width: 4ch;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.ftw-outfit__size-range {
-  flex: 1 1 auto;
-  min-width: 0;
-  accent-color: var(--ftw-fg);
-  cursor: pointer;
+@media (hover: none), (pointer: coarse) {
+  .ftw-outfit__piece.is-selected .ftw-outfit__piece-tools,
+  .ftw-outfit__piece.is-selected .ftw-outfit__piece-kill {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .ftw-outfit__hint {
@@ -1520,9 +1539,8 @@ body.ftw-outfit-open {
     order: 2;
   }
 
-  .ftw-outfit__workspace {
+  .ftw-outfit__stage {
     order: 1;
-    min-height: 0;
   }
 
   .ftw-outfit__rack-list {

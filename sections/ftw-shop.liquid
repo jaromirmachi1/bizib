@@ -554,33 +554,17 @@
           <div class="ftw-outfit__rack-label">DRAG ONTO FIGURE</div>
           <div class="ftw-outfit__rack-list" id="ftw-outfit-rack"></div>
         </aside>
-        <div class="ftw-outfit__workspace">
-          <div class="ftw-outfit__stage" id="ftw-outfit-stage">
-            <img
-              class="ftw-outfit__figure"
-              src="{{ mannequin_url }}"
-              alt=""
-              width="432"
-              height="576"
-              draggable="false"
-            >
-            <div class="ftw-outfit__layer" id="ftw-outfit-layer"></div>
-            <p class="ftw-outfit__hint" id="ftw-outfit-hint">DRAG PIECES · TAP TO RESIZE</p>
-          </div>
-          <div class="ftw-outfit__size" id="ftw-outfit-size" hidden>
-            <span class="ftw-outfit__size-label">SIZE</span>
-            <input
-              class="ftw-outfit__size-range"
-              id="ftw-outfit-scale"
-              type="range"
-              min="40"
-              max="180"
-              value="100"
-              step="1"
-              aria-label="Piece size"
-            >
-            <span class="ftw-outfit__size-val" id="ftw-outfit-scale-val">100%</span>
-          </div>
+        <div class="ftw-outfit__stage" id="ftw-outfit-stage">
+          <img
+            class="ftw-outfit__figure"
+            src="{{ mannequin_url }}"
+            alt=""
+            width="432"
+            height="576"
+            draggable="false"
+          >
+          <div class="ftw-outfit__layer" id="ftw-outfit-layer"></div>
+          <p class="ftw-outfit__hint" id="ftw-outfit-hint">DRAG PIECES · HOVER TO RESIZE</p>
         </div>
       </div>
     </div>
