@@ -26,11 +26,14 @@
   }
 
   function syncThemeButton(theme) {
-    const btn = $("#ftw-theme-btn");
-    if (!btn) return;
     const isDark = theme === "dark";
-    btn.setAttribute("aria-pressed", isDark ? "true" : "false");
-    btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    $$("[data-ftw-theme]", root).forEach((btn) => {
+      btn.setAttribute("aria-pressed", isDark ? "true" : "false");
+      btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+      if (!btn.querySelector("svg")) {
+        btn.textContent = isDark ? "LIGHT MODE" : "DARK MODE";
+      }
+    });
   }
 
   function setTheme(theme) {
@@ -262,7 +265,7 @@
       d.hidden = d.id !== id;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", String(id === "ftw-bag"));
-    $$("#ftw-account-btn, #ftw-account-top-btn, #ftw-account-side-btn", root).forEach((btn) => {
+    $$("#ftw-account-top-btn, [data-ftw-account]", root).forEach((btn) => {
       btn.setAttribute("aria-expanded", String(id === "ftw-account"));
     });
     if (id === "ftw-bag") renderCart();
@@ -273,7 +276,7 @@
       d.hidden = true;
     });
     $("#ftw-bag-btn")?.setAttribute("aria-expanded", "false");
-    $$("#ftw-account-btn, #ftw-account-top-btn, #ftw-account-side-btn", root).forEach((btn) => {
+    $$("#ftw-account-top-btn, [data-ftw-account]", root).forEach((btn) => {
       btn.setAttribute("aria-expanded", "false");
     });
   }
@@ -862,17 +865,18 @@
     else closeDrawers();
   });
 
-  $("#ftw-account-btn")?.addEventListener("click", toggleAccountDrawer);
   $("#ftw-account-top-btn")?.addEventListener("click", toggleAccountDrawer);
-  $("#ftw-account-side-btn")?.addEventListener("click", toggleAccountDrawer);
+  $$("[data-ftw-account]", root).forEach((btn) => btn.addEventListener("click", toggleAccountDrawer));
 
-  $("#ftw-contact-open")?.addEventListener("click", () => openDrawer("ftw-contact"));
+  $$("[data-ftw-contact]", root).forEach((btn) =>
+    btn.addEventListener("click", () => openDrawer("ftw-contact"))
+  );
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
   $("#ftw-nav-scrim")?.addEventListener("click", () => setNavOpen(false));
   $("#ftw-sheet-add")?.addEventListener("click", addToCart);
-  $("#ftw-theme-btn")?.addEventListener("click", () => {
-    setTheme(getTheme() === "dark" ? "light" : "dark");
-  });
+  $$("[data-ftw-theme]", root).forEach((btn) =>
+    btn.addEventListener("click", () => setTheme(getTheme() === "dark" ? "light" : "dark"))
+  );
   $("#ftw-outfit-close")?.addEventListener("click", closeOutfitChecker);
   $("#ftw-outfit-clear")?.addEventListener("click", clearOutfitStage);
 

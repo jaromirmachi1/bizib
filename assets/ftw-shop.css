@@ -472,6 +472,12 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   min-width: 88px;
 }
 
+.ftw-search svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .ftw-search input {
   width: 72px;
   border: 0;
@@ -493,7 +499,7 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   display: none;
 }
 
-.ftw-side__account {
+.ftw-footer {
   display: none;
 }
 
@@ -1954,13 +1960,50 @@ body.ftw-sheet-open {
     flex: 1 1 auto;
   }
 
-  .ftw-side__account {
-    display: block;
+  .ftw-side__foot {
+    display: none;
   }
 
   .ftw-side .ftw-logo {
     width: 96px;
     margin-bottom: 18px;
+  }
+
+  .ftw-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 48px;
+    padding: 8px 0 28px;
+    text-align: center;
+  }
+
+  .ftw-footer a,
+  .ftw-footer button {
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ftw-fg);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 140ms var(--ftw-ease);
+  }
+
+  .ftw-footer a:hover,
+  .ftw-footer button:hover {
+    opacity: 0.45;
+  }
+
+  .ftw-footer a:active,
+  .ftw-footer button:active {
+    transform: scale(0.97);
   }
 
   .ftw-grid {

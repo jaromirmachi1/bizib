@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=42">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=45">
     <script>
       (function () {
         try {
@@ -106,7 +106,7 @@
                   <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
                 </svg>
               </a>
-              <button type="button" id="ftw-account-btn" aria-expanded="false" aria-controls="ftw-account" aria-label="Account">
+              <button type="button" id="ftw-account-btn" data-ftw-account aria-expanded="false" aria-controls="ftw-account" aria-label="Account">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                   <circle cx="12" cy="8" r="3.2"></circle>
                   <path d="M5 19c1.8-3.2 4-4.8 7-4.8s5.2 1.6 7 4.8"></path>
@@ -116,6 +116,7 @@
                 type="button"
                 class="ftw-theme-btn"
                 id="ftw-theme-btn"
+                data-ftw-theme
                 aria-pressed="false"
                 aria-label="Switch to dark mode"
               >
@@ -126,9 +127,8 @@
               </button>
             </div>
             <div class="ftw-side__links">
-              <button type="button" class="ftw-side__account" id="ftw-account-side-btn" aria-expanded="false" aria-controls="ftw-account">ACCOUNT</button>
               <button type="button" data-ftw-filter="archive">ARCHIVE</button>
-              <button type="button" id="ftw-contact-open">NEWSLETTER</button>
+              <button type="button" data-ftw-contact>NEWSLETTER</button>
               <a href="#">SHIPPING POLICY</a>
               <a href="#">TERMS OF SERVICE</a>
             </div>
@@ -168,6 +168,16 @@
 
           <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
           <div class="ftw-grid" id="ftw-grid" role="list"></div>
+
+          <footer class="ftw-footer" aria-label="Shop links">
+            <a href="https://www.instagram.com/biziboiz/" target="_blank" rel="noopener">INSTAGRAM</a>
+            <button type="button" data-ftw-account aria-expanded="false" aria-controls="ftw-account">ACCOUNT</button>
+            <button type="button" data-ftw-filter="archive">ARCHIVE</button>
+            <button type="button" data-ftw-contact>NEWSLETTER</button>
+            <a href="#">SHIPPING POLICY</a>
+            <a href="#">TERMS OF SERVICE</a>
+            <button type="button" class="ftw-theme-btn" data-ftw-theme aria-pressed="false">DARK MODE</button>
+          </footer>
         </div>
       </div>
 
@@ -367,6 +377,6 @@
         {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=21"></script>
+    <script src="/assets/ftw-shop.js?v=22"></script>
   </body>
 </html>
