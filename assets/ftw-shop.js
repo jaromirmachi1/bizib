@@ -1171,18 +1171,43 @@
     btn.disabled = !selectedVariantId;
   }
 
+  function moveSheet(index, animate) {
+    const stage = $("#ftw-sheet-stack");
+    const reel = stage?.querySelector(".ftw-sheet__reel");
+    const count = stage ? $$(".ftw-sheet__shot", stage).length : 0;
+    if (!stage || !reel || !count) return;
+    const next = Math.max(0, Math.min(count - 1, index));
+    sheetImageIndex = next;
+    const frame = reel.clientWidth || stage.clientWidth;
+    reel.style.transition = animate === false ? "none" : "";
+    reel.style.transform = `translate3d(${-next * frame}px, 0, 0)`;
+    $$(".ftw-sheet__dot", stage).forEach((dot, i) => {
+      if (i === next) dot.setAttribute("aria-current", "true");
+      else dot.removeAttribute("aria-current");
+    });
+  }
+
   function buildStack(title) {
     const stage = $("#ftw-sheet-stack");
     if (!stage) return;
-    stage.innerHTML = "";
     const imgs = sheetImages.length ? sheetImages : [];
-    imgs.forEach((src, n) => {
-      const shot = document.createElement("div");
-      shot.className = "ftw-sheet__shot";
-      shot.dataset.imageIndex = String(n);
-      shot.innerHTML = `<img src="${src}" alt="${title || ""}" width="1200" height="1200" loading="${n === 0 ? "eager" : "lazy"}">`;
-      stage.appendChild(shot);
-    });
+    const shots = imgs
+      .map(
+        (src, n) =>
+          `<div class="ftw-sheet__shot"><img src="${src}" alt="${escapeHtml(title || "")}" width="1200" height="1200" draggable="false" loading="${n === 0 ? "eager" : "lazy"}"></div>`
+      )
+      .join("");
+    const dots =
+      imgs.length > 1
+        ? `<div class="ftw-sheet__dots">${imgs
+            .map(
+              (_, n) =>
+                `<button type="button" class="ftw-sheet__dot" data-ftw-shot="${n}" aria-label="Image ${n + 1}"${n === 0 ? ' aria-current="true"' : ""}></button>`
+            )
+            .join("")}</div>`
+        : "";
+    stage.innerHTML = `<div class="ftw-sheet__reel">${shots}</div>${dots}`;
+    sheetImageIndex = 0;
   }
 
   function parseOptions(raw) {
@@ -1357,6 +1382,7 @@
     sheet.hidden = false;
     document.body.classList.add("ftw-sheet-open");
     requestAnimationFrame(() => {
+      moveSheet(0, false);
       sheet.classList.add("is-open");
       sheetOpen = true;
       $(".ftw-sheet__back")?.focus();
@@ -1815,5 +1841,70 @@
 
   showLock();
   fitProductImages();
-  window.addEventListener("resize", () => fitProductImages());
+  const sheetStage = $("#ftw-sheet-stack");
+  let sheetPointer = null;
+  let sheetSuppressClick = false;
+
+  sheetStage?.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    if (e.target.closest(".ftw-sheet__dot")) return;
+    const reel = sheetStage.querySelector(".ftw-sheet__reel");
+    const count = $$(".ftw-sheet__shot", sheetStage).length;
+    if (!reel || count < 2) return;
+    sheetPointer = {
+      id: e.pointerId,
+      x: e.clientX,
+      index: sheetImageIndex,
+      width: reel.clientWidth || sheetStage.clientWidth,
+    };
+    reel.style.transition = "none";
+    sheetStage.setPointerCapture?.(e.pointerId);
+  });
+
+  sheetStage?.addEventListener("pointermove", (e) => {
+    if (!sheetPointer || e.pointerId !== sheetPointer.id) return;
+    const dx = e.clientX - sheetPointer.x;
+    if (Math.abs(dx) < 4) return;
+    const reel = sheetStage.querySelector(".ftw-sheet__reel");
+    const count = $$(".ftw-sheet__shot", sheetStage).length;
+    if (!reel) return;
+    sheetPointer.dragged = true;
+    sheetStage.classList.add("is-dragging");
+    const base = -sheetPointer.index * sheetPointer.width;
+    const min = -(count - 1) * sheetPointer.width;
+    const x = Math.max(min - 36, Math.min(36, base + dx));
+    reel.style.transform = `translate3d(${x}px, 0, 0)`;
+  });
+
+  function endSheetDrag(e) {
+    if (!sheetPointer || (e && e.pointerId !== sheetPointer.id)) return;
+    const dx = e ? e.clientX - sheetPointer.x : 0;
+    const dragged = sheetPointer.dragged;
+    const index = sheetPointer.index;
+    sheetPointer = null;
+    sheetStage.classList.remove("is-dragging");
+    if (!dragged) return;
+    sheetSuppressClick = true;
+    if (dx <= -48) moveSheet(index + 1);
+    else if (dx >= 48) moveSheet(index - 1);
+    else moveSheet(index);
+  }
+
+  sheetStage?.addEventListener("pointerup", endSheetDrag);
+  sheetStage?.addEventListener("pointercancel", endSheetDrag);
+  sheetStage?.addEventListener("click", (e) => {
+    if (sheetSuppressClick) {
+      sheetSuppressClick = false;
+      e.preventDefault();
+      return;
+    }
+    const dot = e.target.closest("[data-ftw-shot]");
+    if (!dot) return;
+    moveSheet(Number(dot.dataset.ftwShot));
+  });
+
+  window.addEventListener("resize", () => {
+    fitProductImages();
+    if (sheetOpen) moveSheet(sheetImageIndex, false);
+  });
 })();
