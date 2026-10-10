@@ -744,6 +744,52 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 
 #ftw-bag .ftw-empty {
   margin: auto 0;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+#ftw-bag .ftw-drawer__head h2 {
+  font-size: 18px;
+  letter-spacing: 0.12em;
+}
+
+#ftw-bag .ftw-cart-line__title {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+#ftw-bag .ftw-cart-line__price {
+  font-size: 15px;
+}
+
+#ftw-bag .ftw-cart-qty__val {
+  font-size: 14px;
+}
+
+#ftw-bag .ftw-cart-line__remove {
+  font-size: 12px;
+}
+
+#ftw-bag .ftw-upsell__head {
+  font-size: 13px;
+}
+
+#ftw-bag .ftw-upsell__title {
+  font-size: 13px;
+}
+
+#ftw-bag .ftw-upsell__price {
+  font-size: 13px;
+}
+
+#ftw-bag .cart-footer strong {
+  font-size: 16px;
+  letter-spacing: 0.08em;
+}
+
+#ftw-bag .cart-footer .ftw-btn {
+  min-height: 44px;
+  font-size: 14px;
 }
 
 .ftw-drawer__tabs {
@@ -1000,6 +1046,64 @@ html[data-ftw-theme="dark"] .ftw-product__media img {
 .ftw-upsell__add:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.ftw-ship {
+  flex-shrink: 0;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--ftw-line);
+  background: var(--ftw-panel-2);
+}
+
+.ftw-ship[hidden] {
+  display: none;
+}
+
+.ftw-ship__label {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+}
+
+.ftw-ship.is-unlocked .ftw-ship__label {
+  color: var(--ftw-fg);
+}
+
+.ftw-ship__track {
+  position: relative;
+  height: 8px;
+  border: 1px solid var(--ftw-line);
+  background: var(--ftw-bg);
+  overflow: hidden;
+}
+
+.ftw-ship__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: #e10600;
+  transition: transform 280ms var(--ftw-ease);
+  will-change: transform;
+}
+
+.ftw-ship.is-unlocked .ftw-ship__fill {
+  background: var(--ftw-fg);
+}
+
+.ftw-ship__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ftw-muted);
 }
 
 .cart-footer {
@@ -2269,9 +2373,13 @@ body.ftw-sheet-open {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(ellipse at 50% 42%, rgba(225, 6, 0, 0.22), transparent 55%),
-    radial-gradient(ellipse at center, #222 0%, #070707 74%);
+  background-color: #1a120e;
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 38%, rgba(0, 0, 0, 0.18) 68%, rgba(0, 0, 0, 0.55) 100%),
+    var(--ftw-lock-wall, none);
+  background-position: center center, center center;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
 }
 
 .ftw-lock__hero {

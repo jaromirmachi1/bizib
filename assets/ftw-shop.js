@@ -197,6 +197,50 @@
       </div>`;
   }
 
+  const FREE_SHIP_CZK = Math.max(
+    1,
+    Number(root.dataset.freeShippingCzk || 4000) || 4000
+  );
+  const FREE_SHIP_CENTS = FREE_SHIP_CZK * 100;
+
+  function cartSubtotal(cart) {
+    const n = Number(cart?.items_subtotal_price ?? cart?.total_price ?? 0);
+    return Number.isFinite(n) ? Math.max(0, n) : 0;
+  }
+
+  function renderShippingProgress(cart) {
+    const host = $("#cart-shipping");
+    if (!host) return;
+    const spent = cartSubtotal(cart);
+    const pct = Math.min(100, Math.round((spent / FREE_SHIP_CENTS) * 100));
+    const unlocked = spent >= FREE_SHIP_CENTS;
+    const left = Math.max(0, FREE_SHIP_CENTS - spent);
+    const msg = unlocked
+      ? "FREE CZ SHIPPING UNLOCKED."
+      : spent > 0
+        ? `${formatMoney(left)} AWAY FROM FREE SHIPPING`
+        : `FREE CZ SHIPPING FROM ${FREE_SHIP_CZK.toLocaleString("cs-CZ")} KČ`;
+
+    host.hidden = false;
+    host.classList.toggle("is-unlocked", unlocked);
+    host.innerHTML = `
+      <div class="ftw-ship__label">${escapeHtml(msg)}</div>
+      <div
+        class="ftw-ship__track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="${pct}"
+        aria-label="Free shipping progress"
+      >
+        <span class="ftw-ship__fill" style="transform: scaleX(${pct / 100})"></span>
+      </div>
+      <div class="ftw-ship__meta">
+        <span>${formatMoney(spent)}</span>
+        <span>${FREE_SHIP_CZK.toLocaleString("cs-CZ")} KČ</span>
+      </div>`;
+  }
+
   function renderCartFooter(cart) {
     const footer = $("#cart-footer");
     if (!footer) return;
@@ -219,6 +263,7 @@
     try {
       const cart = await fetchCart();
       updateTrayCart(cart.item_count);
+      renderShippingProgress(cart);
       if (!cart.item_count) {
         body.innerHTML = `<div class="ftw-empty">CART EMPTY.</div>`;
         if (upsell) {
@@ -267,6 +312,7 @@
         upsell.hidden = true;
         upsell.innerHTML = "";
       }
+      renderShippingProgress({ item_count: 0, items_subtotal_price: 0, total_price: 0 });
       renderCartFooter({ item_count: 0 });
     }
   }

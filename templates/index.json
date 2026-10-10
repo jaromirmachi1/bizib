@@ -101,6 +101,7 @@
       "settings": {
         "collection_live": "2026",
         "collection_archive": "main-page",
+        "free_shipping_czk": 4000,
         "upsell_heading": "ADD THIS TOO",
         "upsell_limit": 2,
         "products_to_show": 24,

@@ -77,18 +77,16 @@
   data-money-format="{{ shop.money_format | escape }}"
   data-upsell-heading="{{ upsell_heading | escape }}"
   data-upsell-limit="{{ upsell_limit }}"
+  data-free-shipping-czk="{{ section.settings.free_shipping_czk | default: 4000 }}"
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
-  <div class="ftw-lock" id="ftw-lock" hidden>
+  <div class="ftw-lock" id="ftw-lock" hidden style="--ftw-lock-wall: url({{ 'lvbizi.jpeg' | asset_url }});">
     <div class="ftw-lock__wallpaper" aria-hidden="true"></div>
     <header class="ftw-lock__top">
       <time class="ftw-lock__clock" id="ftw-lock-clock">00:00</time>
       <p class="ftw-lock__date" id="ftw-lock-date"></p>
     </header>
-    <div class="ftw-lock__hero" aria-hidden="true">
-      <img class="ftw-lock__brand" src="{{ logo_dark_url }}" alt="" width="420" height="420">
-      <p class="ftw-lock__mark">BIZIBOIZ</p>
-    </div>
+    <div class="ftw-lock__hero" aria-hidden="true"></div>
     <div class="ftw-lock__bottom">
       <div
         class="ftw-lock__slider"
@@ -139,7 +137,7 @@
               {%- if rendered_announce == 0 -%}
                 <span class="ftw-announce__item">BIZIBOIZ — NEW DROP LIVE</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
-                <span class="ftw-announce__item">FREE CZ SHIPPING OVER 1500 KČ</span>
+                <span class="ftw-announce__item">FREE CZ SHIPPING OVER 4000 KČ</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
                 <span class="ftw-announce__item">LIMITED RUNS — NO RESTOCKS</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
@@ -381,6 +379,7 @@
         <h2>CART</h2>
         <button class="ftw-drawer__close" type="button" data-close-drawer aria-label="Close cart">×</button>
       </header>
+      <div class="ftw-ship" id="cart-shipping" aria-live="polite"></div>
       <div class="ftw-drawer__body" id="cart-body">
         <div class="ftw-empty">CART EMPTY.</div>
       </div>
@@ -628,6 +627,17 @@
     },
     {
       "type": "header",
+      "content": "Free shipping"
+    },
+    {
+      "type": "number",
+      "id": "free_shipping_czk",
+      "label": "Free shipping threshold (Kč)",
+      "default": 4000,
+      "info": "Shown as a progress bar in the cart drawer."
+    },
+    {
+      "type": "header",
       "content": "Cart upsell"
     },
     {
@@ -727,7 +737,7 @@
       "name": "FTW Shop",
       "blocks": [
         { "type": "announce", "settings": { "text": "BIZIBOIZ — NEW DROP LIVE" } },
-        { "type": "announce", "settings": { "text": "FREE CZ SHIPPING OVER 1500 KČ" } },
+        { "type": "announce", "settings": { "text": "FREE CZ SHIPPING OVER 4000 KČ" } },
         { "type": "announce", "settings": { "text": "LIMITED RUNS — NO RESTOCKS" } },
         { "type": "announce", "settings": { "text": "FOLLOW @BIZIBOIZ" } },
         { "type": "category", "settings": { "label": "JACKETS" } },
