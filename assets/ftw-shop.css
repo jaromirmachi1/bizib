@@ -514,6 +514,72 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   align-items: start;
 }
 
+[data-ftw-filter="archive"] {
+  display: none;
+}
+
+.ftw-lookbooks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 22px;
+  align-items: start;
+}
+
+.ftw-lookbooks[hidden] {
+  display: none;
+}
+
+.ftw-look {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ftw-look:active {
+  transform: scale(0.985);
+}
+
+.ftw-look img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  background: var(--ftw-panel);
+}
+
+.ftw-look__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ftw-look__season,
+.ftw-look__title {
+  margin: 0;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.ftw-look__season {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ftw-muted);
+}
+
+.ftw-look__title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .ftw-lookbooks {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
 .ftw-product {
   display: flex;
   flex-direction: column;
@@ -2283,6 +2349,27 @@ body.ftw-sheet-open {
   .ftw-side .ftw-logo {
     width: 96px;
     margin-bottom: 18px;
+  }
+
+  .ftw-cats {
+    gap: 14px;
+  }
+
+  .ftw-cats a,
+  .ftw-cats button {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.15;
+  }
+
+  .ftw-side__search {
+    font-size: 16px;
+  }
+
+  .ftw-side__search svg {
+    width: 16px;
+    height: 16px;
   }
 
   .ftw-footer {

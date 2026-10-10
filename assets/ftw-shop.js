@@ -958,7 +958,7 @@
       let show = true;
 
       if (active === "archive") {
-        show = drop === "archive";
+        show = false;
       } else if (active === "all" || active === "new") {
         show = drop !== "archive";
       } else {
@@ -971,9 +971,11 @@
     });
 
     const grid = $("#ftw-grid", root);
+    const looks = $("#ftw-lookbooks", root);
+    if (looks) looks.hidden = active !== "archive";
     if (!grid) return;
     let empty = $("#ftw-filter-empty", root);
-    if (!visible) {
+    if (!visible && active !== "archive") {
       if (!empty) {
         empty = document.createElement("p");
         empty.className = "ftw-empty";

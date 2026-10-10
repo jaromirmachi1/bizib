@@ -345,19 +345,41 @@
           {%- endif -%}
         {%- endfor -%}
 
-        {%- if archive != blank -%}
-          {%- for product in archive.products limit: limit -%}
-            {%- assign key = product.handle | prepend: '|' | append: '|' -%}
-            {%- unless seen contains key -%}
-              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'archive' -%}
-              {%- assign seen = seen | append: product.handle | append: '|' -%}
-              {%- assign rendered = rendered | plus: 1 -%}
-            {%- endunless -%}
-          {%- endfor -%}
         {%- endif -%}
 
         {%- if rendered == 0 -%}
           <p class="ftw-empty">Connect collections in the theme editor (NEW + category blocks).</p>
+        {%- endif -%}
+      </div>
+
+      <div class="ftw-lookbooks" id="ftw-lookbooks" hidden>
+        {%- assign look_count = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'lookbook' and block.settings.image != blank -%}
+            {%- assign look_count = look_count | plus: 1 -%}
+            {%- if block.settings.link != blank -%}
+              <a class="ftw-look" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
+            {%- else -%}
+              <article class="ftw-look" {{ block.shopify_attributes }}>
+            {%- endif -%}
+              {{ block.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '480, 800, 1200, 1400', sizes: '(min-width: 900px) 42vw, 92vw', alt: block.settings.title }}
+              <div class="ftw-look__meta">
+                {%- if block.settings.season != blank -%}
+                  <p class="ftw-look__season">{{ block.settings.season | upcase }}</p>
+                {%- endif -%}
+                {%- if block.settings.title != blank -%}
+                  <p class="ftw-look__title">{{ block.settings.title | upcase }}</p>
+                {%- endif -%}
+              </div>
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- else -%}
+              </article>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if look_count == 0 -%}
+          <p class="ftw-empty">NO LOOKBOOKS YET.</p>
         {%- endif -%}
       </div>
 
@@ -623,7 +645,8 @@
     {
       "type": "collection",
       "id": "collection_archive",
-      "label": "Archive collection"
+      "label": "Archive collection",
+      "info": "Unused. Archive is the lookbook gallery. Add Lookbook blocks for older drops."
     },
     {
       "type": "header",
@@ -728,6 +751,34 @@
           "id": "text",
           "label": "Message",
           "default": "NEW DROP LIVE"
+        }
+      ]
+    },
+    {
+      "type": "lookbook",
+      "name": "Lookbook",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Cover"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Drop name",
+          "default": "DROP"
+        },
+        {
+          "type": "text",
+          "id": "season",
+          "label": "Season",
+          "default": "2024"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
         }
       ]
     }
