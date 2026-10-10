@@ -44,7 +44,12 @@ body.ftw-mode .shopify-section:has(.ftw-shop) {
   --ftw-side: 180px;
   --ftw-announce: 0px;
   --ftw-announce-speed: 36s;
+  --ftw-max: 2520px;
+  --ftw-frame-inset: max(0px, calc((100vw - var(--ftw-max)) / 2));
 
+  width: 100%;
+  max-width: var(--ftw-max);
+  margin-inline: auto;
   min-height: 100dvh;
   background: var(--ftw-bg);
   color: var(--ftw-fg);
@@ -92,8 +97,8 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   position: fixed;
   top: auto;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: var(--ftw-frame-inset);
+  right: var(--ftw-frame-inset);
   z-index: 140;
   height: var(--ftw-announce);
   background: #e10600;
@@ -257,7 +262,7 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
 .ftw-side {
   position: fixed;
   top: 0;
-  left: 0;
+  left: var(--ftw-frame-inset);
   bottom: var(--ftw-announce);
   width: var(--ftw-side);
   height: calc(100dvh - var(--ftw-announce));
@@ -479,10 +484,6 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   transition: opacity 180ms var(--ftw-ease), transform 180ms var(--ftw-ease);
 }
 
-.ftw-product:hover {
-  opacity: 0.78;
-}
-
 .ftw-product:active {
   transform: scale(0.985);
 }
@@ -519,6 +520,58 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
   object-position: center center;
   filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.28))
     drop-shadow(0 0 28px rgba(255, 255, 255, 0.12));
+  transition: opacity 160ms var(--ftw-ease);
+}
+
+.ftw-product__quick {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ftw-product__quick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    z-index: 2;
+    min-height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--ftw-ink);
+    background: var(--ftw-ink);
+    color: var(--ftw-on-ink);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+    pointer-events: none;
+    transition: opacity 160ms var(--ftw-ease), transform 160ms var(--ftw-ease);
+  }
+
+  .ftw-product:not(.is-sold):hover .ftw-product__media img,
+  .ftw-product:not(.is-sold):focus-within .ftw-product__media img {
+    opacity: 0.72;
+  }
+
+  .ftw-product:not(.is-sold):hover .ftw-product__quick,
+  .ftw-product:not(.is-sold):focus-within .ftw-product__quick {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  .ftw-product__quick:hover {
+    opacity: 0.92;
+  }
+
+  .ftw-product__quick:active {
+    transform: translateX(-50%) scale(0.97);
+  }
 }
 
 .ftw-product__stamp {
@@ -564,9 +617,9 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
 .ftw-drawer {
   position: fixed;
   top: 0;
-  right: 0;
+  right: var(--ftw-frame-inset);
   bottom: var(--ftw-announce);
-  left: 0;
+  left: var(--ftw-frame-inset);
   z-index: 80;
   background: var(--ftw-scrim);
   display: grid;
@@ -1086,7 +1139,10 @@ html[data-ftw-theme="dark"] .ftw-logo img.ftw-logo__dark {
 /* —— Outfit checker —— */
 .ftw-outfit {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: var(--ftw-frame-inset);
+  bottom: 0;
+  left: var(--ftw-frame-inset);
   z-index: 160;
   display: grid;
   place-items: stretch;
@@ -1417,9 +1473,9 @@ body.ftw-outfit-open {
   --ftw-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   position: fixed;
   top: 0;
-  right: 0;
+  right: var(--ftw-frame-inset);
   bottom: var(--ftw-announce);
-  left: var(--ftw-side);
+  left: calc(var(--ftw-frame-inset) + var(--ftw-side));
   z-index: 100;
   width: auto;
 }
@@ -1805,7 +1861,10 @@ body.ftw-sheet-open {
   .ftw-nav-scrim {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: var(--ftw-frame-inset);
+    bottom: 0;
+    left: var(--ftw-frame-inset);
     background: rgba(0, 0, 0, 0.28);
     z-index: 50;
   }

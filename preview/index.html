@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=39">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=41">
     <script>
       (function () {
         try {
@@ -339,7 +339,7 @@
            data-variants='${JSON.stringify(variants)}'>
           <div class="ftw-product__media">
             <img src="./assets/panacek-3-black.png" alt="" width="200" height="220" loading="lazy">
-            ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : ""}
+            ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : '<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Quick add to bag">+ ADD</button>'}
           </div>
           <div class="ftw-product__meta">
             <span class="ftw-product__name">${p.name}</span>
@@ -354,6 +354,6 @@
         {"id":902,"handle":"money-bag-tote","title":"MONEY BAG TOTE","price":"490 Kč","image":"./assets/panacek-3-black.png","variantId":1902,"available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=19"></script>
+    <script src="/assets/ftw-shop.js?v=20"></script>
   </body>
 </html>

@@ -830,6 +830,10 @@
       toast("ADDED TO CART.");
       if (openBag) openDrawer("ftw-bag");
       else if (!$("#ftw-bag")?.hidden) renderCart();
+      if (sourceBtn && sourceBtn.hasAttribute("data-ftw-quick-add")) {
+        sourceBtn.disabled = false;
+        sourceBtn.textContent = "+ ADD";
+      }
       return true;
     } catch {
       toast("COULDN'T ADD. TRY AGAIN.");
@@ -938,6 +942,23 @@
       const match = sheetVariants.find((v) => String(v.id) === String(selectedVariantId));
       if (match?.price) $("#ftw-sheet-price").textContent = match.price;
       syncAddButton();
+      return;
+    }
+
+    const quickAdd = e.target.closest("[data-ftw-quick-add]");
+    if (quickAdd) {
+      e.preventDefault();
+      e.stopPropagation();
+      const card = quickAdd.closest(".ftw-product");
+      if (!card || card.classList.contains("is-sold")) return;
+      const variants = parseVariants(card.dataset.variants);
+      const available = variants.find((v) => v.available);
+      const variantId = available?.id || Number(card.dataset.variantId);
+      if (!variantId) {
+        toast("UNAVAILABLE.");
+        return;
+      }
+      addVariantToCart(variantId, { openBag: false, sourceBtn: quickAdd });
       return;
     }
 

@@ -72,9 +72,13 @@
       height="720"
       loading="lazy"
     >
-    {%- unless product.available -%}
+    {%- if product.available -%}
+      <button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Quick add to bag">
+        + ADD
+      </button>
+    {%- else -%}
       <span class="ftw-product__stamp">SOLD</span>
-    {%- endunless -%}
+    {%- endif -%}
   </div>
   <div class="ftw-product__meta">
     <span class="ftw-product__name">{{ product.title }}</span>
