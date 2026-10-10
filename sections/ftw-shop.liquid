@@ -84,6 +84,21 @@
     <header class="ftw-lock__top">
       <time class="ftw-lock__clock" id="ftw-lock-clock">00:00</time>
       <p class="ftw-lock__date" id="ftw-lock-date"></p>
+      <div class="ftw-lock__note" role="status">
+        <span class="ftw-lock__note-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="7" fill="#4CD964"></rect>
+            <path d="M8.2 10.2h15.6a1.6 1.6 0 0 1 1.6 1.6v7.4a1.6 1.6 0 0 1-1.6 1.6h-7.1L12 24.2v-3.4H8.2a1.6 1.6 0 0 1-1.6-1.6v-7.4a1.6 1.6 0 0 1 1.6-1.6Z" fill="#fff"></path>
+          </svg>
+        </span>
+        <span class="ftw-lock__note-copy">
+          <span class="ftw-lock__note-row">
+            <strong>BIZIBOIZ</strong>
+            <span>now</span>
+          </span>
+          <span class="ftw-lock__note-text">NEW DROP 11.10</span>
+        </span>
+      </div>
     </header>
     <div class="ftw-lock__hero" aria-hidden="true"></div>
     <div class="ftw-lock__bottom">
@@ -303,23 +318,32 @@
 
       <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
 
-      <div class="ftw-grid" id="ftw-grid" role="list">
-        {%- assign rendered_handles = '|' -%}
+      <div class="ftw-grid" id="ftw-grid" role="list" data-catalog-total="{{ collections.all.products_count | default: 0 }}">
         {%- assign rendered = 0 -%}
-        {%- for collection in collections -%}
-          {%- for product in collection.products -%}
-            {%- capture token -%}|{{ product.handle }}|{%- endcapture -%}
-            {%- unless rendered_handles contains token -%}
-              {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
-              {%- assign rendered_handles = rendered_handles | append: product.handle | append: '|' -%}
-              {%- assign rendered = rendered | plus: 1 -%}
-            {%- endunless -%}
+        {%- paginate collections.all.products by 50 -%}
+          {%- for product in collections.all.products -%}
+            {%- render 'ftw-product-item', product: product, logo_url: logo_url, drop: 'new' -%}
+            {%- assign rendered = rendered | plus: 1 -%}
           {%- endfor -%}
-        {%- endfor -%}
+        {%- endpaginate -%}
         {%- if rendered == 0 -%}
           <p class="ftw-empty">Connect collections in the theme editor (NEW + category blocks).</p>
         {%- endif -%}
       </div>
+      <script>
+        (function () {
+          var grid = document.getElementById("ftw-grid");
+          if (!grid) return;
+          var cards = Array.prototype.slice.call(grid.querySelectorAll(".ftw-product"));
+          cards.sort(function (a, b) {
+            return Number(b.getAttribute("data-created") || 0) - Number(a.getAttribute("data-created") || 0);
+          });
+          cards.forEach(function (card) {
+            grid.appendChild(card);
+          });
+          grid.setAttribute("data-sorted", "1");
+        })();
+      </script>
 
       <div class="ftw-lookbooks" id="ftw-lookbooks" hidden>
         {%- assign look_count = 0 -%}

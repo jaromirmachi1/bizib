@@ -1015,85 +1015,57 @@
     </a>`;
   }
 
-  async function fetchPaged(base) {
-    const items = [];
-    for (let page = 1; page <= 20; page += 1) {
-      const joiner = base.includes("?") ? "&" : "?";
-      const res = await fetch(`${base}${joiner}limit=250&page=${page}`, {
-        headers: { Accept: "application/json" },
-      });
-      if (!res.ok) break;
-      const data = await res.json();
-      const list = data.products || data.collections || [];
-      if (!list.length) break;
-      items.push(...list);
-      if (list.length < 250) break;
-    }
-    return items;
-  }
-
-  function rememberCollection(product, handle) {
-    const cols = new Set(product._collections || []);
-    if (handle && handle !== "all" && handle !== "frontpage") cols.add(handle);
-    product._collections = [...cols];
-  }
-
   async function hydrateCatalog() {
-    if (isLocal) return;
     const grid = $("#ftw-grid", root);
     if (!grid) return;
-    const byHandle = new Map();
-    const addProduct = (product, collectionHandle) => {
-      if (!product?.handle) return;
-      const existing = byHandle.get(product.handle);
-      if (existing) {
-        rememberCollection(existing, collectionHandle);
-        return;
+    const seen = new Set($$(".ftw-product", grid).map((card) => card.dataset.product).filter(Boolean));
+    let page = 1;
+    while (page <= 20) {
+      let data;
+      try {
+        const res = await fetch(`/products.json?limit=250&page=${page}`, {
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok) break;
+        data = await res.json();
+      } catch (_) {
+        break;
       }
-      rememberCollection(product, collectionHandle);
-      byHandle.set(product.handle, product);
+      const list = Array.isArray(data?.products) ? data.products : [];
+      if (!list.length) break;
+      const html = list
+        .filter((product) => product?.handle && !seen.has(product.handle))
+        .map((product) => {
+          seen.add(product.handle);
+          return catalogCard(product, "");
+        })
+        .join("");
+      if (html) grid.insertAdjacentHTML("beforeend", html);
+      if (list.length < 250) break;
+      page += 1;
+    }
+  }
+
+  function settleCatalog() {
+    const grid = $("#ftw-grid", root);
+    const total = Number(grid?.dataset.catalogTotal || 0);
+    const have = grid ? $$(".ftw-product", grid).length : 0;
+    const needsMore = Boolean(grid) && !isLocal && total > have;
+    const finish = (added) => {
+      if (added || !grid?.dataset.sorted) sortGridByNewest();
+      if (grid) {
+        grid.dataset.sorted = "1";
+        grid.classList.remove("is-booting");
+      }
+      applyFilters();
+      fitProductImages();
     };
-
-    try {
-      const collections = await fetchPaged("/collections.json");
-      const queue = collections.map((collection) => collection.handle).filter(Boolean);
-      const workers = Array.from({ length: Math.min(6, queue.length) }, async () => {
-        while (queue.length) {
-          const handle = queue.shift();
-          try {
-            const products = await fetchPaged(`/collections/${encodeURIComponent(handle)}/products.json`);
-            products.forEach((product) => addProduct(product, handle));
-          } catch (_) {}
-        }
-      });
-      await Promise.all(workers);
-    } catch (_) {}
-
-    try {
-      const loose = await fetchPaged("/products.json");
-      loose.forEach((product) => addProduct(product, ""));
-    } catch (_) {}
-
-    const cards = new Map($$(".ftw-product", grid).map((card) => [card.dataset.product, card]));
-    let html = "";
-    byHandle.forEach((product, handle) => {
-      const cols = (product._collections || []).join(",");
-      const card = cards.get(handle);
-      if (card) {
-        if (cols) {
-          const merged = new Set(
-            `${card.dataset.collections || ""},${cols}`
-              .split(",")
-              .map((value) => value.trim())
-              .filter(Boolean)
-          );
-          card.dataset.collections = [...merged].join(",");
-        }
-        return;
-      }
-      html += catalogCard(product, cols);
-    });
-    if (html) grid.insertAdjacentHTML("beforeend", html);
+    if (!needsMore) {
+      finish(false);
+      return;
+    }
+    grid.classList.add("is-booting");
+    hydrateCatalog().finally(() => finish(true));
   }
 
   function sortGridByNewest() {
@@ -1678,11 +1650,7 @@
 
   updateTrayCart(Number(root.dataset.cartCount || 0));
   if (!isLocal) renderCart();
-  hydrateCatalog().finally(() => {
-    sortGridByNewest();
-    applyFilters();
-    fitProductImages();
-  });
+  settleCatalog();
 
   /* —— Mobile lock intro —— */
   const LOCK_KEY = "ftw-unlocked";

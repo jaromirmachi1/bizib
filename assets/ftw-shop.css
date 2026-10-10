@@ -514,6 +514,10 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   align-items: start;
 }
 
+.ftw-grid.is-booting {
+  visibility: hidden;
+}
+
 [data-ftw-filter="archive"] {
   display: none;
 }
@@ -2521,6 +2525,82 @@ body.ftw-sheet-open {
   text-transform: capitalize;
 }
 
+.ftw-lock__note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 340px);
+  margin: 22px auto 0;
+  padding: 8px 10px;
+  text-align: left;
+  text-transform: none;
+  border-radius: 12px;
+  background: rgba(18, 18, 20, 0.46);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: ftw-lock-note 380ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
+}
+
+.ftw-lock__note-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.ftw-lock__note-icon svg {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+
+.ftw-lock__note-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ftw-lock__note-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ftw-lock__note-row strong {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+}
+
+.ftw-lock__note-row span {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ftw-lock__note-text {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+@keyframes ftw-lock-note {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .ftw-lock__bottom {
   position: relative;
   z-index: 1;
@@ -2628,6 +2708,10 @@ body.ftw-sheet-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ftw-lock__note {
+    animation: none;
+  }
+
   .ftw-lock__shimmer {
     animation: none;
     color: rgba(200, 200, 200, 0.95);
