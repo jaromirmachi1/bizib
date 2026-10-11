@@ -84,7 +84,7 @@
 -%}
 
 <div
-  class="ftw-shop{% if show_announce and announce_count > 0 %} ftw-shop--announce{% endif %}"
+  class="ftw-shop ftw-ios{% if show_announce and announce_count > 0 %} ftw-shop--announce{% endif %}"
   id="ftw-shop"
   data-cart-count="{{ cart.item_count }}"
   data-money-format="{{ shop.money_format | escape }}"
