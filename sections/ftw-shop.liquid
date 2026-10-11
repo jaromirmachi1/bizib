@@ -94,7 +94,7 @@
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   <div class="ftw-lock" id="ftw-lock" hidden>
-    <div class="ftw-lock__wall">
+    <div class="ftw-lock__wall" data-ftw-lock-walls="{{ 'lock-01.jpg' | asset_url }}|{{ 'lock-02.jpg' | asset_url }}|{{ 'lock-03.jpg' | asset_url }}|{{ 'lock-04.jpg' | asset_url }}|{{ 'lock-05.jpg' | asset_url }}">
       <img class="ftw-lock__wallpaper is-on" src="{{ 'lock-01.jpg' | asset_url }}" alt="" width="1600" height="2400" fetchpriority="high" decoding="async">
       <img class="ftw-lock__wallpaper" alt="" width="1600" height="2400" decoding="async">
     </div>

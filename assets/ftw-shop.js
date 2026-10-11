@@ -1052,7 +1052,7 @@
         ${
           available
             ? `<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Choose size and color">+ ADD</button>`
-            : `<span class="ftw-product__stamp">SOLD</span>`
+            : `<span class="ftw-product__stamp">SOLD OUT</span>`
         }
       </div>
       <div class="ftw-product__meta">
@@ -1742,6 +1742,8 @@
   let lockDrag = null;
   let lockClockTimer = null;
   const lockWalls = (() => {
+    const fromData = lockEl?.querySelector("[data-ftw-lock-walls]")?.getAttribute("data-ftw-lock-walls");
+    if (fromData) return fromData.split("|").map((url) => url.trim()).filter(Boolean);
     try {
       const raw = document.getElementById("ftw-lock-walls")?.textContent;
       const list = raw ? JSON.parse(raw) : [];
@@ -1819,10 +1821,25 @@
     lockWallTimer = setTimeout(stepLockWall, 3000);
   }
 
+  function lockWallUrl(index) {
+    const count = lockWalls.length;
+    if (!count) return "";
+    return lockWalls[((index % count) + count) % count];
+  }
+
+  function sameLockUrl(a, b) {
+    if (!a || !b) return false;
+    try {
+      return new URL(a, location.href).href === new URL(b, location.href).href;
+    } catch (_) {
+      return a === b;
+    }
+  }
+
   function preloadLockWall(index) {
     const frame = lockFrames[1 - lockFront];
-    const url = lockWalls[index];
-    if (!frame || !url || frame.getAttribute("src") === url) return;
+    const url = lockWallUrl(index);
+    if (!frame || !url || sameLockUrl(frame.getAttribute("src"), url)) return;
     frame.src = url;
   }
 
@@ -1838,29 +1855,34 @@
     const front = lockFrames[lockFront];
     const back = lockFrames[1 - lockFront];
     const url = lockWalls[next];
-    const reveal = () => {
+    const finish = () => {
       if (token !== lockWallToken) return;
+      back.classList.remove("is-in");
+      back.classList.add("is-on");
+      front.classList.remove("is-on");
+      lockFront = 1 - lockFront;
+      lockShot = next;
+      preloadLockWall(next + 1);
+      done?.();
+    };
+    const reveal = () => {
+      if (token !== lockWallToken || !back.naturalWidth) {
+        if (token === lockWallToken) {
+          lockShot = next;
+          done?.();
+        }
+        return;
+      }
       if (lockReduce.matches) {
-        back.classList.add("is-on");
-        back.classList.remove("is-in");
-        front.classList.remove("is-on");
-        lockFront = 1 - lockFront;
-        lockShot = next;
-        preloadLockWall((next + 1) % lockWalls.length);
-        done?.();
+        finish();
         return;
       }
       back.classList.add("is-in");
       let settled = false;
       const settle = () => {
-        if (settled || token !== lockWallToken) return;
+        if (settled) return;
         settled = true;
-        back.classList.remove("is-in");
-        back.classList.add("is-on");
-        front.classList.remove("is-on");
-        lockFront = 1 - lockFront;
-        lockShot = next;
-        preloadLockWall((next + 1) % lockWalls.length);
+        finish();
       };
       const onEnd = (e) => {
         if (e.propertyName !== "opacity") return;
@@ -1869,14 +1891,9 @@
       };
       back.addEventListener("transitionend", onEnd);
       setTimeout(settle, 760);
-      done?.();
     };
-    if (back.getAttribute("src") === url && back.complete) {
-      if (back.naturalWidth) reveal();
-      else {
-        lockShot = next;
-        done?.();
-      }
+    if (sameLockUrl(back.getAttribute("src") || back.src, url) && back.complete) {
+      reveal();
       return;
     }
     const onLoad = () => {
@@ -1893,7 +1910,8 @@
     };
     back.addEventListener("load", onLoad);
     back.addEventListener("error", onErr);
-    if (back.getAttribute("src") !== url) back.src = url;
+    back.src = url;
+    if (back.complete) onLoad();
   }
 
   function stepLockWall() {
