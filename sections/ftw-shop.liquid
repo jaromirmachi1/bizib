@@ -94,7 +94,11 @@
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   <div class="ftw-lock" id="ftw-lock" hidden>
-    <img class="ftw-lock__wallpaper" src="{{ 'lvbizi.jpeg' | asset_url }}" alt="" width="1170" height="2532">
+    <div class="ftw-lock__wall">
+      <img class="ftw-lock__wallpaper is-on" src="{{ 'lock-01.jpg' | asset_url }}" alt="" width="1600" height="2400" fetchpriority="high" decoding="async">
+      <img class="ftw-lock__wallpaper" alt="" width="1600" height="2400" decoding="async">
+    </div>
+    <script type="application/json" id="ftw-lock-walls">[{{ 'lock-01.jpg' | asset_url | json }},{{ 'lock-02.jpg' | asset_url | json }},{{ 'lock-03.jpg' | asset_url | json }},{{ 'lock-04.jpg' | asset_url | json }},{{ 'lock-05.jpg' | asset_url | json }}]</script>
     <header class="ftw-lock__top">
       <time class="ftw-lock__clock" id="ftw-lock-clock">00:00</time>
       <p class="ftw-lock__date" id="ftw-lock-date"></p>

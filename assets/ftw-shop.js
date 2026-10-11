@@ -1051,7 +1051,7 @@
         ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)}" width="600" height="720" loading="lazy" crossorigin="anonymous">` : ""}
         ${
           available
-            ? `<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Quick add to bag">+ ADD</button>`
+            ? `<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Choose size and color">+ ADD</button>`
             : `<span class="ftw-product__stamp">SOLD</span>`
         }
       </div>
@@ -1665,14 +1665,7 @@
       e.stopPropagation();
       const card = quickAdd.closest(".ftw-product");
       if (!card || card.classList.contains("is-sold")) return;
-      const variants = parseVariants(card.dataset.variants);
-      const available = variants.find((v) => v.available);
-      const variantId = available?.id || Number(card.dataset.variantId);
-      if (!variantId) {
-        toast("UNAVAILABLE.");
-        return;
-      }
-      addVariantToCart(variantId, { openBag: false, sourceBtn: quickAdd });
+      openSheet(card);
       return;
     }
 
@@ -1745,8 +1738,23 @@
   const lockKnob = $("#ftw-lock-knob");
   const lockSlider = $("#ftw-lock-slider");
   const mobileMq = window.matchMedia("(max-width: 720px)");
+  const lockReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   let lockDrag = null;
   let lockClockTimer = null;
+  const lockWalls = (() => {
+    try {
+      const raw = document.getElementById("ftw-lock-walls")?.textContent;
+      const list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list.filter(Boolean) : [];
+    } catch (_) {
+      return [];
+    }
+  })();
+  const lockFrames = lockEl ? [...lockEl.querySelectorAll(".ftw-lock__wallpaper")] : [];
+  let lockShot = 0;
+  let lockFront = 0;
+  let lockWallTimer = null;
+  let lockWallToken = 0;
 
   function wasUnlocked() {
     try {
@@ -1796,9 +1804,115 @@
     });
   }
 
+  function stopLockWalls() {
+    lockWallToken += 1;
+    if (lockWallTimer) {
+      clearTimeout(lockWallTimer);
+      lockWallTimer = null;
+    }
+  }
+
+  function armLockWalls() {
+    if (lockWallTimer) clearTimeout(lockWallTimer);
+    lockWallTimer = null;
+    if (!lockEl || lockEl.hidden || document.hidden || lockWalls.length < 2) return;
+    lockWallTimer = setTimeout(stepLockWall, 3000);
+  }
+
+  function preloadLockWall(index) {
+    const frame = lockFrames[1 - lockFront];
+    const url = lockWalls[index];
+    if (!frame || !url || frame.getAttribute("src") === url) return;
+    frame.src = url;
+  }
+
+  function showLockWall(index, done) {
+    if (!lockFrames.length || !lockWalls.length) return;
+    const next = ((index % lockWalls.length) + lockWalls.length) % lockWalls.length;
+    if (lockFrames.length < 2 || lockWalls.length < 2) {
+      lockShot = next;
+      done?.();
+      return;
+    }
+    const token = ++lockWallToken;
+    const front = lockFrames[lockFront];
+    const back = lockFrames[1 - lockFront];
+    const url = lockWalls[next];
+    const reveal = () => {
+      if (token !== lockWallToken) return;
+      if (lockReduce.matches) {
+        back.classList.add("is-on");
+        back.classList.remove("is-in");
+        front.classList.remove("is-on");
+        lockFront = 1 - lockFront;
+        lockShot = next;
+        preloadLockWall((next + 1) % lockWalls.length);
+        done?.();
+        return;
+      }
+      back.classList.add("is-in");
+      let settled = false;
+      const settle = () => {
+        if (settled || token !== lockWallToken) return;
+        settled = true;
+        back.classList.remove("is-in");
+        back.classList.add("is-on");
+        front.classList.remove("is-on");
+        lockFront = 1 - lockFront;
+        lockShot = next;
+        preloadLockWall((next + 1) % lockWalls.length);
+      };
+      const onEnd = (e) => {
+        if (e.propertyName !== "opacity") return;
+        back.removeEventListener("transitionend", onEnd);
+        settle();
+      };
+      back.addEventListener("transitionend", onEnd);
+      setTimeout(settle, 760);
+      done?.();
+    };
+    if (back.getAttribute("src") === url && back.complete) {
+      if (back.naturalWidth) reveal();
+      else {
+        lockShot = next;
+        done?.();
+      }
+      return;
+    }
+    const onLoad = () => {
+      back.removeEventListener("load", onLoad);
+      back.removeEventListener("error", onErr);
+      reveal();
+    };
+    const onErr = () => {
+      back.removeEventListener("load", onLoad);
+      back.removeEventListener("error", onErr);
+      if (token !== lockWallToken) return;
+      lockShot = next;
+      done?.();
+    };
+    back.addEventListener("load", onLoad);
+    back.addEventListener("error", onErr);
+    if (back.getAttribute("src") !== url) back.src = url;
+  }
+
+  function stepLockWall() {
+    lockWallTimer = null;
+    showLockWall(lockShot + 1, armLockWalls);
+  }
+
+  function startLockWalls() {
+    if (!lockFrames[0] || !lockWalls.length || lockWallTimer) return;
+    if (!lockFrames[0].getAttribute("src")) lockFrames[0].src = lockWalls[0];
+    lockFrames[lockFront]?.classList.add("is-on");
+    preloadLockWall((lockShot + 1) % lockWalls.length);
+    armLockWalls();
+  }
+
   function dismissLock() {
     if (!lockEl || lockEl.hidden) return;
     markUnlocked();
+    stopLockWalls();
     lockEl.classList.add("is-unlocking");
     document.body.classList.remove("ftw-locked");
     if (lockClockTimer) {
@@ -1815,6 +1929,7 @@
     if (!lockEl || !mobileMq.matches || wasUnlocked()) {
       if (lockEl) lockEl.hidden = true;
       document.body.classList.remove("ftw-locked");
+      stopLockWalls();
       return;
     }
     if (lockEl.parentElement !== document.body) document.body.appendChild(lockEl);
@@ -1833,6 +1948,7 @@
     setLockProgress(0, 1);
     if (lockClockTimer) clearInterval(lockClockTimer);
     lockClockTimer = setInterval(syncLockClock, 30000);
+    startLockWalls();
   }
 
   function lockMaxX() {
@@ -1897,8 +2013,20 @@
     else {
       if (lockEl) lockEl.hidden = true;
       document.body.classList.remove("ftw-locked");
+      stopLockWalls();
     }
   };
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (lockWallTimer) {
+        clearTimeout(lockWallTimer);
+        lockWallTimer = null;
+      }
+      return;
+    }
+    if (lockEl && !lockEl.hidden) armLockWalls();
+  });
 
   if (mobileMq.addEventListener) mobileMq.addEventListener("change", onMobileChange);
   else mobileMq.addListener?.(onMobileChange);

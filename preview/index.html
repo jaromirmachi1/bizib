@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/ftw-shop.css?v=83">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=84">
     <script>
       (function () {
         try {
@@ -36,7 +36,11 @@
   <body class="ftw-mode">
     <div class="ftw-shop ftw-shop--announce" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" data-free-shipping-czk="4000" style="--ftw-announce-speed: 36s;">
       <div class="ftw-lock" id="ftw-lock" hidden>
-        <img class="ftw-lock__wallpaper" src="/preview/assets/lvbizi.jpeg" alt="" width="1170" height="2532">
+        <div class="ftw-lock__wall">
+          <img class="ftw-lock__wallpaper is-on" src="/assets/lock-01.jpg" alt="" width="1600" height="2400" fetchpriority="high" decoding="async">
+          <img class="ftw-lock__wallpaper" alt="" width="1600" height="2400" decoding="async">
+        </div>
+        <script type="application/json" id="ftw-lock-walls">["/assets/lock-01.jpg","/assets/lock-02.jpg","/assets/lock-03.jpg","/assets/lock-04.jpg","/assets/lock-05.jpg"]</script>
         <header class="ftw-lock__top">
           <time class="ftw-lock__clock" id="ftw-lock-clock">00:00</time>
           <p class="ftw-lock__date" id="ftw-lock-date"></p>
@@ -447,7 +451,7 @@
            data-variants='${JSON.stringify(variants)}'>
           <div class="ftw-product__media">
             <img src="./assets/panacek-3-black.png" alt="" width="200" height="220" loading="lazy">
-            ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : '<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Quick add to bag">+ ADD</button>'}
+            ${p.sold ? '<span class="ftw-product__stamp">SOLD</span>' : '<button type="button" class="ftw-product__quick" data-ftw-quick-add aria-label="Choose size and color">+ ADD</button>'}
           </div>
           <div class="ftw-product__meta">
             <span class="ftw-product__name">${p.name}</span>
@@ -463,6 +467,6 @@
         {"id":903,"handle":"ftw-box-tee","title":"FTW BOX TEE [BLACK]","price":"1 290 Kč","image":"./assets/panacek-3-black.png","variantId":1903,"collections":"t-shirts","available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=49"></script>
+    <script src="/assets/ftw-shop.js?v=51"></script>
   </body>
 </html>

@@ -2569,6 +2569,15 @@ body.ftw-sheet-open {
   pointer-events: none;
 }
 
+.ftw-lock__wall {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #0c0c0c;
+}
+
 img.ftw-lock__wallpaper {
   position: absolute;
   inset: 0;
@@ -2579,6 +2588,18 @@ img.ftw-lock__wallpaper {
   object-fit: cover;
   object-position: center;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 640ms var(--ftw-ease);
+}
+
+img.ftw-lock__wallpaper.is-on {
+  z-index: 1;
+  opacity: 1;
+}
+
+img.ftw-lock__wallpaper.is-in {
+  z-index: 2;
+  opacity: 1;
 }
 
 .ftw-lock__hero {
@@ -2838,6 +2859,10 @@ img.ftw-lock__wallpaper {
   .ftw-lock.is-unlocking {
     transition: opacity 120ms linear;
     transform: none;
+  }
+
+  img.ftw-lock__wallpaper {
+    transition: none;
   }
 }
 
