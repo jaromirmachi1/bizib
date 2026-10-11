@@ -890,7 +890,7 @@
       };
       const probes = [at(1, 1), at(n - 2, 1), at(1, n - 2), at(n - 2, n - 2)];
       const bg = probes
-        .reduce((sum, px) => [sum[0] + px[0], sum[1] + px[1], sum[2] + px[2]], [0, 0, 0])
+        .reduce((sum, px) => [sum[0] + px[0], sum[1] + px[1], sum[2] + px[2], sum[3] + px[3]], [0, 0, 0, 0])
         .map((v) => v / probes.length);
       let minX = n;
       let minY = n;
@@ -903,7 +903,8 @@
           if (alpha < 18) continue;
           const dist =
             Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]);
-          if (dist < 46) continue;
+          const alphaGap = Math.abs(alpha - bg[3]);
+          if (dist < 46 && alphaGap < 40) continue;
           if (x < minX) minX = x;
           if (y < minY) minY = y;
           if (x > maxX) maxX = x;
@@ -915,6 +916,8 @@
         return null;
       }
       const bounds = {
+        x: minX / n,
+        y: minY / n,
         w: Math.max(0.08, (maxX - minX + 1) / n),
         h: Math.max(0.08, (maxY - minY + 1) / n),
       };
@@ -943,6 +946,49 @@
     const target = 0.84;
     const scale = Math.min(2.35, Math.max(0.8, Math.min((boxW * target) / contentW, (boxH * target) / contentH)));
     img.style.transform = `scale(${scale})`;
+  }
+
+  function fitSheetImage(img) {
+    const shot = img.closest(".ftw-sheet__shot");
+    if (!shot || !img.naturalWidth || !img.naturalHeight) return;
+    const boxW = shot.clientWidth;
+    const boxH = shot.clientHeight;
+    if (!boxW || !boxH) return;
+    const bounds = productContentBounds(img);
+    if (!bounds) return;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const boxRatio = boxW / boxH;
+    const drawW = imgRatio > boxRatio ? boxW : boxH * imgRatio;
+    const drawH = imgRatio > boxRatio ? boxW / imgRatio : boxH;
+    const contentW = drawW * bounds.w;
+    const contentH = drawH * bounds.h;
+    const scale = Math.min(
+      2.05,
+      Math.max(1, Math.min((boxW * 0.96) / contentW, (boxH * 0.78) / contentH))
+    );
+    const contentCenter = (boxH - drawH) / 2 + drawH * (bounds.y + bounds.h / 2);
+    const scaledCenter = boxH / 2 + (contentCenter - boxH / 2) * scale;
+    const half = (contentH * scale) / 2;
+    const minTop = Math.min(boxH * 0.08, 28);
+    let desired = boxH * 0.44;
+    desired = Math.max(desired, minTop + half);
+    desired = Math.min(desired, boxH - 12 - half);
+    if (desired < minTop + half) desired = scaledCenter;
+    const shift = desired - scaledCenter;
+    img.style.transformOrigin = "center center";
+    img.style.transform = `translateY(${shift}px) scale(${scale})`;
+  }
+
+  function fitSheetImages() {
+    $$(".ftw-sheet__shot img").forEach((img) => {
+      if (img.complete && img.naturalWidth) {
+        fitSheetImage(img);
+        return;
+      }
+      if (img.dataset.sheetFit) return;
+      img.dataset.sheetFit = "1";
+      img.addEventListener("load", () => fitSheetImage(img), { once: true });
+    });
   }
 
   function fitProductImages() {
@@ -1194,7 +1240,7 @@
     const shots = imgs
       .map(
         (src, n) =>
-          `<div class="ftw-sheet__shot"><img src="${src}" alt="${escapeHtml(title || "")}" width="1200" height="1200" draggable="false" loading="${n === 0 ? "eager" : "lazy"}"></div>`
+          `<div class="ftw-sheet__shot"><img src="${src}" alt="${escapeHtml(title || "")}" width="1200" height="1200" draggable="false" loading="${n === 0 ? "eager" : "lazy"}" crossorigin="anonymous"></div>`
       )
       .join("");
     const dots =
@@ -1382,7 +1428,11 @@
     sheet.hidden = false;
     document.body.classList.add("ftw-sheet-open");
     requestAnimationFrame(() => {
+      const layout = $(".ftw-sheet__layout");
+      if (layout) layout.scrollTop = 0;
+      applySheetStage(true);
       moveSheet(0, false);
+      fitSheetImages();
       sheet.classList.add("is-open");
       sheetOpen = true;
       $(".ftw-sheet__back")?.focus();
@@ -1903,8 +1953,114 @@
     moveSheet(Number(dot.dataset.ftwShot));
   });
 
+  function sheetStageFrame() {
+    const layout = $(".ftw-sheet__layout");
+    const stage = $("#ftw-sheet-stack");
+    if (!layout || !stage || window.innerWidth > 900) return null;
+    const collapsed = Math.max(280, Math.round(layout.clientWidth * 0.7));
+    const expanded = Math.round(Math.min(layout.clientHeight * 0.74, collapsed + 170));
+    if (!layout.clientHeight) return null;
+    return { layout, stage, collapsed, expanded: Math.max(collapsed, expanded) };
+  }
+
+  let sheetStageFramePending = 0;
+
+  function applySheetStage(expand) {
+    const frame = sheetStageFrame();
+    const stage = $("#ftw-sheet-stack");
+    if (!frame || !stage) {
+      if (stage) stage.style.height = "";
+      return;
+    }
+    const current = stage.getBoundingClientRect().height;
+    const next = expand ? frame.expanded : Math.min(frame.expanded, Math.max(frame.collapsed, current));
+    stage.style.height = `${Math.round(next)}px`;
+    if (sheetStageFramePending) return;
+    sheetStageFramePending = requestAnimationFrame(() => {
+      sheetStageFramePending = 0;
+      fitSheetImages();
+    });
+  }
+
+  function nudgeSheetStage(delta) {
+    const frame = sheetStageFrame();
+    if (!frame || !delta) return false;
+    const height = frame.stage.getBoundingClientRect().height;
+    if (delta > 0 && height > frame.collapsed + 0.5) {
+      frame.stage.style.height = `${Math.round(Math.max(frame.collapsed, height - delta))}px`;
+      queueSheetFit();
+      return true;
+    }
+    if (delta < 0 && frame.layout.scrollTop <= 0 && height < frame.expanded - 0.5) {
+      frame.stage.style.height = `${Math.round(Math.min(frame.expanded, height - delta))}px`;
+      queueSheetFit();
+      return true;
+    }
+    return false;
+  }
+
+  function queueSheetFit() {
+    if (sheetStageFramePending) return;
+    sheetStageFramePending = requestAnimationFrame(() => {
+      sheetStageFramePending = 0;
+      fitSheetImages();
+    });
+  }
+
+  const sheetLayout = $(".ftw-sheet__layout");
+  let sheetGesture = null;
+
+  sheetLayout?.addEventListener(
+    "wheel",
+    (e) => {
+      if (!sheetOpen || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+      if (nudgeSheetStage(e.deltaY)) e.preventDefault();
+    },
+    { passive: false }
+  );
+
+  sheetLayout?.addEventListener(
+    "touchstart",
+    (e) => {
+      if (!sheetOpen || e.touches.length !== 1) return;
+      sheetGesture = { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: "" };
+    },
+    { passive: true }
+  );
+
+  sheetLayout?.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!sheetGesture || e.touches.length !== 1) return;
+      const x = e.touches[0].clientX;
+      const y = e.touches[0].clientY;
+      const dx = x - sheetGesture.x;
+      const dy = sheetGesture.y - y;
+      if (!sheetGesture.axis) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        sheetGesture.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      }
+      sheetGesture.x = x;
+      sheetGesture.y = y;
+      if (sheetGesture.axis === "x") return;
+      if (nudgeSheetStage(dy)) e.preventDefault();
+    },
+    { passive: false }
+  );
+
+  sheetLayout?.addEventListener("touchend", () => {
+    sheetGesture = null;
+  });
+  sheetLayout?.addEventListener("touchcancel", () => {
+    sheetGesture = null;
+  });
+
   window.addEventListener("resize", () => {
     fitProductImages();
-    if (sheetOpen) moveSheet(sheetImageIndex, false);
+    if (sheetOpen) {
+      moveSheet(sheetImageIndex, false);
+      applySheetStage(false);
+      fitSheetImages();
+    }
   });
 })();
