@@ -265,22 +265,39 @@
 
       <div class="ftw-side__bar">
         {%- form 'localization', class: 'ftw-currency' -%}
-          <button
-            type="submit"
-            name="country_code"
-            value="{{ czk_code | escape }}"
-            data-ftw-currency="CZK"
-            aria-pressed="{% if active_currency == 'CZK' %}true{% else %}false{% endif %}"
-          >CZK</button>
-          <button
-            type="{% if eur_code != blank %}submit{% else %}button{% endif %}"
-            {% if eur_code != blank %}name="country_code" value="{{ eur_code | escape }}"{% endif %}
-            data-ftw-currency="EUR"
-            aria-pressed="{% if active_currency == 'EUR' %}true{% else %}false{% endif %}"
-          >EUR</button>
+          <button type="button" class="ftw-currency__open" aria-expanded="false" aria-label="Show currencies">
+            <span>{{ active_currency }}</span>
+          </button>
+          <div class="ftw-currency__more" hidden>
+            <button
+              type="submit"
+              name="country_code"
+              value="{{ czk_code | escape }}"
+              data-ftw-currency="CZK"
+              aria-pressed="{% if active_currency == 'CZK' %}true{% else %}false{% endif %}"
+            >CZK</button>
+            <button
+              type="{% if eur_code != blank %}submit{% else %}button{% endif %}"
+              {% if eur_code != blank %}name="country_code" value="{{ eur_code | escape }}"{% endif %}
+              data-ftw-currency="EUR"
+              aria-pressed="{% if active_currency == 'EUR' %}true{% else %}false{% endif %}"
+            >EUR</button>
+          </div>
         {%- endform -%}
-        <span class="ftw-side__bar-rule" aria-hidden="true"></span>
-        <a class="ftw-side__ig" href="{{ ig }}" target="_blank" rel="noopener">INSTAGRAM</a>
+        <button type="button" class="ftw-focus" data-ftw-theme aria-pressed="false" aria-label="Switch to dark mode">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.15" fill="none" stroke="#fff" stroke-width="1.8"></circle>
+            <path fill="#fff" fill-rule="evenodd" d="M12 4.95a7.05 7.05 0 0 0 0 14.1V4.95zM12 9.15a2.85 2.85 0 1 0 .01 0z"></path>
+            <circle cx="12" cy="12" r="4" fill="none" stroke="#fff" stroke-width="1.8"></circle>
+          </svg>
+        </button>
+        <a class="ftw-side__ig" href="{{ ig }}" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="5"></rect>
+            <circle cx="12" cy="12" r="3.4"></circle>
+            <circle cx="16.6" cy="7.4" r="0.8" fill="#fff" stroke="none"></circle>
+          </svg>
+        </a>
       </div>
 
       <div class="ftw-side__foot">

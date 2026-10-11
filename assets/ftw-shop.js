@@ -1218,11 +1218,20 @@
     btn.disabled = !selectedVariantId;
   }
 
+  function sheetSlidesSideways() {
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+
   function moveSheet(index, animate) {
     const stage = $("#ftw-sheet-stack");
     const reel = stage?.querySelector(".ftw-sheet__reel");
     const count = stage ? $$(".ftw-sheet__shot", stage).length : 0;
     if (!stage || !reel || !count) return;
+    if (!sheetSlidesSideways()) {
+      reel.style.transition = "none";
+      reel.style.transform = "none";
+      return;
+    }
     const next = Math.max(0, Math.min(count - 1, index));
     sheetImageIndex = next;
     const frame = reel.clientWidth || stage.clientWidth;
@@ -1577,6 +1586,16 @@
   );
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
 
+  $(".ftw-currency__open")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = e.currentTarget.closest(".ftw-currency");
+    const more = menu?.querySelector(".ftw-currency__more");
+    const open = Boolean(more?.hidden);
+    if (more) more.hidden = !open;
+    e.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
   if (isLocal) {
     $(".ftw-currency")?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-ftw-currency]");
@@ -1584,6 +1603,11 @@
       $$("[data-ftw-currency]", root).forEach((item) => {
         item.setAttribute("aria-pressed", item === btn ? "true" : "false");
       });
+      const label = $(".ftw-currency__open span");
+      if (label) label.textContent = btn.dataset.ftwCurrency || btn.textContent;
+      const more = $(".ftw-currency__more");
+      if (more) more.hidden = true;
+      $(".ftw-currency__open")?.setAttribute("aria-expanded", "false");
     });
   }
   $("#ftw-nav-scrim")?.addEventListener("click", () => setNavOpen(false));
@@ -1877,7 +1901,7 @@
     if (lockWallTimer) clearTimeout(lockWallTimer);
     lockWallTimer = null;
     if (!lockEl || lockEl.hidden || document.hidden || lockWalls.length < 2) return;
-    lockWallTimer = setTimeout(stepLockWall, 3000);
+    lockWallTimer = setTimeout(stepLockWall, 2000);
   }
 
   function lockWallUrl(index) {
@@ -2115,6 +2139,7 @@
   let sheetSuppressClick = false;
 
   sheetStage?.addEventListener("pointerdown", (e) => {
+    if (!sheetSlidesSideways()) return;
     if (e.button != null && e.button !== 0) return;
     if (e.target.closest(".ftw-sheet__dot")) return;
     const reel = sheetStage.querySelector(".ftw-sheet__reel");
