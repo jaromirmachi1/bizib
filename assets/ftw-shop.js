@@ -2010,10 +2010,76 @@
     armLockWalls();
   }
 
+  let lockNoteTimer = null;
+  let lockRingPlayed = false;
+  let lockRingCtx = null;
+  let lockRingWait = false;
+
+  function armLockRingGesture() {
+    if (lockRingPlayed || lockRingWait || !lockEl) return;
+    lockRingWait = true;
+    lockEl.addEventListener("pointerdown", () => {
+      lockRingWait = false;
+      playLockRing();
+    }, { once: true });
+  }
+
+  function playLockRing() {
+    if (lockRingPlayed) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = lockRingCtx || new AudioCtx();
+    lockRingCtx = ctx;
+    const start = () => {
+      if (ctx.state !== "running") {
+        armLockRingGesture();
+        return;
+      }
+      if (lockRingPlayed) return;
+      lockRingPlayed = true;
+      const t = ctx.currentTime + 0.02;
+      [880, 1318.5].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const tone = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const at = t + i * 0.13;
+        tone.gain.setValueAtTime(0.0001, at);
+        tone.gain.exponentialRampToValueAtTime(0.16, at + 0.018);
+        tone.gain.exponentialRampToValueAtTime(0.0001, at + 0.32);
+        osc.connect(tone);
+        tone.connect(ctx.destination);
+        osc.start(at);
+        osc.stop(at + 0.34);
+      });
+    };
+    ctx.resume().then(start).catch(() => armLockRingGesture());
+  }
+
+  function armLockNote() {
+    const note = lockEl?.querySelector(".ftw-lock__note");
+    if (!note) return;
+    note.classList.remove("is-in");
+    if (lockNoteTimer) clearTimeout(lockNoteTimer);
+    lockNoteTimer = setTimeout(() => {
+      lockNoteTimer = null;
+      if (!lockEl || lockEl.hidden) return;
+      note.classList.add("is-in");
+      playLockRing();
+    }, 1000);
+  }
+
+  function clearLockNote() {
+    if (lockNoteTimer) clearTimeout(lockNoteTimer);
+    lockNoteTimer = null;
+  }
+
   function dismissLock() {
     if (!lockEl || lockEl.hidden) return;
     markUnlocked();
     stopLockWalls();
+    clearLockNote();
     lockEl.classList.add("is-unlocking");
     document.body.classList.remove("ftw-locked");
     if (lockClockTimer) {
@@ -2031,6 +2097,7 @@
       if (lockEl) lockEl.hidden = true;
       document.body.classList.remove("ftw-locked");
       stopLockWalls();
+      clearLockNote();
       return;
     }
     if (lockEl.parentElement !== document.body) document.body.appendChild(lockEl);
@@ -2050,6 +2117,7 @@
     if (lockClockTimer) clearInterval(lockClockTimer);
     lockClockTimer = setInterval(syncLockClock, 30000);
     startLockWalls();
+    armLockNote();
   }
 
   function lockMaxX() {
