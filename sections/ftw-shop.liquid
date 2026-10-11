@@ -52,7 +52,7 @@
     endif
   endfor
   if show_announce and announce_count == 0
-    assign announce_count = 4
+    assign announce_count = 3
   endif
 
   assign orders = 0
@@ -169,9 +169,7 @@
               {%- if rendered_announce == 0 -%}
                 <span class="ftw-announce__item">BIZIBOIZ — NEW DROP LIVE</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
-                <span class="ftw-announce__item">FREE CZ SHIPPING OVER 4000 KČ</span>
-                <span class="ftw-announce__sep" aria-hidden="true">//</span>
-                <span class="ftw-announce__item">LIMITED RUNS — NO RESTOCKS</span>
+                <span class="ftw-announce__item">FREE CZ/SK SHIPPING OVER 4000CZK/164EUR</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
                 <span class="ftw-announce__item">FOLLOW @BIZIBOIZ</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
@@ -547,6 +545,7 @@
       aria-modal="true"
       aria-labelledby="ftw-sheet-title"
     >
+      <button class="ftw-sheet__grab" type="button" aria-label="Drag down to close"></button>
       <button class="ftw-sheet__back" type="button" data-close-sheet>
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
           <path d="M15 5L8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -810,8 +809,7 @@
       "name": "FTW Shop",
       "blocks": [
         { "type": "announce", "settings": { "text": "BIZIBOIZ — NEW DROP LIVE" } },
-        { "type": "announce", "settings": { "text": "FREE CZ SHIPPING OVER 4000 KČ" } },
-        { "type": "announce", "settings": { "text": "LIMITED RUNS — NO RESTOCKS" } },
+        { "type": "announce", "settings": { "text": "FREE CZ/SK SHIPPING OVER 4000CZK/164EUR" } },
         { "type": "announce", "settings": { "text": "FOLLOW @BIZIBOIZ" } },
         { "type": "category", "settings": { "label": "JACKETS" } },
         { "type": "category", "settings": { "label": "BOTTOMS" } },

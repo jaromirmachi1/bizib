@@ -1911,6 +1911,10 @@ body.ftw-outfit-open {
   transform: translateX(0);
 }
 
+.ftw-sheet__grab {
+  display: none;
+}
+
 .ftw-sheet__back {
   position: absolute;
   top: 14px;
@@ -2254,8 +2258,11 @@ body.ftw-sheet-open {
     grid-template-columns: none;
     grid-template-rows: none;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
   }
 
   .ftw-sheet__stage {
@@ -2268,10 +2275,13 @@ body.ftw-sheet-open {
   .ftw-sheet__side {
     position: relative;
     align-self: stretch;
+    flex: 0 0 auto;
     width: 100%;
     height: auto;
     max-height: none;
-    padding: 20px 18px 24px;
+    min-height: 0;
+    overflow: visible;
+    padding: 20px 18px 32px;
   }
 
   .ftw-sheet__side h2 {
@@ -2589,17 +2599,29 @@ img.ftw-lock__wallpaper {
   object-position: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 640ms var(--ftw-ease);
+  transform: scale(1.14);
+  transition: opacity 900ms cubic-bezier(0.32, 0.72, 0, 1), transform 1100ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 img.ftw-lock__wallpaper.is-on {
   z-index: 1;
   opacity: 1;
+  animation: ftw-lock-drift 8s linear both;
 }
 
 img.ftw-lock__wallpaper.is-in {
   z-index: 2;
   opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes ftw-lock-drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
 }
 
 .ftw-lock__hero {
@@ -2863,6 +2885,8 @@ img.ftw-lock__wallpaper.is-in {
 
   img.ftw-lock__wallpaper {
     transition: none;
+    animation: none;
+    transform: none;
   }
 }
 
@@ -2986,14 +3010,13 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-sheet__select {
     padding: 6px 16px 8px;
     min-height: 54px;
     background: rgba(242, 242, 247, 0.72);
-    border-bottom: 0.5px solid rgba(60, 60, 67, 0.18);
+    border-bottom: 0;
     backdrop-filter: saturate(180%) blur(22px);
     -webkit-backdrop-filter: saturate(180%) blur(22px);
   }
 
   html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-top {
     background: rgba(0, 0, 0, 0.62);
-    border-bottom-color: rgba(255, 255, 255, 0.14);
   }
 
   .ftw-shop.ftw-ios .ftw-main {
@@ -3030,20 +3053,42 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-sheet__select {
   }
 
   .ftw-shop.ftw-ios .ftw-sheet.is-open .ftw-sheet__panel {
-    transform: translateY(0);
+    transform: translateY(var(--ftw-sheet-y, 0px));
   }
 
-  .ftw-shop.ftw-ios .ftw-sheet__panel::before {
-    content: "";
+  .ftw-shop.ftw-ios .ftw-sheet__panel.is-dragging {
+    transition: none;
+  }
+
+  .ftw-shop.ftw-ios .ftw-sheet__grab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    top: 8px;
-    left: 50%;
-    z-index: 6;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 7;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .ftw-shop.ftw-ios .ftw-sheet__grab::before {
+    content: "";
     width: 36px;
     height: 5px;
-    margin-left: -18px;
     border-radius: 999px;
     background: rgba(60, 60, 67, 0.36);
+  }
+
+  .ftw-shop.ftw-ios .ftw-sheet__grab:active {
+    cursor: grabbing;
   }
 
   .ftw-shop.ftw-ios .ftw-sheet__stage,

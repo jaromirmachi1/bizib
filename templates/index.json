@@ -12,16 +12,10 @@
         "announce_2": {
           "type": "announce",
           "settings": {
-            "text": "FREE CZ SHIPPING OVER 4000 KČ"
+            "text": "FREE CZ/SK SHIPPING OVER 4000CZK/164EUR"
           }
         },
         "announce_3": {
-          "type": "announce",
-          "settings": {
-            "text": "LIMITED RUNS — NO RESTOCKS"
-          }
-        },
-        "announce_4": {
           "type": "announce",
           "settings": {
             "text": "FOLLOW @BIZIBOIZ"
@@ -88,7 +82,6 @@
         "announce_1",
         "announce_2",
         "announce_3",
-        "announce_4",
         "cat_jackets",
         "cat_bottoms",
         "cat_hats",

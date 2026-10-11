@@ -1430,7 +1430,10 @@
     document.body.classList.add("ftw-sheet-open");
     requestAnimationFrame(() => {
       const layout = $(".ftw-sheet__layout");
+      const panel = $(".ftw-sheet__panel");
       if (layout) layout.scrollTop = 0;
+      panel?.classList.remove("is-dragging");
+      panel?.style.removeProperty("--ftw-sheet-y");
       applySheetStage(true);
       moveSheet(0, false);
       fitSheetImages();
@@ -1455,6 +1458,62 @@
     sheetVariants = [];
     sheetImages = [];
   }
+
+  const sheetGrab = $(".ftw-sheet__grab");
+  const sheetPanel = $(".ftw-sheet__panel");
+  let sheetPull = null;
+
+  function sheetPullY(clientY) {
+    if (!sheetPull) return 0;
+    return Math.max(0, clientY - sheetPull.y);
+  }
+
+  sheetGrab?.addEventListener("pointerdown", (e) => {
+    if (!sheetOpen || window.innerWidth > 900 || !sheetPanel) return;
+    if (e.button != null && e.button !== 0) return;
+    e.preventDefault();
+    sheetPanel.classList.add("is-dragging");
+    sheetPull = { id: e.pointerId, y: e.clientY, lastY: e.clientY, lastT: performance.now(), vy: 0 };
+    try {
+      sheetGrab.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  sheetGrab?.addEventListener("pointermove", (e) => {
+    if (!sheetPull || e.pointerId !== sheetPull.id || !sheetPanel) return;
+    const now = performance.now();
+    const dt = now - sheetPull.lastT;
+    if (dt > 0) sheetPull.vy = (e.clientY - sheetPull.lastY) / dt;
+    sheetPull.lastY = e.clientY;
+    sheetPull.lastT = now;
+    sheetPanel.style.setProperty("--ftw-sheet-y", `${sheetPullY(e.clientY)}px`);
+  });
+
+  function endSheetPull(e) {
+    if (!sheetPull || (e && e.pointerId !== sheetPull.id) || !sheetPanel) return;
+    const dy = sheetPullY(e?.clientY ?? sheetPull.lastY);
+    const flick = sheetPull.vy > 0.55;
+    sheetPull = null;
+    sheetPanel.classList.remove("is-dragging");
+    if (dy > 96 || (flick && dy > 24)) {
+      const off = Math.max(sheetPanel.offsetHeight, window.innerHeight);
+      sheetPanel.style.setProperty("--ftw-sheet-y", `${off}px`);
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        sheetPanel.style.removeProperty("--ftw-sheet-y");
+        closeSheet(true);
+      };
+      sheetPanel.addEventListener("transitionend", done, { once: true });
+      setTimeout(done, 320);
+      return;
+    }
+    sheetPanel.style.setProperty("--ftw-sheet-y", "0px");
+  }
+
+  sheetGrab?.addEventListener("pointerup", endSheetPull);
+  sheetGrab?.addEventListener("pointercancel", endSheetPull);
 
   async function addVariantToCart(variantId, { openBag = false, sourceBtn = null } = {}) {
     if (!variantId) return false;
@@ -1885,12 +1944,12 @@
         finish();
       };
       const onEnd = (e) => {
-        if (e.propertyName !== "opacity") return;
+        if (e.propertyName !== "transform") return;
         back.removeEventListener("transitionend", onEnd);
         settle();
       };
       back.addEventListener("transitionend", onEnd);
-      setTimeout(settle, 760);
+      setTimeout(settle, 1100);
     };
     if (sameLockUrl(back.getAttribute("src") || back.src, url) && back.complete) {
       reveal();
@@ -2141,79 +2200,6 @@
       fitSheetImages();
     });
   }
-
-  function nudgeSheetStage(delta) {
-    const frame = sheetStageFrame();
-    if (!frame || !delta) return false;
-    const height = frame.stage.getBoundingClientRect().height;
-    if (delta > 0 && height > frame.collapsed + 0.5) {
-      frame.stage.style.height = `${Math.round(Math.max(frame.collapsed, height - delta))}px`;
-      queueSheetFit();
-      return true;
-    }
-    if (delta < 0 && frame.layout.scrollTop <= 0 && height < frame.expanded - 0.5) {
-      frame.stage.style.height = `${Math.round(Math.min(frame.expanded, height - delta))}px`;
-      queueSheetFit();
-      return true;
-    }
-    return false;
-  }
-
-  function queueSheetFit() {
-    if (sheetStageFramePending) return;
-    sheetStageFramePending = requestAnimationFrame(() => {
-      sheetStageFramePending = 0;
-      fitSheetImages();
-    });
-  }
-
-  const sheetLayout = $(".ftw-sheet__layout");
-  let sheetGesture = null;
-
-  sheetLayout?.addEventListener(
-    "wheel",
-    (e) => {
-      if (!sheetOpen || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-      if (nudgeSheetStage(e.deltaY)) e.preventDefault();
-    },
-    { passive: false }
-  );
-
-  sheetLayout?.addEventListener(
-    "touchstart",
-    (e) => {
-      if (!sheetOpen || e.touches.length !== 1) return;
-      sheetGesture = { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: "" };
-    },
-    { passive: true }
-  );
-
-  sheetLayout?.addEventListener(
-    "touchmove",
-    (e) => {
-      if (!sheetGesture || e.touches.length !== 1) return;
-      const x = e.touches[0].clientX;
-      const y = e.touches[0].clientY;
-      const dx = x - sheetGesture.x;
-      const dy = sheetGesture.y - y;
-      if (!sheetGesture.axis) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-        sheetGesture.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-      }
-      sheetGesture.x = x;
-      sheetGesture.y = y;
-      if (sheetGesture.axis === "x") return;
-      if (nudgeSheetStage(dy)) e.preventDefault();
-    },
-    { passive: false }
-  );
-
-  sheetLayout?.addEventListener("touchend", () => {
-    sheetGesture = null;
-  });
-  sheetLayout?.addEventListener("touchcancel", () => {
-    sheetGesture = null;
-  });
 
   window.addEventListener("resize", () => {
     fitProductImages();
