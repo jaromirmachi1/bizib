@@ -684,6 +684,7 @@
   }
 
   function openOutfitChecker() {
+    if (window.matchMedia("(max-width: 720px)").matches) return;
     const outfit = $("#ftw-outfit");
     if (!outfit) return;
     closeSheet(true);
@@ -1516,6 +1517,16 @@
     btn.addEventListener("click", () => openDrawer("ftw-contact"))
   );
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
+
+  if (isLocal) {
+    $(".ftw-currency")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-ftw-currency]");
+      if (!btn) return;
+      $$("[data-ftw-currency]", root).forEach((item) => {
+        item.setAttribute("aria-pressed", item === btn ? "true" : "false");
+      });
+    });
+  }
   $("#ftw-nav-scrim")?.addEventListener("click", () => setNavOpen(false));
   $("#ftw-sheet-add")?.addEventListener("click", addToCart);
   $$("[data-ftw-theme]", root).forEach((btn) =>
@@ -1879,7 +1890,10 @@
   lockEl?.addEventListener("dblclick", dismissLock);
 
   const onMobileChange = () => {
-    if (mobileMq.matches) showLock();
+    if (mobileMq.matches) {
+      closeOutfitChecker();
+      showLock();
+    }
     else {
       if (lockEl) lockEl.hidden = true;
       document.body.classList.remove("ftw-locked");

@@ -28,6 +28,20 @@
   assign upsell_heading = section.settings.upsell_heading | default: 'ADD THIS TOO'
   assign upsell_limit = section.settings.upsell_limit | default: 2
   assign ig = section.settings.instagram_url | default: 'https://www.instagram.com/biziboiz/'
+  assign czk_code = ''
+  assign eur_code = ''
+  for country in localization.available_countries
+    if czk_code == blank and country.currency.iso_code == 'CZK'
+      assign czk_code = country.iso_code
+    endif
+    if eur_code == blank and country.currency.iso_code == 'EUR'
+      assign eur_code = country.iso_code
+    endif
+  endfor
+  if czk_code == blank
+    assign czk_code = 'CZ'
+  endif
+  assign active_currency = localization.country.currency.iso_code | default: 'CZK'
   assign show_announce = section.settings.show_announce
   assign announce_link = section.settings.announce_link
   assign announce_speed = section.settings.announce_speed | default: 36
@@ -96,7 +110,7 @@
             <strong>BIZIBOIZ</strong>
             <span>now</span>
           </span>
-          <span class="ftw-lock__note-text">NEW DROP 11.10</span>
+          <span class="ftw-lock__note-text">DROP SUNDAY 11:30AM!!!</span>
         </span>
       </div>
     </header>
@@ -246,6 +260,26 @@
         {%- endif -%}
         <button type="button" data-ftw-filter="archive">ARCHIVE</button>
       </nav>
+
+      <div class="ftw-side__bar">
+        {%- form 'localization', class: 'ftw-currency' -%}
+          <button
+            type="submit"
+            name="country_code"
+            value="{{ czk_code | escape }}"
+            data-ftw-currency="CZK"
+            aria-pressed="{% if active_currency == 'CZK' %}true{% else %}false{% endif %}"
+          >CZK</button>
+          <button
+            type="{% if eur_code != blank %}submit{% else %}button{% endif %}"
+            {% if eur_code != blank %}name="country_code" value="{{ eur_code | escape }}"{% endif %}
+            data-ftw-currency="EUR"
+            aria-pressed="{% if active_currency == 'EUR' %}true{% else %}false{% endif %}"
+          >EUR</button>
+        {%- endform -%}
+        <span class="ftw-side__bar-rule" aria-hidden="true"></span>
+        <a class="ftw-side__ig" href="{{ ig }}" target="_blank" rel="noopener">INSTAGRAM</a>
+      </div>
 
       <div class="ftw-side__foot">
         <div class="ftw-side__icons">
