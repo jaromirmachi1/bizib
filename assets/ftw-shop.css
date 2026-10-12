@@ -408,6 +408,12 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   opacity: 0.45;
 }
 
+.ftw-side__links a.ftw-link-contact {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 /* —— Main —— */
 .ftw-main {
   min-width: 0;
@@ -2592,6 +2598,13 @@ body.ftw-sheet-open {
     transition: opacity 140ms var(--ftw-ease);
   }
 
+  .ftw-footer a.ftw-link-contact,
+  .ftw-side__links a.ftw-link-contact {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
   .ftw-footer a:hover,
   .ftw-footer button:hover {
     opacity: 0.45;
@@ -3334,12 +3347,23 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
 }
 
 .ftw-support__lead {
-  margin: 0 0 28px;
+  margin: 0 0 14px;
   color: var(--ftw-muted);
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.04em;
   line-height: 1.25;
+}
+
+.ftw-support__mail {
+  display: inline-block;
+  margin: 0 0 28px;
+  color: var(--ftw-fg);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-transform: none;
 }
 
 .ftw-support .ftw-contact {
