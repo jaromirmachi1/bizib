@@ -3317,20 +3317,23 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
 }
 
 .ftw-support__main {
-  width: min(28rem, calc(100% - 40px));
+  width: min(440px, calc(100% - 40px));
   margin: 40px auto 48px;
 }
 
 .ftw-support h1 {
   margin: 0 0 10px;
-  font-size: clamp(40px, 8vw, 64px);
+  font-family: inherit;
+  font-size: 40px;
   font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 0.9;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  word-break: normal;
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .ftw-support__lead {
-  max-width: 28ch;
   margin: 0 0 28px;
   color: var(--ftw-muted);
   font-size: 16px;
@@ -3351,6 +3354,8 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
 
 .ftw-support .ftw-contact input,
 .ftw-support .ftw-contact textarea {
+  box-sizing: border-box;
+  width: 100%;
   min-height: 46px;
   padding: 12px 14px;
   border-radius: 0;
