@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contact — BIZIBOIZ</title>
+    <meta name="description" content="Contact BIZIBOIZ support about an order, a size, or shipping.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/ftw-shop.css?v=97">
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("ftw-theme");
+          if (t !== "dark" && t !== "light") t = "light";
+          document.documentElement.setAttribute("data-ftw-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-ftw-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body class="ftw-mode">
+    <section class="ftw-shop ftw-ios ftw-support">
+      <header class="ftw-support__bar">
+        <a class="ftw-support__back" href="./index.html">Shop</a>
+        <a class="ftw-logo ftw-support__mark" href="./index.html" aria-label="BIZIBOIZ home">
+          <img class="ftw-logo__light" src="/assets/panacek-3-black.png" alt="" width="72" height="72">
+          <img class="ftw-logo__dark" src="/assets/panacek-3-white.png" alt="" width="72" height="72">
+        </a>
+        <button type="button" class="ftw-support__theme" data-ftw-theme aria-pressed="false" aria-label="Switch to dark mode">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+            <path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </header>
+      <div class="ftw-support__main">
+        <h1>Contact</h1>
+        <p class="ftw-support__lead">Orders, sizing, shipping. Message support and we reply by email.</p>
+        <form class="ftw-contact" id="ftw-support-form">
+          <label for="ftw-support-name">Name
+            <input id="ftw-support-name" type="text" name="contact[name]" autocomplete="name">
+          </label>
+          <label for="ftw-support-email">Email
+            <input id="ftw-support-email" type="email" name="contact[email]" autocomplete="email" required>
+          </label>
+          <label for="ftw-support-order">Order number
+            <input id="ftw-support-order" type="text" name="contact[Order number]" autocomplete="off">
+          </label>
+          <label for="ftw-support-body">Message
+            <textarea id="ftw-support-body" name="contact[body]" required></textarea>
+          </label>
+          <button class="ftw-btn ftw-btn--primary" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+    <script>
+      (function () {
+        var root = document.querySelector(".ftw-support");
+        function theme() {
+          return document.documentElement.getAttribute("data-ftw-theme") === "dark" ? "dark" : "light";
+        }
+        function sync() {
+          var dark = theme() === "dark";
+          root.querySelectorAll("[data-ftw-theme]").forEach(function (btn) {
+            btn.setAttribute("aria-pressed", dark ? "true" : "false");
+            btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+          });
+        }
+        root.querySelector("[data-ftw-theme]").addEventListener("click", function () {
+          var next = theme() === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-ftw-theme", next);
+          try { localStorage.setItem("ftw-theme", next); } catch (e) {}
+          sync();
+        });
+        sync();
+        document.getElementById("ftw-support-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var note = document.createElement("p");
+          note.className = "ftw-support__ok";
+          note.setAttribute("role", "status");
+          note.tabIndex = -1;
+          note.textContent = "Sent. We'll reply by email.";
+          e.currentTarget.replaceWith(note);
+          note.focus();
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -238,12 +238,18 @@
     </script>
   </head>
 
-  <body class="gradient{% if template.name == 'index' %} ftw-mode{% endif %}">
+  {%- liquid
+    assign ftw_shell = false
+    if template.name == 'index' or template.suffix == 'contact'
+      assign ftw_shell = true
+    endif
+  -%}
+  <body class="gradient{% if ftw_shell %} ftw-mode{% endif %}">
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ "accessibility.skip_to_text" | t }}
     </a>
 
-    {%- unless template.name == 'index' -%}
+    {%- unless ftw_shell -%}
       {%- if settings.cart_type == 'drawer' -%}
         {%- render 'cart-drawer' -%}
       {%- endif -%}
@@ -255,7 +261,7 @@
       {{ content_for_layout }}
     </main>
 
-    {%- unless template.name == 'index' -%}
+    {%- unless ftw_shell -%}
       {% sections 'footer-group' %}
     {%- endunless -%}
 

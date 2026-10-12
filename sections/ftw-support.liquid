@@ -1,0 +1,119 @@
+{{ 'ftw-shop.css' | asset_url | stylesheet_tag }}
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('ftw-theme');
+      if (t !== 'dark' && t !== 'light') t = 'light';
+      document.documentElement.setAttribute('data-ftw-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-ftw-theme', 'light');
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  assign logo = section.settings.logo
+  assign logo_dark_url = 'panacek-3-white.png' | asset_url
+  if logo == blank
+    assign logo_url = 'panacek-3-black.png' | asset_url
+  else
+    assign logo_url = logo | image_url: width: 400
+  endif
+-%}
+
+<section class="ftw-shop ftw-ios ftw-support">
+  <header class="ftw-support__bar">
+    <a class="ftw-support__back" href="{{ routes.root_url }}">Shop</a>
+    <a class="ftw-logo ftw-support__mark" href="{{ routes.root_url }}" aria-label="BIZIBOIZ home">
+      <img class="ftw-logo__light" src="{{ logo_url }}" alt="" width="72" height="72">
+      <img class="ftw-logo__dark" src="{{ logo_dark_url }}" alt="" width="72" height="72">
+    </a>
+    <button type="button" class="ftw-support__theme" data-ftw-theme aria-pressed="false" aria-label="Switch to dark mode">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+        <path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="ftw-support__main">
+    <h1>Contact</h1>
+    <p class="ftw-support__lead">Orders, sizing, shipping. Message support and we reply by email.</p>
+
+    {%- form 'contact', id: 'ftw-support-form', class: 'ftw-contact' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="ftw-support__ok" role="status" tabindex="-1">Sent. We'll reply by email.</p>
+      {%- else -%}
+        {%- if form.errors -%}
+          <p class="ftw-support__error" role="alert">
+            {%- if form.errors contains 'email' -%}
+              Use a real email so we can reply.
+            {%- else -%}
+              Something failed. Check the fields and send again.
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+        <label for="ftw-support-name">Name
+          <input id="ftw-support-name" type="text" name="contact[name]" autocomplete="name" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}">
+        </label>
+        <label for="ftw-support-email">Email
+          <input id="ftw-support-email" type="email" name="contact[email]" autocomplete="email" required value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}" {% if form.errors contains 'email' %}aria-invalid="true"{% endif %}>
+        </label>
+        <label for="ftw-support-order">Order number
+          <input id="ftw-support-order" type="text" name="contact[Order number]" autocomplete="off" inputmode="text">
+        </label>
+        <label for="ftw-support-body">Message
+          <textarea id="ftw-support-body" name="contact[body]" required>{% if form.body %}{{ form.body }}{% endif %}</textarea>
+        </label>
+        <button class="ftw-btn ftw-btn--primary" type="submit">Send</button>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.querySelector('.ftw-support');
+    if (!root) return;
+    var key = 'ftw-theme';
+    function theme() {
+      return document.documentElement.getAttribute('data-ftw-theme') === 'dark' ? 'dark' : 'light';
+    }
+    function sync() {
+      var dark = theme() === 'dark';
+      root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+        btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      });
+    }
+    root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var next = theme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-ftw-theme', next);
+        try { localStorage.setItem(key, next); } catch (e) {}
+        sync();
+      });
+    });
+    sync();
+    var ok = root.querySelector('.ftw-support__ok');
+    if (ok) ok.focus();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Support contact",
+  "tag": "section",
+  "class": "section-ftw-support",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo mark"
+    }
+  ]
+}
+{% endschema %}
