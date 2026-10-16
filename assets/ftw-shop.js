@@ -18,6 +18,94 @@
   let sheetImageIndex = 0;
   let sheetAvailable = true;
 
+  const shopDocumentTitle = root.dataset.ftwProduct
+    ? root.dataset.shopTitle || "BIZIBOIZ"
+    : document.title;
+
+  function productPath(url) {
+    if (!url || url === "#") return "";
+    try {
+      const u = new URL(url, location.origin);
+      if (!/\/products\/[^/]+/.test(u.pathname)) return "";
+      return u.pathname + u.search;
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function productHandleFromPath(path) {
+    const match = String(path || location.pathname).match(/\/products\/([^/?#]+)/);
+    if (!match) return "";
+    try {
+      return decodeURIComponent(match[1]);
+    } catch (_) {
+      return match[1];
+    }
+  }
+
+  function shopPath() {
+    const home = root.dataset.homeUrl || "/";
+    try {
+      const u = new URL(home, location.origin);
+      return u.pathname + u.search;
+    } catch (_) {
+      return "/";
+    }
+  }
+
+  function landingData() {
+    const el = document.getElementById("ftw-landing-product");
+    if (!el) return null;
+    try {
+      const data = JSON.parse(el.textContent);
+      return data && data.handle ? data : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function cardFromLanding(data) {
+    const card = document.createElement("a");
+    card.dataset.product = data.handle || "";
+    card.dataset.title = data.title || "";
+    card.dataset.price = data.price || "";
+    card.dataset.image = data.image || "";
+    card.dataset.description = data.description || "";
+    card.dataset.available = data.available ? "1" : "0";
+    card.dataset.variantId = data.variantId || "";
+    card.dataset.url = data.url || "";
+    card.dataset.variants = JSON.stringify(data.variants || []);
+    card.dataset.images = JSON.stringify(data.images || []);
+    card.dataset.options = JSON.stringify(data.options || []);
+    return card;
+  }
+
+  function findProductCard(handle) {
+    if (!handle) return null;
+    return $$(".ftw-product", root).find((card) => card.dataset.product === handle) || null;
+  }
+
+  function cardForHandle(handle) {
+    const card = findProductCard(handle);
+    if (card) return card;
+    const landing = landingData();
+    if (landing && landing.handle === handle) return cardFromLanding(landing);
+    return null;
+  }
+
+  function sheetDescription(card) {
+    const landing = landingData();
+    if (
+      landing &&
+      landing.handle &&
+      landing.handle === card.dataset.product &&
+      landing.description
+    ) {
+      return landing.description;
+    }
+    return card.dataset.description || "";
+  }
+
   const THEME_KEY = "ftw-theme";
 
   function getTheme() {
@@ -1415,7 +1503,8 @@
     const title = card.dataset.title || "";
     const price = card.dataset.price || "";
     const image = card.dataset.image || card.querySelector("img")?.src || "";
-    const desc = card.dataset.description || "";
+    const desc = sheetDescription(card);
+    if (title) document.title = `${title} – ${root.dataset.shopTitle || "BIZIBOIZ"}`;
     sheetAvailable = card.dataset.available !== "0";
     sheetVariants = parseVariants(card.dataset.variants);
     sheetImages = parseImages(card.dataset.images, image);
@@ -1452,9 +1541,31 @@
     });
   }
 
-  function closeSheet(instant) {
+  function openProduct(card) {
+    if (!card) return;
+    const path = productPath(card.dataset.url || card.getAttribute("href") || "");
+    if (path && path !== location.pathname + location.search) {
+      history.pushState({ ftwSheet: path }, "", path);
+    }
+    openSheet(card);
+  }
+
+  let sheetHistoryPending = false;
+
+  function closeSheet(instant, fromHistory) {
     const sheet = $("#ftw-sheet");
     if (!sheet || sheet.hidden) return;
+    if (!fromHistory && sheetHistoryPending) return;
+    if (!fromHistory && history.state && history.state.ftwSheet) {
+      sheetHistoryPending = true;
+      history.back();
+      return;
+    }
+    sheetHistoryPending = false;
+    if (!fromHistory && productHandleFromPath()) {
+      history.pushState({ ftwShop: true }, "", shopPath());
+    }
+    document.title = shopDocumentTitle;
     sheet.classList.remove("is-open");
     sheetOpen = false;
     document.body.classList.remove("ftw-sheet-open");
@@ -1748,14 +1859,14 @@
       e.stopPropagation();
       const card = quickAdd.closest(".ftw-product");
       if (!card || card.classList.contains("is-sold")) return;
-      openSheet(card);
+      openProduct(card);
       return;
     }
 
     const product = e.target.closest(".ftw-product");
     if (product && root.contains(product)) {
       e.preventDefault();
-      openSheet(product);
+      openProduct(product);
       return;
     }
 
@@ -2093,7 +2204,7 @@
   }
 
   function showLock() {
-    if (!lockEl || !mobileMq.matches || wasUnlocked()) {
+    if (!lockEl || !mobileMq.matches || wasUnlocked() || productHandleFromPath()) {
       if (lockEl) lockEl.hidden = true;
       document.body.classList.remove("ftw-locked");
       stopLockWalls();
@@ -2201,6 +2312,24 @@
   else mobileMq.addListener?.(onMobileChange);
 
   showLock();
+  const landingHandle = root.dataset.ftwProduct || productHandleFromPath();
+  if (landingHandle) {
+    const landingCard = cardForHandle(landingHandle);
+    if (landingCard) openSheet(landingCard);
+  }
+
+  window.addEventListener("popstate", () => {
+    sheetHistoryPending = false;
+    const handle = productHandleFromPath();
+    if (!handle) {
+      if (!$("#ftw-sheet")?.hidden) closeSheet(true, true);
+      return;
+    }
+    const card = cardForHandle(handle);
+    if (card) openSheet(card);
+    else if (!$("#ftw-sheet")?.hidden) closeSheet(true, true);
+  });
+
   fitProductImages();
   const sheetStage = $("#ftw-sheet-stack");
   let sheetPointer = null;

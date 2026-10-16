@@ -34,7 +34,7 @@
     </style>
   </head>
   <body class="ftw-mode">
-    <div class="ftw-shop ftw-shop--announce ftw-ios" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" data-free-shipping-czk="4000" style="--ftw-announce-speed: 36s;">
+    <div class="ftw-shop ftw-shop--announce ftw-ios" id="ftw-shop" data-cart-count="0" data-upsell-heading="ADD THIS TOO" data-upsell-limit="2" data-free-shipping-czk="4000" data-home-url="/preview/index.html" data-shop-title="BIZIBOIZ" style="--ftw-announce-speed: 36s;">
       <div class="ftw-lock" id="ftw-lock" hidden>
         <div class="ftw-lock__wall" data-ftw-lock-walls="/assets/lock-01.jpg|/assets/lock-02.jpg|/assets/lock-03.jpg|/assets/lock-04.jpg|/assets/lock-05.jpg">
           <img class="ftw-lock__wallpaper is-on" src="/assets/lock-01.jpg" alt="" width="1600" height="2400" fetchpriority="high" decoding="async">
@@ -100,6 +100,8 @@
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
               <span class="ftw-announce__item">FREE CZ/SK SHIPPING OVER 4000CZK/164EUR</span>
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
+              <span class="ftw-announce__item">EU INTERNATIONAL SHIPPING</span>
+              <span class="ftw-announce__sep" aria-hidden="true">//</span>
               <span class="ftw-announce__item">FOLLOW @BIZIBOIZ</span>
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
             </div>
@@ -107,6 +109,8 @@
               <span class="ftw-announce__item">BIZIBOIZ — NEW DROP LIVE</span>
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
               <span class="ftw-announce__item">FREE CZ/SK SHIPPING OVER 4000CZK/164EUR</span>
+              <span class="ftw-announce__sep" aria-hidden="true">//</span>
+              <span class="ftw-announce__item">EU INTERNATIONAL SHIPPING</span>
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
               <span class="ftw-announce__item">FOLLOW @BIZIBOIZ</span>
               <span class="ftw-announce__sep" aria-hidden="true">//</span>
@@ -453,9 +457,11 @@
           optionDefs[depth].values.forEach((val) => walk(depth + 1, picked.concat(val)));
         };
         walk(0, []);
+        const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
         return `
-        <a class="ftw-product${p.sold ? " is-sold" : ""}" href="#" role="listitem"
-           data-product="${p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"
+        <a class="ftw-product${p.sold ? " is-sold" : ""}" href="/products/${slug}" role="listitem"
+           data-url="/products/${slug}"
+           data-product="${slug}"
            data-title="${p.name}" data-collections="${p.collections}" data-type="${(p.collections || "").split(",")[0] || ""}" data-drop="${p.drop}"
            data-created="${Math.floor(Date.now() / 1000) - i * 86400}"
            data-price="${p.price}" data-image="./assets/panacek-3-black.png"
@@ -483,6 +489,6 @@
         {"id":903,"handle":"ftw-box-tee","title":"FTW BOX TEE [BLACK]","price":"1 290 Kč","image":"./assets/panacek-3-black.png","variantId":1903,"collections":"t-shirts","available":true}
       ]
     </script>
-    <script src="/assets/ftw-shop.js?v=60"></script>
+    <script src="/assets/ftw-shop.js?v=61"></script>
   </body>
 </html>

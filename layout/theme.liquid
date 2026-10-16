@@ -240,7 +240,7 @@
 
   {%- liquid
     assign ftw_shell = false
-    if template.name == 'index' or template.suffix == 'contact'
+    if template.name == 'index' or template.name == 'product' or template.suffix == 'contact'
       assign ftw_shell = true
     endif
   -%}

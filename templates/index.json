@@ -18,6 +18,12 @@
         "announce_3": {
           "type": "announce",
           "settings": {
+            "text": "EU INTERNATIONAL SHIPPING"
+          }
+        },
+        "announce_4": {
+          "type": "announce",
+          "settings": {
             "text": "FOLLOW @BIZIBOIZ"
           }
         },
@@ -82,6 +88,7 @@
         "announce_1",
         "announce_2",
         "announce_3",
+        "announce_4",
         "cat_jackets",
         "cat_bottoms",
         "cat_hats",

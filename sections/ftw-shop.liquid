@@ -16,6 +16,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 {%- liquid
+  assign ftw_page_product = blank
+  if request.page_type == 'product'
+    assign ftw_page_product = product
+  endif
   assign logo = section.settings.logo
   assign logo_dark_url = 'panacek-3-white.png' | asset_url
   if logo == blank
@@ -52,7 +56,7 @@
     endif
   endfor
   if show_announce and announce_count == 0
-    assign announce_count = 3
+    assign announce_count = 4
   endif
 
   assign orders = 0
@@ -91,6 +95,9 @@
   data-upsell-heading="{{ upsell_heading | escape }}"
   data-upsell-limit="{{ upsell_limit }}"
   data-free-shipping-czk="{{ section.settings.free_shipping_czk | default: 4000 }}"
+  data-home-url="{{ routes.root_url }}"
+  data-shop-title="{{ shop.name | escape }}"
+  {% if ftw_page_product != blank %}data-ftw-product="{{ ftw_page_product.handle | escape }}"{% endif %}
   {% if show_announce and announce_count > 0 %}style="--ftw-announce-speed: {{ announce_speed }}s;"{% endif %}
 >
   <div class="ftw-lock" id="ftw-lock" hidden>
@@ -170,6 +177,8 @@
                 <span class="ftw-announce__item">BIZIBOIZ — NEW DROP LIVE</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
                 <span class="ftw-announce__item">FREE CZ/SK SHIPPING OVER 4000CZK/164EUR</span>
+                <span class="ftw-announce__sep" aria-hidden="true">//</span>
+                <span class="ftw-announce__item">EU INTERNATIONAL SHIPPING</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
                 <span class="ftw-announce__item">FOLLOW @BIZIBOIZ</span>
                 <span class="ftw-announce__sep" aria-hidden="true">//</span>
@@ -370,7 +379,11 @@
         </button>
       </header>
 
-      <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
+      {%- if ftw_page_product != blank -%}
+        <p class="visually-hidden">BIZIBOIZ Shop</p>
+      {%- else -%}
+        <h1 class="visually-hidden">BIZIBOIZ Shop</h1>
+      {%- endif -%}
 
       <div class="ftw-grid" id="ftw-grid" role="list" data-catalog-total="{{ collections.all.products_count | default: 0 }}">
         {%- assign rendered = 0 -%}
@@ -557,7 +570,106 @@
     </div>
   </div>
 
-  <div class="ftw-sheet" id="ftw-sheet" hidden>
+  {%- if ftw_page_product != blank -%}
+    {%- liquid
+      assign ftw_page_variant = ftw_page_product.selected_or_first_available_variant
+      if ftw_page_product.featured_media
+        assign ftw_page_img = ftw_page_product.featured_media | image_url: width: 1600
+      else
+        assign ftw_page_img = logo_url
+      endif
+      assign schema_major = ftw_page_product.price | divided_by: 100
+      assign schema_minor = ftw_page_product.price | modulo: 100
+      if schema_minor < 10
+        assign schema_frac = schema_minor | prepend: '0'
+      else
+        assign schema_frac = schema_minor
+      endif
+    -%}
+    <script>
+      document.body.classList.add("ftw-sheet-open");
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": {{ ftw_page_product.title | json }},
+        "description": {{ ftw_page_product.description | strip_html | json }},
+        "sku": {{ ftw_page_variant.sku | json }},
+        "brand": { "@type": "Brand", "name": {{ shop.name | json }} },
+        "image": [
+          {%- assign schema_img = 0 -%}
+          {%- for m in ftw_page_product.media -%}
+            {%- if m.media_type == 'image' -%}
+              {%- liquid
+                assign raw_img = m | image_url: width: 1600
+                if raw_img contains '://'
+                  assign abs_img = raw_img
+                else
+                  assign abs_img = raw_img | prepend: 'https:'
+                endif
+              -%}
+              {%- if schema_img > 0 -%},{%- endif -%}
+              {{ abs_img | json }}
+              {%- assign schema_img = schema_img | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if schema_img == 0 -%}
+            {%- liquid
+              if ftw_page_img contains '://'
+                assign abs_img = ftw_page_img
+              else
+                assign abs_img = ftw_page_img | prepend: 'https:'
+              endif
+            -%}
+            {{ abs_img | json }}
+          {%- endif -%}
+        ],
+        "offers": {
+          "@type": "Offer",
+          "url": {{ request.origin | append: ftw_page_product.url | json }},
+          "priceCurrency": {{ cart.currency.iso_code | json }},
+          "price": "{{ schema_major }}.{{ schema_frac }}",
+          "availability": "https://schema.org/{% if ftw_page_product.available %}InStock{% else %}OutOfStock{% endif %}"
+        }
+      }
+    </script>
+    <script type="application/json" id="ftw-landing-product">
+      {
+        "handle": {{ ftw_page_product.handle | json }},
+        "title": {{ ftw_page_product.title | json }},
+        "url": {{ ftw_page_product.url | json }},
+        "price": {{ ftw_page_product.price | money | json }},
+        "available": {% if ftw_page_product.available %}true{% else %}false{% endif %},
+        "description": {{ ftw_page_product.description | strip_html | json }},
+        "image": {{ ftw_page_img | json }},
+        "variantId": {{ ftw_page_variant.id | json }},
+        "images": [
+          {%- assign land_img = 0 -%}
+          {%- for m in ftw_page_product.media -%}
+            {%- if m.media_type == 'image' -%}
+              {%- if land_img > 0 -%},{%- endif -%}
+              {{ m | image_url: width: 1600 | json }}
+              {%- assign land_img = land_img | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if land_img == 0 -%}{{ ftw_page_img | json }}{%- endif -%}
+        ],
+        "options": [
+          {%- for option in ftw_page_product.options_with_values -%}
+            {"name":{{ option.name | json }},"values":{{ option.values | json }}}{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ],
+        "variants": [
+          {%- for v in ftw_page_product.variants -%}
+            {"id":{{ v.id }},"title":{{ v.title | json }},"available":{% if v.available %}true{% else %}false{% endif %},"price":{{ v.price | money | json }},"options":{{ v.options | json }},"image":{% if v.image %}{{ v.image | image_url: width: 1200 | json }}{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    </script>
+  {%- endif -%}
+
+  <div class="ftw-sheet{% if ftw_page_product != blank %} is-open{% endif %}" id="ftw-sheet"{% if ftw_page_product == blank %} hidden{% endif %}>
     <div
       class="ftw-sheet__panel"
       role="dialog"
@@ -573,18 +685,72 @@
       </button>
 
       <div class="ftw-sheet__layout">
-        <div class="ftw-sheet__stage" id="ftw-sheet-stack"></div>
+        <div class="ftw-sheet__stage" id="ftw-sheet-stack">
+          {%- if ftw_page_product != blank -%}
+            <div class="ftw-sheet__reel">
+              {%- assign shot_i = 0 -%}
+              {%- for m in ftw_page_product.media -%}
+                {%- if m.media_type == 'image' -%}
+                  <div class="ftw-sheet__shot">
+                    <img
+                      src="{{ m | image_url: width: 1600 }}"
+                      alt="{{ ftw_page_product.title | escape }}"
+                      width="1200"
+                      height="1200"
+                      draggable="false"
+                      {% if shot_i == 0 %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                    >
+                  </div>
+                  {%- assign shot_i = shot_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if shot_i == 0 -%}
+                <div class="ftw-sheet__shot">
+                  <img src="{{ ftw_page_img }}" alt="{{ ftw_page_product.title | escape }}" width="1200" height="1200" draggable="false" fetchpriority="high">
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
 
         <aside class="ftw-sheet__side">
           <div class="ftw-sheet__side-top">
-            <h2 id="ftw-sheet-title"></h2>
-            <p class="ftw-sheet__price" id="ftw-sheet-price"></p>
-            <ul class="ftw-sheet__lines" id="ftw-sheet-lines"></ul>
+            {%- if ftw_page_product != blank -%}
+              <h1 id="ftw-sheet-title">{{ ftw_page_product.title }}</h1>
+            {%- else -%}
+              <h2 id="ftw-sheet-title"></h2>
+            {%- endif -%}
+            <p class="ftw-sheet__price" id="ftw-sheet-price">{%- if ftw_page_product != blank -%}{%- if ftw_page_product.available -%}{{ ftw_page_product.price | money }}{%- else -%}SOLD OUT{%- endif -%}{%- endif -%}</p>
+            <ul class="ftw-sheet__lines" id="ftw-sheet-lines">
+              {%- if ftw_page_product != blank and ftw_page_product.description != blank -%}
+                <li>{{ ftw_page_product.description | strip_html }}</li>
+              {%- endif -%}
+            </ul>
             <p class="ftw-sheet__note" id="ftw-sheet-note">LIMITED DROP. NO RESTOCKS.</p>
 
-            <div class="ftw-sheet__options" id="ftw-sheet-sizes"></div>
+            <div class="ftw-sheet__options" id="ftw-sheet-sizes">
+              {%- if ftw_page_product != blank -%}
+                {%- for v in ftw_page_product.variants -%}
+                  {%- unless v.title == 'Default Title' -%}
+                    <span>{{ v.title }}{% unless v.available %} — sold out{% endunless %}</span>
+                  {%- endunless -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
 
             <button class="ftw-sheet__add" type="button" id="ftw-sheet-add">ADD TO CART</button>
+            {%- if ftw_page_product != blank -%}
+              <noscript>
+                {%- form 'product', ftw_page_product -%}
+                  <select name="id">
+                    {%- for v in ftw_page_product.variants -%}
+                      <option value="{{ v.id }}" {% unless v.available %}disabled{% endunless %}>{{ v.title }}</option>
+                    {%- endfor -%}
+                  </select>
+                  <button type="submit">ADD TO CART</button>
+                {%- endform -%}
+              </noscript>
+            {%- endif -%}
 
             <div class="ftw-sheet__links">
               <button type="button" class="ftw-sheet__link" data-ftw-detail="tech">
@@ -829,6 +995,7 @@
       "blocks": [
         { "type": "announce", "settings": { "text": "BIZIBOIZ — NEW DROP LIVE" } },
         { "type": "announce", "settings": { "text": "FREE CZ/SK SHIPPING OVER 4000CZK/164EUR" } },
+        { "type": "announce", "settings": { "text": "EU INTERNATIONAL SHIPPING" } },
         { "type": "announce", "settings": { "text": "FOLLOW @BIZIBOIZ" } },
         { "type": "category", "settings": { "label": "JACKETS" } },
         { "type": "category", "settings": { "label": "BOTTOMS" } },
