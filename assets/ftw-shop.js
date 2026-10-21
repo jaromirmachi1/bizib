@@ -2121,7 +2121,7 @@
     armLockWalls();
   }
 
-  let lockNoteTimer = null;
+  let lockNoteTimers = [];
   let lockRingPlayed = false;
   let lockRingCtx = null;
   let lockRingWait = false;
@@ -2169,21 +2169,33 @@
   }
 
   function armLockNote() {
-    const note = lockEl?.querySelector(".ftw-lock__note");
-    if (!note) return;
-    note.classList.remove("is-in");
-    if (lockNoteTimer) clearTimeout(lockNoteTimer);
-    lockNoteTimer = setTimeout(() => {
-      lockNoteTimer = null;
-      if (!lockEl || lockEl.hidden) return;
-      note.classList.add("is-in");
-      playLockRing();
-    }, 1000);
+    const notes = lockEl ? $$(".ftw-lock__note", lockEl) : [];
+    if (!notes.length) return;
+    notes.forEach((note) => note.classList.remove("is-in"));
+    clearLockNote(false);
+    lockNoteTimers.push(
+      setTimeout(() => {
+        if (!lockEl || lockEl.hidden) return;
+        notes[0]?.classList.add("is-in");
+        playLockRing();
+        if (notes[1]) {
+          lockNoteTimers.push(
+            setTimeout(() => {
+              if (!lockEl || lockEl.hidden) return;
+              notes[1].classList.add("is-in");
+            }, 280)
+          );
+        }
+      }, 1000)
+    );
   }
 
-  function clearLockNote() {
-    if (lockNoteTimer) clearTimeout(lockNoteTimer);
-    lockNoteTimer = null;
+  function clearLockNote(reset = true) {
+    lockNoteTimers.forEach((id) => clearTimeout(id));
+    lockNoteTimers = [];
+    if (reset) {
+      lockEl?.querySelectorAll(".ftw-lock__note").forEach((note) => note.classList.remove("is-in"));
+    }
   }
 
   function dismissLock() {
