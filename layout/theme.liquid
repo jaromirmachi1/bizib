@@ -34,6 +34,24 @@
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
     {{ content_for_header }}
 
+    {%- if request.page_type == 'policy' or template.name == 'policy' -%}
+      {{ 'ftw-shop.css' | asset_url | stylesheet_tag }}
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <script>
+        (function () {
+          try {
+            var t = localStorage.getItem('ftw-theme');
+            if (t !== 'dark' && t !== 'light') t = 'light';
+            document.documentElement.setAttribute('data-ftw-theme', t);
+          } catch (e) {
+            document.documentElement.setAttribute('data-ftw-theme', 'light');
+          }
+        })();
+      </script>
+    {%- endif -%}
+
     {%- liquid
       assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
       assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
@@ -258,7 +276,42 @@
     {%- endunless -%}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
+      {%- if request.page_type == 'policy' or template.name == 'policy' -%}
+        <div class="ftw-shop ftw-ios ftw-support ftw-support--legal" id="ftw-policy">
+          {% render 'ftw-policy-bar' %}
+          <div class="ftw-support__main ftw-support__main--policy">
+            {{ content_for_layout }}
+          </div>
+        </div>
+        <script>
+          (function () {
+            var root = document.getElementById('ftw-policy');
+            if (!root) return;
+            var key = 'ftw-theme';
+            function theme() {
+              return document.documentElement.getAttribute('data-ftw-theme') === 'dark' ? 'dark' : 'light';
+            }
+            function sync() {
+              var dark = theme() === 'dark';
+              root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+                btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+                btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+              });
+            }
+            root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+              btn.addEventListener('click', function () {
+                var next = theme() === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-ftw-theme', next);
+                try { localStorage.setItem(key, next); } catch (e) {}
+                sync();
+              });
+            });
+            sync();
+          })();
+        </script>
+      {%- else -%}
+        {{ content_for_layout }}
+      {%- endif -%}
     </main>
 
     {%- unless ftw_shell -%}

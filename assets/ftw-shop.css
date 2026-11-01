@@ -3429,18 +3429,40 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
   color: var(--ftw-fg);
 }
 
-.ftw-support--legal .ftw-support__main {
+.ftw-support--legal .ftw-support__main,
+.ftw-support__main--policy {
   width: min(640px, calc(100% - 40px));
   margin-bottom: 72px;
 }
 
-.ftw-support--legal h1 {
-  white-space: normal;
-  text-transform: uppercase;
-  line-height: 1.05;
+.ftw-support--legal h1,
+.ftw-support--legal .shopify-policy__title,
+.ftw-support--legal .shopify-policy__title h1,
+.ftw-support--legal .ftw-support__body > h1:first-child {
+  margin: 0 0 10px;
+  color: var(--ftw-fg);
+  font-family: inherit;
   font-size: clamp(28px, 7vw, 40px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: normal;
+  word-break: normal;
 }
 
+.ftw-support--legal .shopify-policy__container {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ftw-support--legal .shopify-policy__title {
+  margin: 0 0 22px;
+}
+
+.ftw-support--legal .shopify-policy__body,
 .ftw-support__body {
   margin: 22px 0 0;
   color: var(--ftw-fg);
@@ -3454,20 +3476,31 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
   word-break: normal;
 }
 
-.ftw-support__body > *:first-child {
+.ftw-support--legal .shopify-policy__body {
+  margin-top: 0;
+}
+
+.ftw-support__body > *:first-child,
+.ftw-support--legal .shopify-policy__body > *:first-child {
   margin-top: 0;
 }
 
 .ftw-support__body p,
 .ftw-support__body ul,
-.ftw-support__body ol {
+.ftw-support__body ol,
+.ftw-support--legal .shopify-policy__body p,
+.ftw-support--legal .shopify-policy__body ul,
+.ftw-support--legal .shopify-policy__body ol {
   margin: 0 0 1em;
 }
 
 .ftw-support__body h1,
 .ftw-support__body h2,
 .ftw-support__body h3,
-.ftw-support__body h4 {
+.ftw-support__body h4,
+.ftw-support--legal .shopify-policy__body h2,
+.ftw-support--legal .shopify-policy__body h3,
+.ftw-support--legal .shopify-policy__body h4 {
   margin: 1.4em 0 0.45em;
   font-family: inherit;
   font-size: 18px;
@@ -3478,12 +3511,24 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
   white-space: normal;
 }
 
-.ftw-support__body a {
+.ftw-support__body a,
+.ftw-support--legal .shopify-policy__body a {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 0.12em;
 }
 
-.ftw-support__body a:hover {
+.ftw-support__body a:hover,
+.ftw-support--legal .shopify-policy__body a:hover {
   opacity: 0.72;
+}
+
+/* If the JSON policy template also mounts ftw-legal, hide the nested chrome. */
+.ftw-support--legal .ftw-support--legal > .ftw-support__bar {
+  display: none;
+}
+
+.ftw-support--legal .ftw-support--legal > .ftw-support__main {
+  width: 100%;
+  margin: 0;
 }
