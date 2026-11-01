@@ -34,7 +34,7 @@
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
     {{ content_for_header }}
 
-    {%- if request.page_type == 'policy' or template.name == 'policy' -%}
+    {%- if request.page_type == 'policy' or template.name == 'policy' or template.directory == 'customers' -%}
       {{ 'ftw-shop.css' | asset_url | stylesheet_tag }}
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -257,9 +257,9 @@
   </head>
 
   {%- liquid
-    assign ftw_shell = false
-    if template.name == 'index' or template.name == 'product' or template.name == 'collection' or template.name == 'list-collections' or template.name == 'search' or template.name == 'policy' or template.suffix == 'contact' or request.page_type == 'policy'
-      assign ftw_shell = true
+    assign ftw_shell = true
+    if template.name == 'password' or template.name == 'gift_card'
+      assign ftw_shell = false
     endif
   -%}
   <body class="gradient{% if ftw_shell %} ftw-mode{% endif %}">
@@ -276,7 +276,7 @@
     {%- endunless -%}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {%- if request.page_type == 'policy' or template.name == 'policy' -%}
+      {%- if request.page_type == 'policy' or template.name == 'policy' or template.directory == 'customers' -%}
         <div class="ftw-shop ftw-ios ftw-support ftw-support--legal" id="ftw-policy">
           {% render 'ftw-policy-bar' %}
           <div class="ftw-support__main ftw-support__main--policy">

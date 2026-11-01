@@ -1,1 +1,115 @@
-{"sections":{"main":{"type":"main-page","settings":{"padding_top":28,"padding_bottom":28}}},"order":["main"]}
+{
+  "sections": {
+    "ftw_shop": {
+      "type": "ftw-shop",
+      "blocks": {
+        "announce_1": {
+          "type": "announce",
+          "settings": {
+            "text": "BIZIBOIZ — NEW DROP LIVE"
+          }
+        },
+        "announce_2": {
+          "type": "announce",
+          "settings": {
+            "text": "FREE CZ/SK SHIPPING OVER 4000CZK/164EUR"
+          }
+        },
+        "announce_3": {
+          "type": "announce",
+          "settings": {
+            "text": "EU INTERNATIONAL SHIPPING"
+          }
+        },
+        "announce_4": {
+          "type": "announce",
+          "settings": {
+            "text": "FOLLOW @BIZIBOIZ"
+          }
+        },
+        "cat_jackets": {
+          "type": "category",
+          "settings": {
+            "collection": "jackets",
+            "label": "JACKETS"
+          }
+        },
+        "cat_bottoms": {
+          "type": "category",
+          "settings": {
+            "collection": "bottoms",
+            "label": "BOTTOMS"
+          }
+        },
+        "cat_hats": {
+          "type": "category",
+          "settings": {
+            "collection": "hats",
+            "label": "HATS"
+          }
+        },
+        "cat_hoodies": {
+          "type": "category",
+          "settings": {
+            "collection": "hoodies-sweatshirts",
+            "label": "HOODIES & SWEATSHIRTS"
+          }
+        },
+        "cat_tees": {
+          "type": "category",
+          "settings": {
+            "collection": "t-shirts",
+            "label": "T-SHIRTS"
+          }
+        },
+        "cat_womens": {
+          "type": "category",
+          "settings": {
+            "collection": "womens",
+            "label": "WOMENS"
+          }
+        },
+        "cat_lifestyle": {
+          "type": "category",
+          "settings": {
+            "collection": "lifestyle",
+            "label": "LIFESTYLE"
+          }
+        },
+        "cat_accessories": {
+          "type": "category",
+          "settings": {
+            "collection": "accessories",
+            "label": "ACCESSORIES"
+          }
+        }
+      },
+      "block_order": [
+        "announce_1",
+        "announce_2",
+        "announce_3",
+        "announce_4",
+        "cat_jackets",
+        "cat_bottoms",
+        "cat_hats",
+        "cat_hoodies",
+        "cat_tees",
+        "cat_womens",
+        "cat_lifestyle",
+        "cat_accessories"
+      ],
+      "settings": {
+        "collection_live": "2026",
+        "collection_archive": "main-page",
+        "free_shipping_czk": 4000,
+        "upsell_heading": "ADD THIS TOO",
+        "upsell_limit": 2,
+        "instagram_url": "https://www.instagram.com/biziboiz/",
+        "show_announce": true,
+        "announce_link": "https://www.instagram.com/biziboiz/",
+        "announce_speed": 36
+      }
+    }
+  },
+  "order": ["ftw_shop"]
+}

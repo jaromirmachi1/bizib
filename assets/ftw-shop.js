@@ -2324,6 +2324,7 @@
   else mobileMq.addListener?.(onMobileChange);
 
   showLock();
+  if (/\/cart\/?$/.test(location.pathname)) openDrawer("ftw-bag");
   const landingHandle = root.dataset.ftwProduct || productHandleFromPath();
   if (landingHandle) {
     const landingCard = cardForHandle(landingHandle);
