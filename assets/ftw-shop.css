@@ -3428,3 +3428,62 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios #ftw-bag .ftw-upsell__media {
 .ftw-support__error {
   color: var(--ftw-fg);
 }
+
+.ftw-support--legal .ftw-support__main {
+  width: min(640px, calc(100% - 40px));
+  margin-bottom: 72px;
+}
+
+.ftw-support--legal h1 {
+  white-space: normal;
+  text-transform: uppercase;
+  line-height: 1.05;
+  font-size: clamp(28px, 7vw, 40px);
+}
+
+.ftw-support__body {
+  margin: 22px 0 0;
+  color: var(--ftw-fg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.55;
+  text-align: left;
+  text-transform: none;
+  word-break: normal;
+}
+
+.ftw-support__body > *:first-child {
+  margin-top: 0;
+}
+
+.ftw-support__body p,
+.ftw-support__body ul,
+.ftw-support__body ol {
+  margin: 0 0 1em;
+}
+
+.ftw-support__body h1,
+.ftw-support__body h2,
+.ftw-support__body h3,
+.ftw-support__body h4 {
+  margin: 1.4em 0 0.45em;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.ftw-support__body a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.ftw-support__body a:hover {
+  opacity: 0.72;
+}

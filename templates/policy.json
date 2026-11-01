@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "ftw_legal": {
+      "type": "ftw-legal",
+      "settings": {}
+    }
+  },
+  "order": ["ftw_legal"]
+}

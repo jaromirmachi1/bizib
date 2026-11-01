@@ -1,0 +1,94 @@
+{{ 'ftw-shop.css' | asset_url | stylesheet_tag }}
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('ftw-theme');
+      if (t !== 'dark' && t !== 'light') t = 'light';
+      document.documentElement.setAttribute('data-ftw-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-ftw-theme', 'light');
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  assign logo = section.settings.logo
+  assign logo_dark_url = 'panacek-3-white.png' | asset_url
+  if logo == blank
+    assign logo_url = 'panacek-3-black.png' | asset_url
+  else
+    assign logo_url = logo | image_url: width: 400
+  endif
+  assign legal_title = policy.title | default: page_title
+  assign legal_body = policy.body
+-%}
+
+<section class="ftw-shop ftw-ios ftw-support ftw-support--legal">
+  <header class="ftw-support__bar">
+    <a class="ftw-support__back" href="{{ routes.root_url }}">Shop</a>
+    <a class="ftw-logo ftw-support__mark" href="{{ routes.root_url }}" aria-label="BIZIBOIZ home">
+      <img class="ftw-logo__light" src="{{ logo_url }}" alt="" width="72" height="72">
+      <img class="ftw-logo__dark" src="{{ logo_dark_url }}" alt="" width="72" height="72">
+    </a>
+    <button type="button" class="ftw-support__theme" data-ftw-theme aria-pressed="false" aria-label="Switch to dark mode">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+        <path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="ftw-support__main">
+    <h1>{{ legal_title }}</h1>
+    {%- if legal_body != blank -%}
+      <div class="ftw-support__body">{{ legal_body }}</div>
+    {%- else -%}
+      <p class="ftw-support__lead">Policy text is missing in Shopify admin.</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.querySelector('.ftw-support--legal');
+    if (!root) return;
+    var key = 'ftw-theme';
+    function theme() {
+      return document.documentElement.getAttribute('data-ftw-theme') === 'dark' ? 'dark' : 'light';
+    }
+    function sync() {
+      var dark = theme() === 'dark';
+      root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+        btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      });
+    }
+    root.querySelectorAll('[data-ftw-theme]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var next = theme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-ftw-theme', next);
+        try { localStorage.setItem(key, next); } catch (e) {}
+        sync();
+      });
+    });
+    sync();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Legal policy",
+  "tag": "section",
+  "class": "section-ftw-legal",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo mark"
+    }
+  ]
+}
+{% endschema %}
