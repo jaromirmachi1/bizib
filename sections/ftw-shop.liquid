@@ -92,6 +92,8 @@
   id="ftw-shop"
   data-cart-count="{{ cart.item_count }}"
   data-money-format="{{ shop.money_format | escape }}"
+  data-currency="{{ active_currency }}"
+  data-shop-currency="{{ shop.currency }}"
   data-upsell-heading="{{ upsell_heading | escape }}"
   data-upsell-limit="{{ upsell_limit }}"
   data-free-shipping-czk="{{ section.settings.free_shipping_czk | default: 4000 }}"
@@ -362,6 +364,26 @@
               <path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor"></path>
             </svg>
           </button>
+          {%- form 'localization', class: 'ftw-currency ftw-currency--desk' -%}
+            <button type="button" class="ftw-currency__open" aria-expanded="false" aria-label="Currency">
+              <span>{{ active_currency }}</span>
+            </button>
+            <div class="ftw-currency__more" hidden>
+              <button
+                type="submit"
+                name="country_code"
+                value="{{ czk_code | escape }}"
+                data-ftw-currency="CZK"
+                aria-pressed="{% if active_currency == 'CZK' %}true{% else %}false{% endif %}"
+              >CZK</button>
+              <button
+                type="{% if eur_code != blank %}submit{% else %}button{% endif %}"
+                {% if eur_code != blank %}name="country_code" value="{{ eur_code | escape }}"{% endif %}
+                data-ftw-currency="EUR"
+                aria-pressed="{% if active_currency == 'EUR' %}true{% else %}false{% endif %}"
+              >EUR</button>
+            </div>
+          {%- endform -%}
         </div>
         <div class="ftw-side__links">
           <a class="ftw-link-contact" href="{{ pages.contact.url | default: '/pages/contact' }}">CONTACT</a>

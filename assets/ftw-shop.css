@@ -476,6 +476,66 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   flex-shrink: 0;
 }
 
+.ftw-currency--desk {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.ftw-side__icons .ftw-currency--desk .ftw-currency__open,
+.ftw-side__icons .ftw-currency--desk .ftw-currency__more button {
+  width: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 140ms var(--ftw-ease);
+}
+
+.ftw-side__icons .ftw-currency--desk .ftw-currency__open:hover,
+.ftw-side__icons .ftw-currency--desk .ftw-currency__more button:hover {
+  opacity: 0.45;
+}
+
+.ftw-side__icons .ftw-currency--desk .ftw-currency__open:active,
+.ftw-side__icons .ftw-currency--desk .ftw-currency__more button:active {
+  transform: scale(0.97);
+}
+
+.ftw-currency--desk .ftw-currency__open span {
+  text-transform: uppercase;
+}
+
+.ftw-currency--desk .ftw-currency__more {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  z-index: 3;
+  margin: 0;
+  padding: 2px 0;
+  background: var(--ftw-bg);
+}
+
+.ftw-currency--desk .ftw-currency__more[hidden] {
+  display: none;
+}
+
+.ftw-currency--desk .ftw-currency__more [aria-pressed="true"] {
+  display: none;
+}
+
 .ftw-search {
   display: inline-flex;
   align-items: center;
@@ -3109,8 +3169,9 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-product__media {
 .ftw-shop.ftw-ios .ftw-cats a,
 .ftw-shop.ftw-ios .ftw-cats button {
   width: 100%;
-  padding: 3px 10px;
+  padding: 3px 0;
   border-radius: 8px;
+  transition: padding 180ms var(--ftw-ease), background-color 180ms var(--ftw-ease);
 }
 
 .ftw-shop.ftw-ios .ftw-cats a:hover,
@@ -3118,10 +3179,8 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-product__media {
 .ftw-shop.ftw-ios .ftw-cats a.is-active,
 .ftw-shop.ftw-ios .ftw-cats button.is-active {
   opacity: 1;
-}
-
-.ftw-shop.ftw-ios .ftw-cats a.is-active,
-.ftw-shop.ftw-ios .ftw-cats button.is-active {
+  padding-left: 10px;
+  padding-right: 10px;
   background: rgba(120, 120, 128, 0.16);
 }
 
@@ -3168,7 +3227,7 @@ html[data-ftw-theme="dark"] .ftw-shop.ftw-ios .ftw-sheet__select {
 
   .ftw-shop.ftw-ios .ftw-cats a,
   .ftw-shop.ftw-ios .ftw-cats button {
-    padding: 11px 12px;
+    padding: 11px 0;
   }
 
   .ftw-shop.ftw-ios .ftw-side {

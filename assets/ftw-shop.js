@@ -144,7 +144,36 @@
     toast._t = setTimeout(() => el.classList.remove("is-on"), 2200);
   }
 
-  function formatMoney(cents) {
+  function cartCurrency(cart) {
+    return String((cart && cart.currency) || root.dataset.currency || "CZK").toUpperCase();
+  }
+
+  function shopCurrency() {
+    return String(root.dataset.shopCurrency || "CZK").toUpperCase();
+  }
+
+  function presentmentCents(shopCents, currency) {
+    const cents = Math.round(Number(shopCents) || 0);
+    const code = String(currency || shopCurrency()).toUpperCase();
+    if (code === shopCurrency()) return cents;
+    const active = window.Shopify?.currency?.active;
+    if (active && String(active).toUpperCase() !== code) return cents;
+    const rate = Number(window.Shopify?.currency?.rate);
+    if (!Number.isFinite(rate) || rate <= 0) return cents;
+    return Math.round(cents * rate);
+  }
+
+  function formatMoney(cents, currency) {
+    const code = String(currency || shopCurrency()).toUpperCase();
+    if (code === "EUR") {
+      const eurFormat = "€{{amount_with_comma_separator}}";
+      if (window.Shopify && typeof Shopify.formatMoney === "function") {
+        return Shopify.formatMoney(cents, eurFormat);
+      }
+      const [whole, frac] = (Number(cents) / 100).toFixed(2).split(".");
+      const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return `€${grouped},${frac}`;
+    }
     if (window.Shopify && typeof Shopify.formatMoney === "function") {
       return Shopify.formatMoney(cents, moneyFormat);
     }
@@ -285,11 +314,11 @@
       .filter((p) => p.variantId && isUpsellAllowed(p));
   }
 
-  function pickUpsells(pool, left) {
+  function pickUpsells(pool, left, currency) {
     const seen = viewedHandles();
     const ranked = pool.map((product) => ({
       ...product,
-      cents: upsellCents(product),
+      cents: presentmentCents(upsellCents(product), currency),
       viewed: seen.has(product.handle),
     }));
     const byView = (a, b) => {
@@ -309,9 +338,9 @@
     return [...covers, ...under, ...rest];
   }
 
-  function upsellNote(left, picks) {
+  function upsellNote(left, picks, currency) {
     if (left <= 0) return "SHIPPING'S FREE. STILL ROOM IN THE BAG.";
-    const short = formatMoney(left);
+    const short = formatMoney(left, currency);
     if (picks.some((product) => product.cents >= left)) {
       return `${short} SHORT. ONE OF THESE MAKES SHIPPING FREE.`;
     }
@@ -325,7 +354,8 @@
     const heading = (root.dataset.upsellHeading || "ADD THIS TOO").toUpperCase();
     const inCartIds = new Set((cart.items || []).map((i) => Number(i.product_id)));
     const inCartHandles = new Set((cart.items || []).map((i) => i.handle).filter(Boolean));
-    const left = Math.max(0, FREE_SHIP_CENTS - cartSubtotal(cart));
+    const currency = cartCurrency(cart);
+    const left = Math.max(0, freeShipCents(currency) - cartSubtotal(cart));
     const picks = pickUpsells(
       getUpsellPool().filter((p) => {
         if (p.available === false) return false;
@@ -333,7 +363,8 @@
         if (p.handle && inCartHandles.has(p.handle)) return false;
         return true;
       }),
-      left
+      left,
+      currency
     ).slice(0, limit);
 
     if (!picks.length) {
@@ -345,7 +376,7 @@
     host.hidden = false;
     host.innerHTML = `
       <div class="ftw-upsell__head">${escapeHtml(heading)}</div>
-      <p class="ftw-upsell__note">${escapeHtml(upsellNote(left, picks))}</p>
+      <p class="ftw-upsell__note">${escapeHtml(upsellNote(left, picks, currency))}</p>
       <div class="ftw-upsell__list">
         ${picks
           .map((p) => {
@@ -373,7 +404,10 @@
     1,
     Number(root.dataset.freeShippingCzk || 4000) || 4000
   );
-  const FREE_SHIP_CENTS = FREE_SHIP_CZK * 100;
+
+  function freeShipCents(currency) {
+    return presentmentCents(FREE_SHIP_CZK * 100, currency);
+  }
 
   function cartSubtotal(cart) {
     const n = Number(cart?.items_subtotal_price ?? cart?.total_price ?? 0);
@@ -383,15 +417,21 @@
   function renderShippingProgress(cart) {
     const host = $("#cart-shipping");
     if (!host) return;
+    const currency = cartCurrency(cart);
+    const goal = freeShipCents(currency);
     const spent = cartSubtotal(cart);
-    const pct = Math.min(100, Math.round((spent / FREE_SHIP_CENTS) * 100));
-    const unlocked = spent >= FREE_SHIP_CENTS;
-    const left = Math.max(0, FREE_SHIP_CENTS - spent);
+    const pct = goal > 0 ? Math.min(100, Math.round((spent / goal) * 100)) : 0;
+    const unlocked = spent >= goal;
+    const left = Math.max(0, goal - spent);
+    const goalLabel =
+      currency === "CZK"
+        ? `${FREE_SHIP_CZK.toLocaleString("cs-CZ")} KČ`
+        : formatMoney(goal, currency);
     const msg = unlocked
       ? "FREE CZ SHIPPING UNLOCKED."
       : spent > 0
-        ? `${formatMoney(left)} AWAY FROM FREE SHIPPING`
-        : `FREE CZ SHIPPING FROM ${FREE_SHIP_CZK.toLocaleString("cs-CZ")} KČ`;
+        ? `${formatMoney(left, currency)} AWAY FROM FREE SHIPPING`
+        : `FREE CZ SHIPPING FROM ${goalLabel}`;
 
     host.hidden = false;
     host.classList.toggle("is-unlocked", unlocked);
@@ -408,8 +448,8 @@
         <span class="ftw-ship__fill" style="transform: scaleX(${pct / 100})"></span>
       </div>
       <div class="ftw-ship__meta">
-        <span>${formatMoney(spent)}</span>
-        <span>${FREE_SHIP_CZK.toLocaleString("cs-CZ")} KČ</span>
+        <span>${formatMoney(spent, currency)}</span>
+        <span>${goalLabel}</span>
       </div>`;
   }
 
@@ -419,7 +459,7 @@
     const empty = !cart?.item_count;
     footer.hidden = false;
     footer.innerHTML = `
-      <strong>${empty ? "TOTAL: —" : `TOTAL: ${formatMoney(cart.total_price)}`}</strong>
+      <strong>${empty ? "TOTAL: —" : `TOTAL: ${formatMoney(cart.total_price, cartCurrency(cart))}`}</strong>
       <button type="button" class="ftw-btn" id="ftw-outfit-open">OUTFIT CHECKER</button>
       ${
         empty
@@ -445,6 +485,7 @@
         renderCartFooter(cart);
         return;
       }
+      const currency = cartCurrency(cart);
       const lines = cart.items
         .map((i) => {
           const title = escapeHtml(i.product_title || i.title || "Item");
@@ -471,7 +512,7 @@
                 <button type="button" class="ftw-cart-line__remove" data-cart-qty="0" data-cart-key="${key}">REMOVE</button>
               </div>
             </div>
-            <div class="ftw-cart-line__price">${formatMoney(i.final_line_price)}</div>
+            <div class="ftw-cart-line__price">${formatMoney(i.final_line_price, currency)}</div>
           </div>`;
         })
         .join("");
@@ -1782,28 +1823,50 @@
   );
   $("#ftw-menu-btn")?.addEventListener("click", () => setNavOpen(!root.classList.contains("is-nav-open")));
 
-  $(".ftw-currency__open")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const menu = e.currentTarget.closest(".ftw-currency");
-    const more = menu?.querySelector(".ftw-currency__more");
-    const open = Boolean(more?.hidden);
-    if (more) more.hidden = !open;
-    e.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+  function closeCurrencies(except) {
+    $$(".ftw-currency", root).forEach((menu) => {
+      if (menu === except) return;
+      const more = menu.querySelector(".ftw-currency__more");
+      if (more) more.hidden = true;
+      menu.querySelector(".ftw-currency__open")?.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  $$(".ftw-currency__open", root).forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = btn.closest(".ftw-currency");
+      const more = menu?.querySelector(".ftw-currency__more");
+      const willOpen = Boolean(more?.hidden);
+      closeCurrencies(menu);
+      if (more) more.hidden = !willOpen;
+      btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".ftw-currency")) return;
+    closeCurrencies();
   });
 
   if (isLocal) {
-    $(".ftw-currency")?.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-ftw-currency]");
-      if (!btn) return;
-      $$("[data-ftw-currency]", root).forEach((item) => {
-        item.setAttribute("aria-pressed", item === btn ? "true" : "false");
+    $$(".ftw-currency", root).forEach((menu) => {
+      menu.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-ftw-currency]");
+        if (!btn) return;
+        const code = btn.dataset.ftwCurrency || btn.textContent.trim();
+        $$(".ftw-currency", root).forEach((group) => {
+          $$("[data-ftw-currency]", group).forEach((item) => {
+            item.setAttribute("aria-pressed", item.dataset.ftwCurrency === code ? "true" : "false");
+          });
+          const label = group.querySelector(".ftw-currency__open span");
+          if (label) label.textContent = code;
+          const more = group.querySelector(".ftw-currency__more");
+          if (more) more.hidden = true;
+          group.querySelector(".ftw-currency__open")?.setAttribute("aria-expanded", "false");
+        });
       });
-      const label = $(".ftw-currency__open span");
-      if (label) label.textContent = btn.dataset.ftwCurrency || btn.textContent;
-      const more = $(".ftw-currency__more");
-      if (more) more.hidden = true;
-      $(".ftw-currency__open")?.setAttribute("aria-expanded", "false");
     });
   }
   $("#ftw-nav-scrim")?.addEventListener("click", () => setNavOpen(false));
