@@ -832,11 +832,11 @@
 [
 {%- assign upsell_i = 0 -%}
 {%- assign upsell_seen = ',' -%}
-{%- assign upsell_sources = 'accessories,hats,caps,t-shirts' | split: ',' -%}
+{%- assign upsell_sources = 'accessories' | split: ',' -%}
 {%- for source_handle in upsell_sources -%}
   {%- assign upsell_col = collections[source_handle] -%}
   {%- if upsell_col != blank -%}
-    {%- for product in upsell_col.products limit: 12 -%}
+    {%- for product in upsell_col.products limit: 50 -%}
       {%- assign upsell_id_token = product.id | prepend: ',' | append: ',' -%}
       {%- unless upsell_seen contains upsell_id_token -%}
         {%- if product.available -%}
@@ -848,6 +848,7 @@
               "handle":{{ product.handle | json }},
               "title":{{ product.title | json }},
               "price":{{ product.price | money | json }},
+              "cents":{{ product.price }},
               "image":{% if product.featured_media %}{{ product.featured_media | image_url: width: 240 | json }}{% else %}{{ logo_url | json }}{% endif %},
               "variantId":{{ uv.id }},
               "collections":{{ source_handle | json }},

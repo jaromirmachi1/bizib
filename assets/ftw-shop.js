@@ -205,12 +205,53 @@
       .replace(/"/g, "&quot;");
   }
 
-  const UPSELL_COLLECTION_RE =
-    /(^|[\s,/|-])(accessories?|hats?|caps?|beanies?|t-shirts?|tees?|tee)([\s,/|-]|$)/i;
+  const VIEW_KEY = "ftw-viewed";
+  const UPSELL_COLLECTION_RE = /(^|[\s,/|-])accessories?([\s,/|-]|$)/i;
 
   function isUpsellAllowed(product) {
     const blob = [product.collections, product.handle, product.title].filter(Boolean).join(" ");
     return UPSELL_COLLECTION_RE.test(blob);
+  }
+
+  function rememberView(card) {
+    const handle = card?.dataset?.product || "";
+    if (!handle) return;
+    let list = [];
+    try {
+      const parsed = JSON.parse(sessionStorage.getItem(VIEW_KEY) || "[]");
+      if (Array.isArray(parsed)) list = parsed;
+    } catch (_) {}
+    list = list.filter((item) => item && item.handle !== handle);
+    list.unshift({
+      handle,
+      title: card.dataset.title || "",
+      collections: card.dataset.collections || "",
+      at: Date.now(),
+    });
+    try {
+      sessionStorage.setItem(VIEW_KEY, JSON.stringify(list.slice(0, 12)));
+    } catch (_) {}
+  }
+
+  function viewedHandles() {
+    try {
+      const parsed = JSON.parse(sessionStorage.getItem(VIEW_KEY) || "[]");
+      if (!Array.isArray(parsed)) return new Set();
+      return new Set(parsed.map((item) => item && item.handle).filter(Boolean));
+    } catch (_) {
+      return new Set();
+    }
+  }
+
+  function upsellCents(product) {
+    const stored = Number(product?.cents);
+    if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
+    const raw = String(product?.price || "")
+      .replace(/\s/g, "")
+      .replace(",", ".");
+    const amount = Number.parseFloat(raw.replace(/[^\d.]/g, ""));
+    if (!Number.isFinite(amount) || amount <= 0) return 0;
+    return Math.round(amount * 100);
   }
 
   function getUpsellPool() {
@@ -232,10 +273,44 @@
         price: card.dataset.price || "",
         image: card.dataset.image || "",
         collections: card.dataset.collections || "",
+        cents: upsellCents({ price: card.dataset.price || "" }),
         variantId: Number(card.dataset.variantId),
         available: true,
       }))
       .filter((p) => p.variantId && isUpsellAllowed(p));
+  }
+
+  function pickUpsells(pool, left) {
+    const seen = viewedHandles();
+    const ranked = pool.map((product) => ({
+      ...product,
+      cents: upsellCents(product),
+      viewed: seen.has(product.handle),
+    }));
+    const byView = (a, b) => {
+      if (a.viewed !== b.viewed) return a.viewed ? -1 : 1;
+      return 0;
+    };
+    if (left <= 0) {
+      return ranked.sort(byView);
+    }
+    const covers = ranked
+      .filter((product) => product.cents >= left)
+      .sort((a, b) => byView(a, b) || a.cents - b.cents);
+    const under = ranked
+      .filter((product) => product.cents > 0 && product.cents < left)
+      .sort((a, b) => byView(a, b) || b.cents - a.cents);
+    const rest = ranked.filter((product) => !covers.includes(product) && !under.includes(product));
+    return [...covers, ...under, ...rest];
+  }
+
+  function upsellNote(left, picks) {
+    if (left <= 0) return "SHIPPING'S FREE. STILL ROOM IN THE BAG.";
+    const short = formatMoney(left);
+    if (picks.some((product) => product.cents >= left)) {
+      return `${short} SHORT. ONE OF THESE MAKES SHIPPING FREE.`;
+    }
+    return `${short} LEFT. THESE CLOSE FREE SHIPPING.`;
   }
 
   function renderUpsell(cart) {
@@ -245,14 +320,16 @@
     const heading = (root.dataset.upsellHeading || "ADD THIS TOO").toUpperCase();
     const inCartIds = new Set((cart.items || []).map((i) => Number(i.product_id)));
     const inCartHandles = new Set((cart.items || []).map((i) => i.handle).filter(Boolean));
-    const picks = getUpsellPool()
-      .filter((p) => {
+    const left = Math.max(0, FREE_SHIP_CENTS - cartSubtotal(cart));
+    const picks = pickUpsells(
+      getUpsellPool().filter((p) => {
         if (p.available === false) return false;
         if (p.id && inCartIds.has(Number(p.id))) return false;
         if (p.handle && inCartHandles.has(p.handle)) return false;
         return true;
-      })
-      .slice(0, limit);
+      }),
+      left
+    ).slice(0, limit);
 
     if (!picks.length) {
       host.hidden = true;
@@ -263,10 +340,12 @@
     host.hidden = false;
     host.innerHTML = `
       <div class="ftw-upsell__head">${escapeHtml(heading)}</div>
+      <p class="ftw-upsell__note">${escapeHtml(upsellNote(left, picks))}</p>
       <div class="ftw-upsell__list">
         ${picks
-          .map(
-            (p) => `<div class="ftw-upsell__item">
+          .map((p) => {
+            const unlocks = left > 0 && p.cents >= left;
+            return `<div class="ftw-upsell__item">
             <div class="ftw-upsell__media">
               ${
                 p.image
@@ -276,11 +355,11 @@
             </div>
             <div class="ftw-upsell__meta">
               <div class="ftw-upsell__title">${escapeHtml(p.title)}</div>
-              <div class="ftw-upsell__price">${escapeHtml(p.price)}</div>
+              <div class="ftw-upsell__price">${escapeHtml(p.price)}${unlocks ? '<span class="ftw-upsell__tag">FREE SHIPPING</span>' : ""}</div>
             </div>
             <button type="button" class="ftw-upsell__add" data-upsell-add="${p.variantId}">+</button>
-          </div>`
-          )
+          </div>`;
+          })
           .join("")}
       </div>`;
   }
@@ -1496,6 +1575,7 @@
   function openSheet(card) {
     const sheet = $("#ftw-sheet");
     if (!sheet || !card) return;
+    rememberView(card);
 
     closeDrawers();
     setNavOpen(false);
