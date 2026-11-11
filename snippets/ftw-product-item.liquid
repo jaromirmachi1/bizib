@@ -67,6 +67,7 @@
   data-drop="{{ drop_key }}"
   data-created="{{ product.created_at | date: '%s' }}"
   data-price="{{ product.price | money | escape }}"
+  data-price-cents="{{ product.price }}"
   data-image="{{ img | escape }}"
   data-outfit-image="{{ outfit_img | escape }}"
   data-images="{{ images_json | strip | escape }}"

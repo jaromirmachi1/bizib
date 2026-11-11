@@ -206,10 +206,13 @@
   }
 
   const VIEW_KEY = "ftw-viewed";
-  const UPSELL_COLLECTION_RE = /(^|[\s,/|-])accessories?([\s,/|-]|$)/i;
+  const UPSELL_COLLECTION_RE =
+    /(^|[\s,/|&-])(accessor(?:y|ies)|socks?|t-shirts?|tees?|hats?|lifestyle)([\s,/|&-]|$)/i;
 
   function isUpsellAllowed(product) {
-    const blob = [product.collections, product.handle, product.title].filter(Boolean).join(" ");
+    const blob = [product.collections, product.handle, product.title, product.type, product.category]
+      .filter(Boolean)
+      .join(" ");
     return UPSELL_COLLECTION_RE.test(blob);
   }
 
@@ -273,7 +276,9 @@
         price: card.dataset.price || "",
         image: card.dataset.image || "",
         collections: card.dataset.collections || "",
-        cents: upsellCents({ price: card.dataset.price || "" }),
+        type: card.dataset.type || "",
+        category: card.dataset.category || "",
+        cents: Number(card.dataset.priceCents) || upsellCents({ price: card.dataset.price || "" }),
         variantId: Number(card.dataset.variantId),
         available: true,
       }))
