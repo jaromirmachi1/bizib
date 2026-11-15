@@ -451,8 +451,46 @@
         (function () {
           var grid = document.getElementById("ftw-grid");
           if (!grid) return;
+          function norm(value) {
+            return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          }
+          function tagsOf(card) {
+            return String(card.getAttribute("data-tags") || "").split(/[|,]/).map(function (tag) {
+              return tag.trim().toLowerCase();
+            }).filter(Boolean);
+          }
+          function isZip(card) {
+            var blob = norm((card.getAttribute("data-title") || "") + " " + (card.getAttribute("data-product") || ""));
+            return blob.indexOf("zip-hoodie") !== -1 || blob.indexOf("zip-mikin") !== -1;
+          }
+          function roadRank(card) {
+            var type = norm(card.getAttribute("data-type"));
+            var category = norm(card.getAttribute("data-category"));
+            var blob = norm((card.getAttribute("data-title") || "") + " " + (card.getAttribute("data-product") || "") + " " + category);
+            var zip = isZip(card);
+            if (type === "jackets" || type === "jacket" || category === "windbreakers" || category === "puffer-jackets") return 0;
+            if (!zip && (type === "hoodies-sweatshirts" || type === "hoodies" || type === "sweatshirts" || category === "hoodies" || category === "sweatshirts")) return 1;
+            if (category === "track-pants" || blob.indexOf("trackpant") !== -1 || blob.indexOf("track-pant") !== -1 || blob.indexOf("teplak") !== -1) return 2;
+            if ((type === "bottoms" || type === "bottom") && blob.indexOf("short") === -1 && category !== "cargo-shorts") return 2;
+            if (type === "t-shirts" || type === "t-shirt" || category === "t-shirts") return 3;
+            if (zip) return 4;
+            if (category === "beanies" || blob.indexOf("beanie") !== -1) return 5;
+            if (category === "balaclavas" || blob.indexOf("ski-mask") !== -1 || blob.indexOf("balaclava") !== -1 || blob.indexOf("kukl") !== -1) return 6;
+            if (category === "music-cds" || /(^|-)cds?($|-)/.test(blob)) return 7;
+            if (type === "accessories" && (blob.indexOf("sock") !== -1 || blob.indexOf("ponoz") !== -1)) return 8;
+            if (blob.indexOf("sock") !== -1 || blob.indexOf("ponoz") !== -1) return 8;
+            if (category === "gas-lighters" || blob.indexOf("lighter") !== -1 || blob.indexOf("zapik") !== -1) return 9;
+            return 10;
+          }
           var cards = Array.prototype.slice.call(grid.querySelectorAll(".ftw-product"));
           cards.sort(function (a, b) {
+            var roadA = tagsOf(a).indexOf("road") !== -1;
+            var roadB = tagsOf(b).indexOf("road") !== -1;
+            if (roadA !== roadB) return roadA ? -1 : 1;
+            if (roadA) {
+              var rank = roadRank(a) - roadRank(b);
+              if (rank) return rank;
+            }
             return Number(b.getAttribute("data-created") || 0) - Number(a.getAttribute("data-created") || 0);
           });
           cards.forEach(function (card) {

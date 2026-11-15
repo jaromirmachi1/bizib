@@ -1248,6 +1248,7 @@
       data-title="${escapeHtml(title)}"
       data-collections="${escapeHtml(collections || "")}"
       data-type="${escapeHtml(type)}"
+      data-tags="${escapeHtml((product.tags || []).join("|"))}"
       data-drop="new"
       data-created="${created}"
       data-price="${escapeHtml(price)}"
@@ -1312,7 +1313,7 @@
     const have = grid ? $$(".ftw-product", grid).length : 0;
     const needsMore = Boolean(grid) && !isLocal && total > have;
     const finish = (added) => {
-      if (added || !grid?.dataset.sorted) sortGridByNewest();
+      sortGridByNewest();
       if (grid) {
         grid.dataset.sorted = "1";
         grid.classList.remove("is-booting");
@@ -1328,11 +1329,53 @@
     hydrateCatalog().finally(() => finish(true));
   }
 
+  function cardTags(card) {
+    return String(card?.dataset?.tags || "")
+      .split(/[|,]/)
+      .map((tag) => tag.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  function isRoadDrop(card) {
+    return cardTags(card).includes("road");
+  }
+
+  function isZipHoodie(card) {
+    const blob = normalize(`${card?.dataset?.title || ""} ${card?.dataset?.product || ""}`);
+    return blob.includes("zip-hoodie") || blob.includes("zip-mikin");
+  }
+
+  function roadRank(card) {
+    const types = productTypeKeys(card);
+    const blob = normalize(`${card?.dataset?.title || ""} ${card?.dataset?.product || ""} ${card?.dataset?.category || ""}`);
+    const zip = isZipHoodie(card);
+    if (types.has("jackets") || types.has("windbreakers") || types.has("puffer-jackets")) return 0;
+    if (!zip && (types.has("hoodies-sweatshirts") || types.has("sweatshirts"))) return 1;
+    if (types.has("track-pants") || blob.includes("trackpant") || blob.includes("track-pant") || blob.includes("teplak")) return 2;
+    if (types.has("bottoms") && !blob.includes("short") && !types.has("cargo-shorts")) return 2;
+    if (types.has("t-shirts")) return 3;
+    if (zip) return 4;
+    if (types.has("beanies") || blob.includes("beanie")) return 5;
+    if (types.has("balaclavas") || blob.includes("ski-mask") || blob.includes("balaclava") || blob.includes("kukl")) return 6;
+    if (types.has("music-cds") || /(^|-)cds?($|-)/.test(blob)) return 7;
+    if (types.has("socks") || types.has("sock") || types.has("ponozky") || blob.includes("sock") || blob.includes("ponoz")) return 8;
+    if (types.has("gas-lighters") || blob.includes("lighter") || blob.includes("zapik")) return 9;
+    return 10;
+  }
+
   function sortGridByNewest() {
     const grid = $("#ftw-grid", root);
     if (!grid) return;
     $$(".ftw-product", grid)
-      .sort((a, b) => Number(b.dataset.created || 0) - Number(a.dataset.created || 0))
+      .sort((a, b) => {
+        const road = Number(isRoadDrop(b)) - Number(isRoadDrop(a));
+        if (road) return road;
+        if (isRoadDrop(a)) {
+          const rank = roadRank(a) - roadRank(b);
+          if (rank) return rank;
+        }
+        return Number(b.dataset.created || 0) - Number(a.dataset.created || 0);
+      })
       .forEach((card) => grid.appendChild(card));
   }
 
