@@ -90,13 +90,13 @@
         "announce_3",
         "announce_4",
         "cat_jackets",
-        "cat_bottoms",
-        "cat_hats",
         "cat_hoodies",
+        "cat_bottoms",
         "cat_tees",
-        "cat_womens",
+        "cat_hats",
         "cat_lifestyle",
-        "cat_accessories"
+        "cat_accessories",
+        "cat_womens"
       ],
       "settings": {
         "collection_live": "2026",

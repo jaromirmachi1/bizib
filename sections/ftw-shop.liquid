@@ -254,7 +254,7 @@
           {%- endif -%}
         {%- endfor -%}
         {%- if ftw_cat_count == 0 -%}
-          {%- assign ftw_fallback_cats = 'Jackets:jackets|Bottoms:bottoms|Hats:hats|Hoodies & Sweatshirts:hoodies-sweatshirts|T-Shirts:t-shirts|Womens:womens|Lifestyle:lifestyle|Accessories:accessories' | split: '|' -%}
+          {%- assign ftw_fallback_cats = 'Jackets:jackets|Hoodies & Sweatshirts:hoodies-sweatshirts|Bottoms:bottoms|T-Shirts:t-shirts|Hats:hats|Lifestyle:lifestyle|Accessories:accessories|Womens:womens' | split: '|' -%}
           {%- for entry in ftw_fallback_cats -%}
             {%- assign parts = entry | split: ':' -%}
             {%- assign cat_label = parts[0] -%}
@@ -273,7 +273,6 @@
             </button>
           {%- endfor -%}
         {%- endif -%}
-        <button type="button" data-ftw-filter="archive">ARCHIVE</button>
       </nav>
 
       <div class="ftw-side__bar">
@@ -364,7 +363,6 @@
         </div>
         <div class="ftw-side__links">
           <a class="ftw-link-contact" href="{{ pages.contact.url | default: '/pages/contact' }}">CONTACT</a>
-          <button type="button" data-ftw-filter="archive">ARCHIVE</button>
           <button type="button" data-ftw-contact>NEWSLETTER</button>
           <a href="/policies/privacy-policy">PRIVACY POLICY</a>
           <a href="/policies/terms-of-service">TERMS OF SERVICE</a>
@@ -499,7 +497,6 @@
         <a class="ftw-link-contact" href="{{ pages.contact.url | default: '/pages/contact' }}">CONTACT</a>
         <a href="{{ ig }}" target="_blank" rel="noopener">INSTAGRAM</a>
         <button type="button" data-ftw-account aria-expanded="false" aria-controls="ftw-account">ACCOUNT</button>
-        <button type="button" data-ftw-filter="archive">ARCHIVE</button>
         <button type="button" data-ftw-contact>NEWSLETTER</button>
         <a href="/policies/privacy-policy">PRIVACY POLICY</a>
         <a href="/policies/terms-of-service">TERMS OF SERVICE</a>
@@ -1015,13 +1012,13 @@
         { "type": "announce", "settings": { "text": "EU INTERNATIONAL SHIPPING" } },
         { "type": "announce", "settings": { "text": "FOLLOW @BIZIBOIZ" } },
         { "type": "category", "settings": { "label": "JACKETS" } },
-        { "type": "category", "settings": { "label": "BOTTOMS" } },
-        { "type": "category", "settings": { "label": "HATS" } },
         { "type": "category", "settings": { "label": "HOODIES & SWEATSHIRTS" } },
+        { "type": "category", "settings": { "label": "BOTTOMS" } },
         { "type": "category", "settings": { "label": "T-SHIRTS" } },
-        { "type": "category", "settings": { "label": "WOMENS" } },
+        { "type": "category", "settings": { "label": "HATS" } },
         { "type": "category", "settings": { "label": "LIFESTYLE" } },
-        { "type": "category", "settings": { "label": "ACCESSORIES" } }
+        { "type": "category", "settings": { "label": "ACCESSORIES" } },
+        { "type": "category", "settings": { "label": "WOMENS" } }
       ]
     }
   ]

@@ -588,7 +588,9 @@ html[data-ftw-theme="dark"] .ftw-top__logo img.ftw-logo__dark {
   visibility: hidden;
 }
 
-[data-ftw-filter="archive"] {
+.ftw-cats button[data-ftw-filter="archive"],
+.ftw-side__links button[data-ftw-filter="archive"],
+.ftw-footer button[data-ftw-filter="archive"] {
   display: none;
 }
 
