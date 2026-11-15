@@ -451,8 +451,31 @@
         (function () {
           var grid = document.getElementById("ftw-grid");
           if (!grid) return;
+          var order = ["jackets","hoodies-sweatshirts","bottoms","t-shirts","hats","lifestyle","accessories","womens"];
+          var alias = {
+            jacket: "jackets", "puffer-jackets": "jackets", "puffer-jacket": "jackets", puffers: "jackets", puffer: "jackets", windbreakers: "jackets",
+            hoodie: "hoodies-sweatshirts", hoodies: "hoodies-sweatshirts", sweatshirt: "hoodies-sweatshirts", sweatshirts: "hoodies-sweatshirts", crewneck: "hoodies-sweatshirts", crewnecks: "hoodies-sweatshirts",
+            "t-shirt": "t-shirts", tshirts: "t-shirts", shirts: "t-shirts", shirt: "t-shirts", "tank-tops": "t-shirts", "tank-top": "t-shirts",
+            hat: "hats", beanies: "hats", balaclavas: "hats", "trucker-hats": "hats", "snapback-caps": "hats",
+            bottom: "bottoms", "track-pants": "bottoms", "cargo-shorts": "bottoms",
+            accessory: "accessories", "gas-lighters": "accessories", socks: "accessories", sock: "accessories", ponozky: "accessories",
+            "music-cds": "lifestyle", women: "womens"
+          };
+          function menuKey(value) {
+            var handle = String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            return alias[handle] || handle;
+          }
+          function menuRank(card) {
+            var typeRank = order.indexOf(menuKey(card.getAttribute("data-type")));
+            if (typeRank !== -1) return typeRank;
+            var categoryRank = order.indexOf(menuKey(card.getAttribute("data-category")));
+            if (categoryRank !== -1) return categoryRank;
+            return order.length;
+          }
           var cards = Array.prototype.slice.call(grid.querySelectorAll(".ftw-product"));
           cards.sort(function (a, b) {
+            var rank = menuRank(a) - menuRank(b);
+            if (rank) return rank;
             return Number(b.getAttribute("data-created") || 0) - Number(a.getAttribute("data-created") || 0);
           });
           cards.forEach(function (card) {

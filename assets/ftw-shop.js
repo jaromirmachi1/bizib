@@ -1084,6 +1084,51 @@
     return alts.some((alias) => cols.includes(alias));
   }
 
+  const MENU_ORDER = [
+    "jackets",
+    "hoodies-sweatshirts",
+    "bottoms",
+    "t-shirts",
+    "hats",
+    "lifestyle",
+    "accessories",
+    "womens",
+  ];
+
+  const CATEGORY_MENU = {
+    windbreakers: "jackets",
+    "puffer-jackets": "jackets",
+    "track-pants": "bottoms",
+    "cargo-shorts": "bottoms",
+    beanies: "hats",
+    balaclavas: "hats",
+    "trucker-hats": "hats",
+    "snapback-caps": "hats",
+    "music-cds": "lifestyle",
+    "gas-lighters": "accessories",
+    socks: "accessories",
+    sock: "accessories",
+    ponozky: "accessories",
+  };
+
+  function menuKey(value) {
+    const handle = normalize(value);
+    if (!handle) return "";
+    return CATEGORY_MENU[handle] || TYPE_FILTER[handle] || handle;
+  }
+
+  function menuRank(card) {
+    const typeRank = MENU_ORDER.indexOf(menuKey(card?.dataset?.type));
+    if (typeRank !== -1) return typeRank;
+    const categoryRank = MENU_ORDER.indexOf(menuKey(card?.dataset?.category));
+    if (categoryRank !== -1) return categoryRank;
+    const cols = productCollections(card);
+    for (let i = 0; i < MENU_ORDER.length; i += 1) {
+      if (matchesCategory(cols, MENU_ORDER[i], card)) return i;
+    }
+    return MENU_ORDER.length;
+  }
+
   const productFitCache = new Map();
 
   function productContentBounds(img) {
@@ -1312,7 +1357,7 @@
     const have = grid ? $$(".ftw-product", grid).length : 0;
     const needsMore = Boolean(grid) && !isLocal && total > have;
     const finish = (added) => {
-      if (added || !grid?.dataset.sorted) sortGridByNewest();
+      sortGridByMenu();
       if (grid) {
         grid.dataset.sorted = "1";
         grid.classList.remove("is-booting");
@@ -1328,11 +1373,15 @@
     hydrateCatalog().finally(() => finish(true));
   }
 
-  function sortGridByNewest() {
+  function sortGridByMenu() {
     const grid = $("#ftw-grid", root);
     if (!grid) return;
     $$(".ftw-product", grid)
-      .sort((a, b) => Number(b.dataset.created || 0) - Number(a.dataset.created || 0))
+      .sort((a, b) => {
+        const rank = menuRank(a) - menuRank(b);
+        if (rank) return rank;
+        return Number(b.dataset.created || 0) - Number(a.dataset.created || 0);
+      })
       .forEach((card) => grid.appendChild(card));
   }
 
